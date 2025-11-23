@@ -1,17 +1,27 @@
 import { GoogleGenAI } from "@google/genai";
 import { Transaction, User } from '../types';
 
-// Initialize Gemini Client
-// NOTE: In a real production app, API keys should be proxy-ed through a backend.
-// For this demo, we assume process.env.API_KEY is available.
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-
 export const getAIResponse = async (
   userQuery: string,
   userContext: User,
   transactionHistory: Transaction[]
 ): Promise<string> => {
   try {
+    // Safely check for API Key. In browser environments like this without a bundler shim, 
+    // accessing process.env directly at the top level can cause a ReferenceError.
+    // We check if process is defined first.
+    // @ts-ignore
+    const apiKey = (typeof process !== 'undefined' && process.env && process.env.API_KEY) 
+      ? process.env.API_KEY 
+      : '';
+      
+    if (!apiKey) {
+        console.warn("Gemini API Key is missing. AI features will not work.");
+        return "দুঃখিত, বর্তমানে এআই সেবাটি উপলব্ধ নেই। (API Key Missing)";
+    }
+
+    // Initialize Gemini Client Lazily
+    const ai = new GoogleGenAI({ apiKey: apiKey });
     const model = 'gemini-2.5-flash';
     
     const historySummary = transactionHistory.map(t => 
