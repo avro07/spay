@@ -28,7 +28,7 @@ export const getAIResponse = async (
       `- ${t.date}: ${t.type} of ${t.amount} BDT to/from ${t.recipientName || 'Unknown'} (${t.description || ''})`
     ).join('\n');
 
-    const systemInstruction = `You are 'DeshPay Assistant', a helpful AI support agent for a Bangladeshi mobile financial app.
+    const systemInstruction = `You are 'SPay Assistant', a helpful AI support agent for a Bangladeshi mobile financial app.
       
       Current User Context:
       - Name: ${userContext.name}

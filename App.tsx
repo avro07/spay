@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, ChevronRight, ArrowUpRight, CreditCard, Wallet, X, Bell, Shield, Settings as SettingsIcon } from 'lucide-react';
+import { ArrowLeft, ChevronRight, ArrowUpRight, CreditCard, Wallet, X, Bell, Shield, Settings as SettingsIcon, FileText, Landmark } from 'lucide-react';
 import BalanceHeader from './components/BalanceHeader';
 import ActionGrid from './components/ActionGrid';
 import BottomNav from './components/BottomNav';
@@ -21,8 +21,8 @@ const App: React.FC = () => {
     securityAlerts: true
   });
 
-  // Send Money Flow State
-  const [sendMoneyStep, setSendMoneyStep] = useState(1);
+  // Transaction Flow State
+  const [transactionStep, setTransactionStep] = useState(1);
   const [formData, setFormData] = useState<SendMoneyFormData>({
     recipient: '',
     amount: '',
@@ -44,13 +44,20 @@ const App: React.FC = () => {
       case AppScreen.TRANSACTIONS:
         color = '#f8f9fa'; // Matches transaction screen background
         break;
-      case AppScreen.SEND_MONEY:
-      case AppScreen.SETTINGS:
-      case AppScreen.SUCCESS:
-        color = '#ffffff'; // White for standard screens
-        break;
       case AppScreen.AI_CHAT:
         color = '#000000'; // Dark overlay
+        break;
+      case AppScreen.SETTINGS:
+      case AppScreen.SUCCESS:
+      case AppScreen.SEND_MONEY:
+      case AppScreen.CASH_OUT:
+      case AppScreen.MOBILE_RECHARGE:
+      case AppScreen.PAYMENT:
+      case AppScreen.ADD_MONEY:
+      case AppScreen.REQUEST_MONEY:
+      case AppScreen.PAY_BILL:
+      case AppScreen.TRANSFER_TO_BANK:
+        color = '#ffffff'; // White for standard screens
         break;
       default:
         color = '#e11d48';
@@ -63,36 +70,71 @@ const App: React.FC = () => {
     }
   }, [currentScreen]);
 
+  // Configuration for different transaction types
+  const getScreenConfig = () => {
+    switch (currentScreen) {
+      case AppScreen.SEND_MONEY:
+        return { title: 'সেন্ড মানি', label: 'প্রাপক নম্বর', type: 'SEND_MONEY' as const, operatorPrefix: true };
+      case AppScreen.CASH_OUT:
+        return { title: 'ক্যাশ আউট', label: 'এজেন্ট নম্বর', type: 'CASH_OUT' as const, operatorPrefix: true };
+      case AppScreen.MOBILE_RECHARGE:
+        return { title: 'মোবাইল রিচার্জ', label: 'মোবাইল নম্বর', type: 'MOBILE_RECHARGE' as const, operatorPrefix: true };
+      case AppScreen.PAYMENT:
+        return { title: 'পেমেন্ট', label: 'মার্চেন্ট নম্বর/নাম', type: 'PAYMENT' as const, operatorPrefix: false };
+      case AppScreen.ADD_MONEY:
+        return { title: 'অ্যাড মানি', label: 'ব্যাংক/কার্ড নম্বর', type: 'ADD_MONEY' as const, operatorPrefix: false };
+      case AppScreen.PAY_BILL:
+        return { title: 'পে বিল', label: 'বিল নম্বর/অ্যাকাউন্ট', type: 'PAY_BILL' as const, operatorPrefix: false };
+      case AppScreen.TRANSFER_TO_BANK:
+        return { title: 'SPay টু ব্যাংক', label: 'ব্যাংক অ্যাকাউন্ট নম্বর', type: 'TRANSFER_TO_BANK' as const, operatorPrefix: false };
+      case AppScreen.REQUEST_MONEY:
+        return { title: 'রিকোয়েস্ট মানি', label: 'প্রাপক নম্বর', type: 'REQUEST_MONEY' as const, operatorPrefix: true };
+      default:
+        return { title: 'লেনদেন', label: 'প্রাপক', type: 'SEND_MONEY' as const, operatorPrefix: true };
+    }
+  };
+
   // Utility to handle back navigation
   const handleBack = () => {
-    if (currentScreen === AppScreen.SEND_MONEY && sendMoneyStep > 1) {
-      setSendMoneyStep(prev => prev - 1);
+    if (transactionStep > 1) {
+      setTransactionStep(prev => prev - 1);
     } else {
       setCurrentScreen(AppScreen.HOME);
-      setSendMoneyStep(1);
+      setTransactionStep(1);
       setFormData({ recipient: '', amount: '', reference: '', pin: '' });
     }
   };
 
-  // Logic to execute send money
+  // Logic to execute transaction
   const executeTransaction = () => {
+    const config = getScreenConfig();
     const amount = parseFloat(formData.amount);
-    if (amount > user.balance) {
+    
+    // Balance check for debit transactions
+    if (config.type !== 'ADD_MONEY' && config.type !== 'REQUEST_MONEY' && amount > user.balance) {
        alert('অপর্যাপ্ত ব্যালেন্স');
        return;
     }
 
     const newTxn: Transaction = {
       id: `TXN${Date.now()}`,
-      type: 'SEND_MONEY',
+      type: config.type,
       amount: amount,
       recipientName: formData.recipient,
       date: 'এইমাত্র',
-      description: formData.reference || 'সেন্ড মানি'
+      description: formData.reference || config.title
     };
 
     setTransactions([newTxn, ...transactions]);
-    setUser(prev => ({ ...prev, balance: prev.balance - amount }));
+    
+    // Update balance
+    if (config.type === 'ADD_MONEY') {
+        setUser(prev => ({ ...prev, balance: prev.balance + amount }));
+    } else if (config.type !== 'REQUEST_MONEY') {
+        // Request Money doesn't deduct balance immediately in this simulation
+        setUser(prev => ({ ...prev, balance: prev.balance - amount }));
+    }
+
     setCurrentScreen(AppScreen.SUCCESS);
   };
 
@@ -160,9 +202,13 @@ const App: React.FC = () => {
                             : 'bg-rose-100/40 text-rose-600'}
                     `}>
                         {txn.type === 'SEND_MONEY' && <ArrowUpRight size={24} />}
+                        {txn.type === 'CASH_OUT' && <ArrowUpRight size={24} />}
                         {txn.type === 'MOBILE_RECHARGE' && <Wallet size={24} />}
                         {(txn.type === 'RECEIVED_MONEY' || txn.type === 'ADD_MONEY') && <ArrowUpRight size={24} className="rotate-180" />}
                         {txn.type === 'PAYMENT' && <CreditCard size={24} />}
+                        {txn.type === 'PAY_BILL' && <FileText size={24} />}
+                        {txn.type === 'TRANSFER_TO_BANK' && <Landmark size={24} />}
+                        {txn.type === 'REQUEST_MONEY' && <ArrowUpRight size={24} className="rotate-180 text-orange-500" />}
                     </div>
                     <div>
                         <p className="text-sm font-bold text-gray-800 line-clamp-1 group-hover:text-rose-600 transition-colors">{txn.recipientName}</p>
@@ -170,8 +216,8 @@ const App: React.FC = () => {
                     </div>
                 </div>
                 <div className="text-right">
-                    <p className={`text-base font-bold font-mono tracking-tight ${txn.type === 'RECEIVED_MONEY' || txn.type === 'ADD_MONEY' ? 'text-emerald-600' : 'text-gray-900'}`}>
-                    {txn.type === 'RECEIVED_MONEY' || txn.type === 'ADD_MONEY' ? '+' : '-'}৳{txn.amount.toLocaleString('bn-BD')}
+                    <p className={`text-base font-bold font-mono tracking-tight ${['RECEIVED_MONEY', 'ADD_MONEY'].includes(txn.type) ? 'text-emerald-600' : 'text-gray-900'}`}>
+                    {['RECEIVED_MONEY', 'ADD_MONEY'].includes(txn.type) ? '+' : '-'}৳{txn.amount.toLocaleString('bn-BD')}
                     </p>
                 </div>
                 </div>
@@ -229,17 +275,20 @@ const App: React.FC = () => {
     </div>
   );
 
-  const renderSendMoney = () => (
+  const renderTransactionFlow = () => {
+    const config = getScreenConfig();
+    
+    return (
     <div className="flex flex-col h-full bg-gray-50 animate-in slide-in-from-right duration-300">
       <div className="bg-white px-4 pb-4 pt-[calc(env(safe-area-inset-top)+1rem)] flex items-center justify-between shadow-sm sticky top-0 z-20">
         <div className="flex items-center">
             <button onClick={handleBack} className="p-2 hover:bg-gray-100 rounded-full mr-2 -ml-2 transition-colors">
             <ArrowLeft className="text-gray-700 w-6 h-6" />
             </button>
-            <h1 className="font-bold text-xl text-gray-800">সেন্ড মানি</h1>
+            <h1 className="font-bold text-xl text-gray-800">{config.title}</h1>
         </div>
         <div className="w-8 h-8 rounded-full bg-rose-50 flex items-center justify-center text-rose-600 font-bold text-xs">
-            {sendMoneyStep}/3
+            {transactionStep}/3
         </div>
       </div>
 
@@ -248,18 +297,18 @@ const App: React.FC = () => {
          <div className="w-full bg-gray-200 h-1.5 rounded-full mb-8 overflow-hidden">
             <div 
                 className="h-full bg-rose-600 transition-all duration-500 ease-out rounded-full" 
-                style={{ width: `${(sendMoneyStep / 3) * 100}%` }}
+                style={{ width: `${(transactionStep / 3) * 100}%` }}
             ></div>
          </div>
 
          <div className="bg-white p-6 rounded-3xl shadow-[0_10px_40px_-15px_rgba(0,0,0,0.05)] border border-gray-100">
-           {sendMoneyStep === 1 && (
+           {transactionStep === 1 && (
              <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-               <label className="block text-sm font-semibold text-gray-600 mb-3">প্রাপক নম্বর</label>
+               <label className="block text-sm font-semibold text-gray-600 mb-3">{config.label}</label>
                <div className="relative">
                  <input 
                     type="tel" 
-                    placeholder="01XXXXXXXXX"
+                    placeholder={config.operatorPrefix ? "01XXXXXXXXX" : ""}
                     value={formData.recipient}
                     onChange={e => setFormData({...formData, recipient: e.target.value})}
                     className="w-full text-xl font-semibold border-b-2 border-gray-200 focus:border-rose-500 outline-none py-3 px-1 placeholder-gray-300 bg-transparent text-gray-800 transition-colors"
@@ -273,8 +322,8 @@ const App: React.FC = () => {
                </div>
                <div className="mt-8">
                 <button 
-                    onClick={() => formData.recipient.length > 10 && setSendMoneyStep(2)}
-                    disabled={formData.recipient.length < 11}
+                    onClick={() => formData.recipient.length > 3 && setTransactionStep(2)}
+                    disabled={formData.recipient.length < 3}
                     className="w-full bg-rose-600 text-white py-4 rounded-2xl font-bold shadow-lg shadow-rose-200 hover:shadow-xl hover:bg-rose-700 active:scale-[0.98] transition-all disabled:opacity-50 disabled:shadow-none"
                 >
                     পরবর্তী ধাপ
@@ -283,7 +332,7 @@ const App: React.FC = () => {
              </div>
            )}
 
-           {sendMoneyStep === 2 && (
+           {transactionStep === 2 && (
              <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
                <div className="flex items-center justify-between mb-8 bg-rose-50 p-4 rounded-2xl border border-rose-100">
                  <div className="flex items-center space-x-3">
@@ -291,11 +340,11 @@ const App: React.FC = () => {
                         {formData.recipient.substring(0,2)}
                     </div>
                     <div>
-                        <div className="text-xs text-gray-500 font-medium">প্রাপক</div>
-                        <div className="font-bold text-gray-800">{formData.recipient}</div>
+                        <div className="text-xs text-gray-500 font-medium">{config.label === 'প্রাপক নম্বর' ? 'প্রাপক' : config.label}</div>
+                        <div className="font-bold text-gray-800 line-clamp-1 break-all">{formData.recipient}</div>
                     </div>
                  </div>
-                 <button onClick={() => setSendMoneyStep(1)} className="text-rose-600 text-xs font-bold px-3 py-1 bg-white rounded-full shadow-sm">পরিবর্তন</button>
+                 <button onClick={() => setTransactionStep(1)} className="text-rose-600 text-xs font-bold px-3 py-1 bg-white rounded-full shadow-sm shrink-0">পরিবর্তন</button>
                </div>
                
                <label className="block text-center text-sm font-medium text-gray-500 mb-4">টাকার পরিমাণ দিন</label>
@@ -326,7 +375,7 @@ const App: React.FC = () => {
                </div>
 
                <button 
-                 onClick={() => Number(formData.amount) > 0 && setSendMoneyStep(3)}
+                 onClick={() => Number(formData.amount) > 0 && setTransactionStep(3)}
                  disabled={!formData.amount || Number(formData.amount) <= 0}
                  className="w-full bg-rose-600 text-white py-4 rounded-2xl font-bold shadow-lg shadow-rose-200 hover:shadow-xl hover:bg-rose-700 active:scale-[0.98] transition-all disabled:opacity-50 disabled:shadow-none"
                >
@@ -335,12 +384,12 @@ const App: React.FC = () => {
              </div>
            )}
 
-           {sendMoneyStep === 3 && (
+           {transactionStep === 3 && (
              <div className="text-center animate-in fade-in slide-in-from-bottom-4 duration-500">
                <div className="mb-6 text-left bg-gray-50 p-5 rounded-2xl space-y-3 border border-gray-100 relative overflow-hidden">
                  <div className="absolute top-0 right-0 w-20 h-20 bg-rose-100 rounded-full -mr-10 -mt-10 opacity-50"></div>
                  
-                 <div className="flex justify-between text-sm text-gray-600 relative z-10"><span>প্রাপক</span> <span className="font-bold text-gray-800 font-mono">{formData.recipient}</span></div>
+                 <div className="flex justify-between text-sm text-gray-600 relative z-10"><span>প্রাপক/হিসাব</span> <span className="font-bold text-gray-800 font-mono break-all pl-2">{formData.recipient}</span></div>
                  <div className="flex justify-between text-sm text-gray-600 relative z-10"><span>পরিমাণ</span> <span className="font-bold text-gray-800 font-mono">৳ {formData.amount}</span></div>
                  <div className="flex justify-between text-sm text-gray-600 relative z-10"><span>চার্জ</span> <span className="font-bold text-emerald-600">ফ্রি</span></div>
                  <div className="my-2 border-t border-gray-200 border-dashed"></div>
@@ -360,7 +409,7 @@ const App: React.FC = () => {
                </div>
 
                {formData.pin.length >= 4 ? (
-                  <HoldToConfirm onConfirm={executeTransaction} />
+                  <HoldToConfirm onConfirm={executeTransaction} label="নিশ্চিত করতে ধরে রাখুন" />
                ) : (
                  <div className="h-24 flex items-center justify-center">
                      <p className="text-gray-400 text-sm bg-gray-100 px-4 py-2 rounded-full">লেনদেন নিশ্চিত করতে পিন দিন</p>
@@ -371,9 +420,11 @@ const App: React.FC = () => {
          </div>
       </div>
     </div>
-  );
+  )};
 
-  const renderSuccess = () => (
+  const renderSuccess = () => {
+     const config = getScreenConfig();
+     return (
      <div className="flex flex-col items-center justify-center h-full bg-white p-8 animate-in zoom-in duration-500">
         <div className="relative mb-8">
             <div className="absolute inset-0 bg-emerald-200 rounded-full blur-xl opacity-50 animate-pulse"></div>
@@ -388,19 +439,19 @@ const App: React.FC = () => {
         
         <h2 className="text-3xl font-black text-gray-800 mb-2">সফল হয়েছে!</h2>
         <p className="text-gray-500 mb-10 text-center max-w-[250px] leading-relaxed">
-            আপনার <span className="font-bold text-gray-800">৳{formData.amount}</span> সেন্ড মানি সফলভাবে সম্পন্ন হয়েছে।
+            আপনার <span className="font-bold text-gray-800">৳{formData.amount}</span> {config.title} সফলভাবে সম্পন্ন হয়েছে।
         </p>
         
         <div className="w-full bg-gray-50 rounded-2xl p-6 mb-8 border border-gray-100 relative overflow-hidden">
            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-emerald-400 to-teal-500"></div>
-           <div className="flex justify-between mb-3"><span className="text-gray-500 text-sm">প্রাপক</span> <span className="font-bold text-gray-800">{formData.recipient}</span></div>
+           <div className="flex justify-between mb-3"><span className="text-gray-500 text-sm">প্রাপক/হিসাব</span> <span className="font-bold text-gray-800">{formData.recipient}</span></div>
            <div className="flex justify-between mb-3"><span className="text-gray-500 text-sm">ট্রানজেকশন আইডি</span> <span className="font-mono font-bold text-gray-800 text-xs bg-white px-2 py-1 rounded border border-gray-200">{transactions[0].id}</span></div>
            <div className="flex justify-between"><span className="text-gray-500 text-sm">সময়</span> <span className="font-bold text-gray-800 text-sm">{transactions[0].date}</span></div>
         </div>
 
         <button 
           onClick={() => {
-            setSendMoneyStep(1);
+            setTransactionStep(1);
             setFormData({ recipient: '', amount: '', reference: '', pin: '' });
             setCurrentScreen(AppScreen.HOME);
           }}
@@ -409,7 +460,7 @@ const App: React.FC = () => {
           হোম এ ফিরে যান
         </button>
      </div>
-  );
+  )};
 
   const renderTransactions = () => (
     <div className="flex flex-col h-full bg-[#f8f9fa] animate-in fade-in relative overflow-hidden">
@@ -434,7 +485,7 @@ const App: React.FC = () => {
               <div className="flex items-center space-x-4">
                  <div className={`
                     w-12 h-12 rounded-full flex items-center justify-center border shadow-sm
-                    ${txn.type === 'RECEIVED_MONEY' || txn.type === 'ADD_MONEY' ? 'bg-emerald-50/80 border-emerald-100 text-emerald-600' : 'bg-gray-50/80 border-gray-200 text-gray-500'}
+                    ${['RECEIVED_MONEY', 'ADD_MONEY'].includes(txn.type) ? 'bg-emerald-50/80 border-emerald-100 text-emerald-600' : 'bg-gray-50/80 border-gray-200 text-gray-500'}
                  `}>
                     <span className="font-bold text-sm">{txn.recipientName?.substring(0,2) || 'Tx'}</span>
                  </div>
@@ -520,7 +571,7 @@ const App: React.FC = () => {
 
              {/* Version Info */}
             <div className="text-center mt-8">
-                <p className="text-gray-400 text-xs">DeshPay অ্যাপ ভার্সন ১.০.০</p>
+                <p className="text-gray-400 text-xs">SPay অ্যাপ ভার্সন ১.০.০</p>
             </div>
         </div>
       </div>
@@ -534,7 +585,16 @@ const App: React.FC = () => {
         {/* Screen Content */}
         <div className="flex-1 overflow-y-auto scroll-smooth no-scrollbar">
           {currentScreen === AppScreen.HOME && renderHome()}
-          {currentScreen === AppScreen.SEND_MONEY && renderSendMoney()}
+          {[
+            AppScreen.SEND_MONEY, 
+            AppScreen.CASH_OUT, 
+            AppScreen.MOBILE_RECHARGE, 
+            AppScreen.PAYMENT, 
+            AppScreen.ADD_MONEY,
+            AppScreen.REQUEST_MONEY,
+            AppScreen.PAY_BILL,
+            AppScreen.TRANSFER_TO_BANK
+          ].includes(currentScreen) && renderTransactionFlow()}
           {currentScreen === AppScreen.TRANSACTIONS && renderTransactions()}
           {currentScreen === AppScreen.SUCCESS && renderSuccess()}
           {currentScreen === AppScreen.SETTINGS && renderSettings()}

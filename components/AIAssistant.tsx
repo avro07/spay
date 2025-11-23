@@ -21,7 +21,7 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ user, transactions, onClose }
   const [messages, setMessages] = useState<Message[]>([
     {
       id: '1',
-      text: `হ্যালো ${user.name}! আমি দেশপে অ্যাসিস্ট্যান্ট। আপনার লেনদেন বা অফার সম্পর্কে কিছু জানতে চান?`,
+      text: `হ্যালো ${user.name}! আমি SPay অ্যাসিস্ট্যান্ট। আপনার লেনদেন বা অফার সম্পর্কে কিছু জানতে চান?`,
       sender: 'ai',
       timestamp: new Date()
     }

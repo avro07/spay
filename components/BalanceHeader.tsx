@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Bell, Search, ChevronRight } from 'lucide-react';
 import { User } from '../types';
@@ -59,7 +58,7 @@ const BalanceHeader: React.FC<BalanceHeaderProps> = ({ user, onProfileClick }) =
                         </h2>
                         <div className="flex items-center mt-0.5">
                             <span className="bg-white/10 backdrop-blur-md px-2 py-0.5 rounded-full text-[10px] font-semibold text-white/90 border border-white/10 shadow-sm">
-                            DeshPay গোল্ড মেম্বার
+                            SPay গোল্ড মেম্বার
                             </span>
                         </div>
                     </div>

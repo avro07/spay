@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { QUICK_ACTIONS } from '../constants';
 import { AppScreen } from '../types';
@@ -16,7 +17,16 @@ const ActionGrid: React.FC<ActionGridProps> = ({ onNavigate }) => {
             <button 
               key={action.id}
               onClick={() => {
-                if (action.id === 'send') onNavigate(AppScreen.SEND_MONEY);
+                switch(action.id) {
+                  case 'send': onNavigate(AppScreen.SEND_MONEY); break;
+                  case 'cashout': onNavigate(AppScreen.CASH_OUT); break;
+                  case 'recharge': onNavigate(AppScreen.MOBILE_RECHARGE); break;
+                  case 'payment': onNavigate(AppScreen.PAYMENT); break;
+                  case 'addmoney': onNavigate(AppScreen.ADD_MONEY); break;
+                  case 'paybill': onNavigate(AppScreen.PAY_BILL); break;
+                  case 'tobank': onNavigate(AppScreen.TRANSFER_TO_BANK); break;
+                  case 'reqmoney': onNavigate(AppScreen.REQUEST_MONEY); break;
+                }
               }}
               className="flex flex-col items-center space-y-2 group"
               style={{ animationDelay: `${index * 50}ms` }}
