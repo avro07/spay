@@ -29,7 +29,7 @@ const BalanceHeader: React.FC<BalanceHeaderProps> = ({ user, onProfileClick, onN
   };
 
   return (
-    <div className="relative z-10 bg-gradient-to-br from-rose-600 via-pink-600 to-purple-700 rounded-b-[35px] shadow-[0_10px_40px_-10px_rgba(225,29,72,0.5)] pt-[calc(env(safe-area-inset-top)+3rem)] pb-16 px-6 overflow-hidden">
+    <div className="relative z-10 bg-gradient-to-br from-rose-600 via-pink-600 to-purple-700 rounded-b-[30px] shadow-[0_10px_30px_-10px_rgba(225,29,72,0.4)] pt-[calc(env(safe-area-inset-top)+1rem)] pb-12 px-5 overflow-hidden">
         {/* Live Animated Background Elements */}
         <div className="absolute -top-24 -left-24 w-80 h-80 bg-rose-500 mix-blend-multiply filter blur-3xl opacity-40 animate-blob"></div>
         <div className="absolute -bottom-32 -right-32 w-80 h-80 bg-purple-500 mix-blend-multiply filter blur-3xl opacity-40 animate-blob animation-delay-2000"></div>
@@ -41,67 +41,67 @@ const BalanceHeader: React.FC<BalanceHeaderProps> = ({ user, onProfileClick, onN
         {/* Content Container */}
         <div className="relative z-10">
             {/* Top Bar */}
-            <div className="flex justify-between items-center mb-8">
+            <div className="flex justify-between items-center mb-5">
                 <div 
-                  className="flex items-center space-x-3 group cursor-pointer"
+                  className="flex items-center space-x-2.5 group cursor-pointer"
                   onClick={onProfileClick}
                 >
                     <div className="relative">
-                        <div className="w-12 h-12 rounded-full p-[2px] bg-gradient-to-r from-white/40 to-white/10 backdrop-blur-sm">
-                            <img src={user.avatarUrl} alt="User" className="w-full h-full rounded-full object-cover border-2 border-white/50" />
+                        <div className="w-10 h-10 rounded-full p-[1.5px] bg-gradient-to-r from-white/40 to-white/10 backdrop-blur-sm">
+                            <img src={user.avatarUrl} alt="User" className="w-full h-full rounded-full object-cover border-[1.5px] border-white/50" />
                         </div>
-                        <div className="absolute bottom-0 right-0 w-3.5 h-3.5 bg-emerald-400 border-2 border-rose-600 rounded-full"></div>
+                        <div className="absolute bottom-0 right-0 w-3 h-3 bg-emerald-400 border-2 border-rose-600 rounded-full"></div>
                     </div>
                     <div>
-                        <h2 className="font-bold text-lg text-white leading-tight flex items-center gap-1">
+                        <h2 className="font-bold text-base text-white leading-tight flex items-center gap-1">
                             {user.name}
-                            <ChevronRight className="w-4 h-4 text-white/70 group-hover:translate-x-1 transition-transform" />
+                            <ChevronRight className="w-3.5 h-3.5 text-white/70 group-hover:translate-x-1 transition-transform" />
                         </h2>
                         <div className="flex items-center mt-0.5">
-                            <span className="bg-white/10 backdrop-blur-md px-2 py-0.5 rounded-full text-[10px] font-semibold text-white/90 border border-white/10 shadow-sm">
-                            SPay গোল্ড মেম্বার
+                            <span className="bg-white/10 backdrop-blur-md px-1.5 py-0.5 rounded-full text-[9px] font-semibold text-white/90 border border-white/10 shadow-sm">
+                            গোল্ড মেম্বার
                             </span>
                         </div>
                     </div>
                 </div>
-                <div className="flex gap-3">
-                    <button className="w-10 h-10 flex items-center justify-center rounded-full bg-white/10 backdrop-blur-md border border-white/10 text-white hover:bg-white/20 transition-all active:scale-95 shadow-lg shadow-purple-900/10">
-                        <Search className="w-5 h-5" />
+                <div className="flex gap-2.5">
+                    <button className="w-9 h-9 flex items-center justify-center rounded-full bg-white/10 backdrop-blur-md border border-white/10 text-white hover:bg-white/20 transition-all active:scale-95 shadow-lg shadow-purple-900/10">
+                        <Search className="w-4.5 h-4.5" />
                     </button>
                     <button 
                         onClick={onNotificationClick}
-                        className="w-10 h-10 flex items-center justify-center rounded-full bg-white/10 backdrop-blur-md border border-white/10 text-white hover:bg-white/20 transition-all active:scale-95 shadow-lg shadow-purple-900/10 relative"
+                        className="w-9 h-9 flex items-center justify-center rounded-full bg-white/10 backdrop-blur-md border border-white/10 text-white hover:bg-white/20 transition-all active:scale-95 shadow-lg shadow-purple-900/10 relative"
                     >
-                        <Bell className="w-5 h-5" />
-                        <span className="absolute top-2 right-2.5 w-2 h-2 bg-rose-400 rounded-full animate-ping"></span>
-                        <span className="absolute top-2 right-2.5 w-2 h-2 bg-rose-400 rounded-full"></span>
+                        <Bell className="w-4.5 h-4.5" />
+                        <span className="absolute top-2 right-2.5 w-1.5 h-1.5 bg-rose-400 rounded-full animate-ping"></span>
+                        <span className="absolute top-2 right-2.5 w-1.5 h-1.5 bg-rose-400 rounded-full"></span>
                     </button>
                 </div>
             </div>
 
             {/* Balance Button */}
-            <div className="flex justify-center mt-2">
+            <div className="flex justify-center mt-1">
                 <button 
                 onClick={toggleBalance}
                 className={`
-                    relative h-11 rounded-full shadow-[0_8px_20px_-5px_rgba(0,0,0,0.2)] transition-all duration-500 ease-out overflow-hidden flex items-center justify-center group
-                    ${showBalance ? 'w-56 bg-white text-rose-600' : 'w-48 bg-white/20 backdrop-blur-lg border border-white/20 text-white hover:bg-white/25'}
+                    relative h-9 rounded-full shadow-[0_8px_20px_-5px_rgba(0,0,0,0.2)] transition-all duration-500 ease-out overflow-hidden flex items-center justify-center group
+                    ${showBalance ? 'w-48 bg-white text-rose-600' : 'w-40 bg-white/20 backdrop-blur-lg border border-white/20 text-white hover:bg-white/25'}
                 `}
                 >
                     {/* Hidden State (Tap to see) */}
                     <div className={`absolute inset-0 flex items-center justify-center transition-all duration-500 transform ${showBalance ? 'opacity-0 scale-90 translate-y-4' : 'opacity-100 scale-100 translate-y-0'}`}>
-                        <div className="flex items-center gap-2.5">
-                            <div className="w-6 h-6 bg-white/90 rounded-full flex items-center justify-center text-rose-600 shadow-sm">
-                                <span className="text-sm font-bold">৳</span>
+                        <div className="flex items-center gap-2">
+                            <div className="w-5 h-5 bg-white/90 rounded-full flex items-center justify-center text-rose-600 shadow-sm">
+                                <span className="text-xs font-bold">৳</span>
                             </div>
-                            <span className="font-medium tracking-wide text-sm drop-shadow-sm">ব্যালেন্স দেখুন</span>
+                            <span className="font-medium tracking-wide text-xs drop-shadow-sm">ব্যালেন্স দেখুন</span>
                         </div>
                     </div>
 
                     {/* Visible State (Amount) */}
                     <div className={`absolute inset-0 flex items-center justify-center transition-all duration-500 transform ${showBalance ? 'opacity-100 scale-100 translate-y-0' : 'opacity-0 scale-110 -translate-y-4'}`}>
                         <div className="flex flex-col items-center leading-none">
-                            <span className="text-xl font-bold text-rose-600 tracking-tight font-mono">৳ {user.balance.toLocaleString('bn-BD')}</span>
+                            <span className="text-lg font-bold text-rose-600 tracking-tight font-mono">৳ {user.balance.toLocaleString('bn-BD')}</span>
                         </div>
                     </div>
                     
