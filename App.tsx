@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { ArrowLeft, ChevronRight, ArrowUpRight, CreditCard, Wallet, X, Bell, Shield, Settings as SettingsIcon, FileText, Landmark, ShoppingBag, Utensils } from 'lucide-react';
+import { ArrowLeft, ChevronRight, ArrowUpRight, CreditCard, Wallet, X, Bell, Shield, Settings as SettingsIcon, FileText, Landmark, ShoppingBag, Utensils, LogOut, Lock, User as UserIcon, Phone, Eye, EyeOff } from 'lucide-react';
 import BalanceHeader from './components/BalanceHeader';
 import ActionGrid from './components/ActionGrid';
 import BottomNav from './components/BottomNav';
@@ -10,10 +10,17 @@ import { AppScreen, User, Transaction, SendMoneyFormData, NotificationPreference
 import { INITIAL_USER, MOCK_TRANSACTIONS } from './constants';
 
 const App: React.FC = () => {
-  const [currentScreen, setCurrentScreen] = useState<AppScreen>(AppScreen.HOME);
+  // Start at LOGIN screen
+  const [currentScreen, setCurrentScreen] = useState<AppScreen>(AppScreen.LOGIN);
   const [user, setUser] = useState<User>(INITIAL_USER);
   const [transactions, setTransactions] = useState<Transaction[]>(MOCK_TRANSACTIONS);
   const videoRef = useRef<HTMLVideoElement>(null);
+  
+  // Login/Register Form State
+  const [loginPhone, setLoginPhone] = useState(INITIAL_USER.phone);
+  const [loginPin, setLoginPin] = useState('');
+  const [showPin, setShowPin] = useState(false);
+  const [registerData, setRegisterData] = useState({ name: '', phone: '', pin: '', confirmPin: '' });
   
   // Notification Preferences State
   const [notificationPrefs, setNotificationPrefs] = useState<NotificationPreferences>({
@@ -36,6 +43,10 @@ const App: React.FC = () => {
     let color = '#ffffff';
 
     switch (currentScreen) {
+      case AppScreen.LOGIN:
+      case AppScreen.REGISTER:
+        color = '#e11d48'; // Brand color for auth screens
+        break;
       case AppScreen.HOME:
         color = '#e11d48'; // Matches the rose-600 gradient start of BalanceHeader
         break;
@@ -100,6 +111,54 @@ const App: React.FC = () => {
       }
     };
   }, [currentScreen]);
+
+  // Auth Handlers
+  const handleLogin = () => {
+    if (loginPin.length >= 4) {
+      // Simple mock validation
+      if (loginPin === '12345' || loginPin === '1234') {
+        setCurrentScreen(AppScreen.HOME);
+        setLoginPin(''); // Clear pin for security
+      } else {
+        alert("ভুল পিন নম্বর (Demo PIN: 12345)");
+      }
+    }
+  };
+
+  const handleRegister = () => {
+    if (registerData.name && registerData.phone && registerData.pin.length >= 4) {
+      if (registerData.pin !== registerData.confirmPin) {
+        alert("পিন নম্বর মিলছে না");
+        return;
+      }
+      // Create new user context
+      setUser({
+        ...user,
+        name: registerData.name,
+        phone: registerData.phone,
+        balance: 50 // Signup bonus
+      });
+      // Add welcome notification/transaction
+      setTransactions([
+        {
+          id: `TXN${Date.now()}`,
+          type: 'RECEIVED_MONEY',
+          amount: 50,
+          recipientName: 'SPay বোনাস',
+          date: 'এইমাত্র',
+          description: 'স্বাগতম বোনাস'
+        },
+        ...transactions
+      ]);
+      setCurrentScreen(AppScreen.HOME);
+    }
+  };
+
+  const handleLogout = () => {
+    setCurrentScreen(AppScreen.LOGIN);
+    setTransactionStep(1);
+    setFormData({ recipient: '', amount: '', reference: '', pin: '' });
+  };
 
   // Simulate scanning a QR code
   const simulateScan = () => {
@@ -185,6 +244,161 @@ const App: React.FC = () => {
   };
 
   // --- RENDER HELPERS ---
+
+  const renderLogin = () => (
+    <div className="flex flex-col h-full bg-gradient-to-br from-rose-600 to-pink-700 animate-in fade-in">
+        <div className="flex-1 flex flex-col items-center justify-center p-8 text-white">
+            <div className="w-24 h-24 bg-white/20 backdrop-blur-xl rounded-3xl flex items-center justify-center mb-6 shadow-2xl shadow-rose-900/30 border border-white/30">
+                 <span className="text-4xl font-bold tracking-tighter italic">SPay</span>
+            </div>
+            <h1 className="text-3xl font-bold mb-2">স্বাগতম!</h1>
+            <p className="text-rose-100 text-sm mb-12">আপনার নিরাপদ লেনদেনের সাথী</p>
+        </div>
+
+        <div className="bg-white rounded-t-[35px] p-8 shadow-[0_-10px_40px_-15px_rgba(0,0,0,0.3)] min-h-[50%] animate-in slide-in-from-bottom duration-500">
+             <div className="space-y-6">
+                 <div>
+                     <label className="block text-sm font-bold text-gray-700 mb-2 ml-1">মোবাইল নম্বর</label>
+                     <div className="relative">
+                         <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
+                             <Phone size={20} />
+                         </div>
+                         <input 
+                            type="tel"
+                            value={loginPhone}
+                            onChange={(e) => setLoginPhone(e.target.value)}
+                            className="w-full bg-gray-50 border border-gray-200 rounded-2xl py-4 pl-12 pr-4 font-semibold text-gray-800 focus:outline-none focus:border-rose-500 focus:ring-1 focus:ring-rose-500 transition-all"
+                            placeholder="01XXXXXXXXX"
+                         />
+                     </div>
+                 </div>
+
+                 <div>
+                     <label className="block text-sm font-bold text-gray-700 mb-2 ml-1">পিন নম্বর</label>
+                     <div className="relative">
+                         <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
+                             <Lock size={20} />
+                         </div>
+                         <input 
+                            type={showPin ? "text" : "password"}
+                            value={loginPin}
+                            onChange={(e) => setLoginPin(e.target.value)}
+                            maxLength={5}
+                            className="w-full bg-gray-50 border border-gray-200 rounded-2xl py-4 pl-12 pr-12 font-bold text-gray-800 focus:outline-none focus:border-rose-500 focus:ring-1 focus:ring-rose-500 transition-all tracking-widest"
+                            placeholder="*****"
+                         />
+                         <button 
+                            onClick={() => setShowPin(!showPin)}
+                            className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 p-1"
+                         >
+                             {showPin ? <EyeOff size={20} /> : <Eye size={20} />}
+                         </button>
+                     </div>
+                     <div className="flex justify-end mt-2">
+                        <button className="text-xs text-rose-600 font-semibold hover:underline">পিন ভুলে গেছেন?</button>
+                     </div>
+                 </div>
+
+                 <button 
+                    onClick={handleLogin}
+                    className="w-full bg-rose-600 text-white font-bold py-4 rounded-2xl shadow-lg shadow-rose-200 hover:bg-rose-700 hover:shadow-xl active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+                 >
+                     লগ ইন <ArrowRightIcon className="w-5 h-5" />
+                 </button>
+
+                 <div className="text-center mt-6">
+                     <p className="text-gray-500 text-sm">
+                         অ্যাকাউন্ট নেই? <button onClick={() => setCurrentScreen(AppScreen.REGISTER)} className="text-rose-600 font-bold hover:underline">রেজিস্ট্রেশন করুন</button>
+                     </p>
+                 </div>
+             </div>
+        </div>
+    </div>
+  );
+
+  const renderRegister = () => (
+    <div className="flex flex-col h-full bg-white animate-in slide-in-from-right duration-300">
+        <div className="bg-rose-600 px-6 pt-12 pb-8 rounded-b-[35px] shadow-lg relative z-10">
+            <button onClick={() => setCurrentScreen(AppScreen.LOGIN)} className="absolute top-12 left-4 p-2 bg-white/20 rounded-full text-white backdrop-blur-md">
+                <ArrowLeft size={20} />
+            </button>
+            <h1 className="text-2xl font-bold text-white mt-8">নতুন অ্যাকাউন্ট</h1>
+            <p className="text-rose-100 text-sm">SPay-তে রেজিস্ট্রেশন করুন</p>
+        </div>
+
+        <div className="flex-1 overflow-y-auto p-6 space-y-5">
+            <div>
+                <label className="block text-sm font-bold text-gray-700 mb-2 ml-1">আপনার নাম</label>
+                <div className="relative">
+                    <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
+                        <UserIcon size={20} />
+                    </div>
+                    <input 
+                    type="text"
+                    value={registerData.name}
+                    onChange={(e) => setRegisterData({...registerData, name: e.target.value})}
+                    className="w-full bg-gray-50 border border-gray-200 rounded-2xl py-4 pl-12 pr-4 font-medium text-gray-800 focus:outline-none focus:border-rose-500 focus:ring-1 focus:ring-rose-500 transition-all"
+                    placeholder="আপনার পূর্ণ নাম"
+                    />
+                </div>
+            </div>
+
+            <div>
+                <label className="block text-sm font-bold text-gray-700 mb-2 ml-1">মোবাইল নম্বর</label>
+                <div className="relative">
+                    <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
+                        <Phone size={20} />
+                    </div>
+                    <input 
+                    type="tel"
+                    value={registerData.phone}
+                    onChange={(e) => setRegisterData({...registerData, phone: e.target.value})}
+                    className="w-full bg-gray-50 border border-gray-200 rounded-2xl py-4 pl-12 pr-4 font-semibold text-gray-800 focus:outline-none focus:border-rose-500 focus:ring-1 focus:ring-rose-500 transition-all"
+                    placeholder="01XXXXXXXXX"
+                    />
+                </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+                <div>
+                    <label className="block text-sm font-bold text-gray-700 mb-2 ml-1">পিন নম্বর</label>
+                    <input 
+                        type="password"
+                        maxLength={5}
+                        value={registerData.pin}
+                        onChange={(e) => setRegisterData({...registerData, pin: e.target.value})}
+                        className="w-full bg-gray-50 border border-gray-200 rounded-2xl py-4 px-4 font-bold text-center text-gray-800 focus:outline-none focus:border-rose-500 focus:ring-1 focus:ring-rose-500 transition-all"
+                        placeholder="*****"
+                    />
+                </div>
+                <div>
+                    <label className="block text-sm font-bold text-gray-700 mb-2 ml-1">কনফার্ম পিন</label>
+                    <input 
+                        type="password"
+                        maxLength={5}
+                        value={registerData.confirmPin}
+                        onChange={(e) => setRegisterData({...registerData, confirmPin: e.target.value})}
+                        className="w-full bg-gray-50 border border-gray-200 rounded-2xl py-4 px-4 font-bold text-center text-gray-800 focus:outline-none focus:border-rose-500 focus:ring-1 focus:ring-rose-500 transition-all"
+                        placeholder="*****"
+                    />
+                </div>
+            </div>
+
+            <div className="pt-4">
+                <button 
+                    onClick={handleRegister}
+                    className="w-full bg-gray-900 text-white font-bold py-4 rounded-2xl shadow-xl hover:bg-black active:scale-[0.98] transition-all"
+                >
+                    রেজিস্ট্রেশন করুন
+                </button>
+            </div>
+            
+            <p className="text-center text-xs text-gray-400 mt-4 leading-relaxed px-4">
+                রেজিস্ট্রেশন করার মাধ্যমে আপনি SPay এর <span className="text-rose-600 font-bold">শর্তাবলী</span> এবং <span className="text-rose-600 font-bold">গোপনীয়তা নীতি</span> তে সম্মত হচ্ছেন।
+            </p>
+        </div>
+    </div>
+  );
 
   const renderHome = () => (
     <div className="pb-28 animate-in fade-in duration-500 relative">
@@ -702,12 +916,29 @@ const App: React.FC = () => {
                 </div>
             </div>
 
+            {/* Logout Button */}
+            <div className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm">
+                <button 
+                  onClick={handleLogout}
+                  className="w-full flex items-center justify-center gap-2 text-rose-600 font-bold py-2 rounded-xl bg-rose-50 hover:bg-rose-100 transition-colors"
+                >
+                   <LogOut size={20} /> লগ আউট করুন
+                </button>
+            </div>
+
              {/* Version Info */}
-            <div className="text-center mt-8">
+            <div className="text-center mt-2">
                 <p className="text-gray-400 text-xs">SPay অ্যাপ ভার্সন ১.০.০</p>
             </div>
         </div>
       </div>
+  );
+
+  // Helper component for arrow right in login button
+  const ArrowRightIcon = ({ className }: { className?: string }) => (
+    <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+    </svg>
   );
 
   // --- MAIN RENDER ---
@@ -717,6 +948,8 @@ const App: React.FC = () => {
         
         {/* Screen Content */}
         <div className="flex-1 overflow-y-auto scroll-smooth no-scrollbar">
+          {currentScreen === AppScreen.LOGIN && renderLogin()}
+          {currentScreen === AppScreen.REGISTER && renderRegister()}
           {currentScreen === AppScreen.HOME && renderHome()}
           {[
             AppScreen.SEND_MONEY, 

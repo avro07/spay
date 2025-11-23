@@ -17,7 +17,6 @@ const ActionGrid: React.FC<ActionGridProps> = ({ onNavigate }) => {
               key={action.id}
               onClick={() => {
                 switch(action.id) {
-                  case 'scan': onNavigate(AppScreen.SCAN); break;
                   case 'send': onNavigate(AppScreen.SEND_MONEY); break;
                   case 'cashout': onNavigate(AppScreen.CASH_OUT); break;
                   case 'recharge': onNavigate(AppScreen.MOBILE_RECHARGE); break;

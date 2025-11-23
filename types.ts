@@ -18,6 +18,8 @@ export interface User {
 }
 
 export enum AppScreen {
+  LOGIN = 'LOGIN',
+  REGISTER = 'REGISTER',
   HOME = 'HOME',
   SEND_MONEY = 'SEND_MONEY',
   CASH_OUT = 'CASH_OUT',
