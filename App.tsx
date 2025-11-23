@@ -116,17 +116,17 @@ const App: React.FC = () => {
   const handleLogin = () => {
     if (loginPin.length >= 4) {
       // Simple mock validation
-      if (loginPin === '12345' || loginPin === '1234') {
+      if (loginPin === '6175') {
         setCurrentScreen(AppScreen.HOME);
         setLoginPin(''); // Clear pin for security
       } else {
-        alert("ভুল পিন নম্বর (Demo PIN: 12345)");
+        alert("ভুল পিন নম্বর (Demo PIN: 6175)");
       }
     }
   };
 
   const handleRegister = () => {
-    if (registerData.name && registerData.phone && registerData.pin.length >= 4) {
+    if (registerData.name && registerData.phone && registerData.pin.length === 4) {
       if (registerData.pin !== registerData.confirmPin) {
         alert("পিন নম্বর মিলছে না");
         return;
@@ -283,9 +283,9 @@ const App: React.FC = () => {
                             type={showPin ? "text" : "password"}
                             value={loginPin}
                             onChange={(e) => setLoginPin(e.target.value)}
-                            maxLength={5}
+                            maxLength={4}
                             className="w-full bg-gray-50 border border-gray-200 rounded-2xl py-4 pl-12 pr-12 font-bold text-gray-800 focus:outline-none focus:border-rose-500 focus:ring-1 focus:ring-rose-500 transition-all tracking-widest"
-                            placeholder="*****"
+                            placeholder="****"
                          />
                          <button 
                             onClick={() => setShowPin(!showPin)}
@@ -364,22 +364,22 @@ const App: React.FC = () => {
                     <label className="block text-sm font-bold text-gray-700 mb-2 ml-1">পিন নম্বর</label>
                     <input 
                         type="password"
-                        maxLength={5}
+                        maxLength={4}
                         value={registerData.pin}
                         onChange={(e) => setRegisterData({...registerData, pin: e.target.value})}
                         className="w-full bg-gray-50 border border-gray-200 rounded-2xl py-4 px-4 font-bold text-center text-gray-800 focus:outline-none focus:border-rose-500 focus:ring-1 focus:ring-rose-500 transition-all"
-                        placeholder="*****"
+                        placeholder="****"
                     />
                 </div>
                 <div>
                     <label className="block text-sm font-bold text-gray-700 mb-2 ml-1">কনফার্ম পিন</label>
                     <input 
                         type="password"
-                        maxLength={5}
+                        maxLength={4}
                         value={registerData.confirmPin}
                         onChange={(e) => setRegisterData({...registerData, confirmPin: e.target.value})}
                         className="w-full bg-gray-50 border border-gray-200 rounded-2xl py-4 px-4 font-bold text-center text-gray-800 focus:outline-none focus:border-rose-500 focus:ring-1 focus:ring-rose-500 transition-all"
-                        placeholder="*****"
+                        placeholder="****"
                     />
                 </div>
             </div>
@@ -747,15 +747,15 @@ const App: React.FC = () => {
                   <label className="block text-left text-sm font-medium text-gray-500 mb-2 ml-1">পিন নম্বর</label>
                   <input 
                     type="password" 
-                    placeholder="*****"
-                    maxLength={5}
+                    placeholder="****"
+                    maxLength={4}
                     value={formData.pin}
                     onChange={e => setFormData({...formData, pin: e.target.value})}
                     className="w-full text-center text-3xl tracking-[0.5em] border-b-2 border-gray-200 focus:border-rose-500 outline-none py-3 placeholder-gray-200 bg-transparent text-gray-800 font-bold"
                   />
                </div>
 
-               {formData.pin.length >= 4 ? (
+               {formData.pin.length === 4 ? (
                   <HoldToConfirm onConfirm={executeTransaction} label="নিশ্চিত করতে ধরে রাখুন" />
                ) : (
                  <div className="h-24 flex items-center justify-center">
