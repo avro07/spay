@@ -98,7 +98,6 @@ const BalanceHeader: React.FC<BalanceHeaderProps> = ({ user, onProfileClick }) =
                     {/* Visible State (Amount) */}
                     <div className={`absolute inset-0 flex items-center justify-center transition-all duration-500 transform ${showBalance ? 'opacity-100 scale-100 translate-y-0' : 'opacity-0 scale-110 -translate-y-4'}`}>
                         <div className="flex flex-col items-center leading-none">
-                            <span className="text-xs text-gray-400 font-medium mb-0.5">বর্তমান ব্যালেন্স</span>
                             <span className="text-xl font-bold text-rose-600 tracking-tight font-mono">৳ {user.balance.toLocaleString('bn-BD')}</span>
                         </div>
                     </div>

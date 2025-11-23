@@ -23,7 +23,8 @@ export enum AppScreen {
   TRANSACTIONS = 'TRANSACTIONS',
   AI_CHAT = 'AI_CHAT',
   SUCCESS = 'SUCCESS',
-  SETTINGS = 'SETTINGS'
+  SETTINGS = 'SETTINGS',
+  SCAN = 'SCAN'
 }
 
 export interface SendMoneyFormData {

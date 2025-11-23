@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Home, History, ScanLine, Gift, Bot } from 'lucide-react';
 import { AppScreen } from '../types';
@@ -11,7 +12,7 @@ const BottomNav: React.FC<BottomNavProps> = ({ currentScreen, onNavigate }) => {
   const navItems = [
     { id: AppScreen.HOME, icon: Home, label: 'হোম' },
     { id: AppScreen.TRANSACTIONS, icon: History, label: 'লেনদেন' },
-    { id: 'SCAN', icon: ScanLine, label: '', isSpecial: true },
+    { id: AppScreen.SCAN, icon: ScanLine, label: '', isSpecial: true },
     { id: 'OFFERS', icon: Gift, label: 'অফার' },
     { id: AppScreen.AI_CHAT, icon: Bot, label: 'সহায়তা' },
   ];
@@ -24,7 +25,11 @@ const BottomNav: React.FC<BottomNavProps> = ({ currentScreen, onNavigate }) => {
           
           if (item.isSpecial) {
              return (
-               <button key={item.id} className="relative group -mt-8">
+               <button 
+                 key={item.id} 
+                 onClick={() => onNavigate(AppScreen.SCAN)}
+                 className="relative group -mt-8"
+               >
                  <div className="absolute inset-0 bg-rose-400 rounded-full blur opacity-40 group-hover:opacity-60 transition-opacity"></div>
                  <div className="w-14 h-14 bg-gradient-to-br from-rose-500 to-pink-600 rounded-full flex items-center justify-center shadow-lg shadow-rose-300/50 border-4 border-white transform transition-transform group-hover:scale-105 relative z-10 text-white">
                    <item.icon strokeWidth={2} className="w-6 h-6" />

@@ -149,6 +149,53 @@ const App: React.FC = () => {
     </div>
   );
 
+  const renderScan = () => (
+    <div className="flex flex-col h-full bg-black text-white relative animate-in fade-in">
+      {/* Header */}
+      <div className="absolute top-0 left-0 right-0 p-4 z-20 flex justify-between items-center bg-gradient-to-b from-black/80 to-transparent">
+         <button onClick={() => setCurrentScreen(AppScreen.HOME)} className="p-2 bg-white/20 rounded-full backdrop-blur-md active:scale-95 transition-transform">
+            <X className="w-6 h-6 text-white" />
+         </button>
+         <h3 className="font-bold text-lg tracking-wide">QR স্ক্যান করুন</h3>
+         <div className="w-10"></div>
+      </div>
+
+      {/* Camera View Mock */}
+      <div className="flex-1 relative overflow-hidden flex items-center justify-center">
+         <div className="absolute inset-0 bg-gray-900">
+             {/* Simulated Camera Feed */}
+             <div className="w-full h-full opacity-40 bg-[url('https://images.unsplash.com/photo-1550751827-4bd374c3f58b?q=80&w=2070&auto=format&fit=crop')] bg-cover bg-center"></div>
+         </div>
+         
+         {/* Scan Frame */}
+         <div className="relative z-10 w-64 h-64 border-2 border-rose-500 rounded-3xl shadow-[0_0_0_9999px_rgba(0,0,0,0.7)] flex items-center justify-center">
+             <div className="absolute top-0 left-0 w-8 h-8 border-t-4 border-l-4 border-rose-500 -mt-1 -ml-1 rounded-tl-2xl"></div>
+             <div className="absolute top-0 right-0 w-8 h-8 border-t-4 border-r-4 border-rose-500 -mt-1 -mr-1 rounded-tr-2xl"></div>
+             <div className="absolute bottom-0 left-0 w-8 h-8 border-b-4 border-l-4 border-rose-500 -mb-1 -ml-1 rounded-bl-2xl"></div>
+             <div className="absolute bottom-0 right-0 w-8 h-8 border-b-4 border-r-4 border-rose-500 -mb-1 -mr-1 rounded-br-2xl"></div>
+             
+             {/* Scanning Animation */}
+             <div className="absolute top-0 left-0 w-full h-0.5 bg-rose-500 shadow-[0_0_15px_#f43f5e] animate-pulse top-1/2"></div>
+         </div>
+
+         <div className="absolute bottom-32 left-0 right-0 flex flex-col items-center space-y-4">
+            <p className="text-center text-sm text-gray-200 bg-black/40 px-6 py-2 rounded-full backdrop-blur-md border border-white/10">
+                পেমেন্ট করতে কিউআর কোড স্ক্যান করুন
+            </p>
+            
+            <div className="flex items-center space-x-6 mt-4">
+                <button className="w-12 h-12 rounded-full bg-white/10 backdrop-blur flex items-center justify-center hover:bg-white/20 transition-colors">
+                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                </button>
+                 <button className="w-12 h-12 rounded-full bg-white/10 backdrop-blur flex items-center justify-center hover:bg-white/20 transition-colors">
+                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                </button>
+            </div>
+         </div>
+      </div>
+    </div>
+  );
+
   const renderSendMoney = () => (
     <div className="flex flex-col h-full bg-gray-50 animate-in slide-in-from-right duration-300">
       <div className="bg-white px-4 py-4 flex items-center justify-between shadow-sm sticky top-0 z-20">
@@ -458,6 +505,7 @@ const App: React.FC = () => {
           {currentScreen === AppScreen.TRANSACTIONS && renderTransactions()}
           {currentScreen === AppScreen.SUCCESS && renderSuccess()}
           {currentScreen === AppScreen.SETTINGS && renderSettings()}
+          {currentScreen === AppScreen.SCAN && renderScan()}
         </div>
 
         {/* Navigation */}
