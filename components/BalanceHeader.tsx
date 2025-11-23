@@ -5,9 +5,10 @@ import { User } from '../types';
 interface BalanceHeaderProps {
   user: User;
   onProfileClick: () => void;
+  onNotificationClick: () => void;
 }
 
-const BalanceHeader: React.FC<BalanceHeaderProps> = ({ user, onProfileClick }) => {
+const BalanceHeader: React.FC<BalanceHeaderProps> = ({ user, onProfileClick, onNotificationClick }) => {
   const [showBalance, setShowBalance] = useState(false);
   const [animating, setAnimating] = useState(false);
 
@@ -67,7 +68,10 @@ const BalanceHeader: React.FC<BalanceHeaderProps> = ({ user, onProfileClick }) =
                     <button className="w-10 h-10 flex items-center justify-center rounded-full bg-white/10 backdrop-blur-md border border-white/10 text-white hover:bg-white/20 transition-all active:scale-95 shadow-lg shadow-purple-900/10">
                         <Search className="w-5 h-5" />
                     </button>
-                    <button className="w-10 h-10 flex items-center justify-center rounded-full bg-white/10 backdrop-blur-md border border-white/10 text-white hover:bg-white/20 transition-all active:scale-95 shadow-lg shadow-purple-900/10 relative">
+                    <button 
+                        onClick={onNotificationClick}
+                        className="w-10 h-10 flex items-center justify-center rounded-full bg-white/10 backdrop-blur-md border border-white/10 text-white hover:bg-white/20 transition-all active:scale-95 shadow-lg shadow-purple-900/10 relative"
+                    >
                         <Bell className="w-5 h-5" />
                         <span className="absolute top-2 right-2.5 w-2 h-2 bg-rose-400 rounded-full animate-ping"></span>
                         <span className="absolute top-2 right-2.5 w-2 h-2 bg-rose-400 rounded-full"></span>

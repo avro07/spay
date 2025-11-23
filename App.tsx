@@ -160,6 +160,10 @@ const App: React.FC = () => {
     setFormData({ recipient: '', amount: '', reference: '', pin: '' });
   };
 
+  const handleNotificationClick = () => {
+    alert('বর্তমানে আপনার কোনো নতুন নোটিফিকেশন নেই।');
+  };
+
   // Simulate scanning a QR code
   const simulateScan = () => {
     // In a real app, this would be data parsed from the QR code
@@ -246,7 +250,7 @@ const App: React.FC = () => {
   // --- RENDER HELPERS ---
 
   const renderLogin = () => (
-    <div className="flex flex-col h-full bg-gradient-to-br from-rose-600 to-pink-700 animate-in fade-in">
+    <div className="flex flex-col h-screen bg-gradient-to-br from-rose-600 to-pink-700 animate-in fade-in overflow-hidden">
         <div className="flex-1 flex flex-col items-center justify-center p-8 text-white">
             <div className="w-24 h-24 bg-white/20 backdrop-blur-xl rounded-3xl flex items-center justify-center mb-6 shadow-2xl shadow-rose-900/30 border border-white/30">
                  <span className="text-4xl font-bold tracking-tighter italic">SPay</span>
@@ -255,7 +259,7 @@ const App: React.FC = () => {
             <p className="text-rose-100 text-sm mb-12">আপনার নিরাপদ লেনদেনের সাথী</p>
         </div>
 
-        <div className="bg-white rounded-t-[35px] p-8 pb-[calc(2rem+env(safe-area-inset-bottom))] shadow-[0_-10px_40px_-15px_rgba(0,0,0,0.3)] min-h-[50%] animate-in slide-in-from-bottom duration-500">
+        <div className="bg-white rounded-t-[35px] p-8 pb-[calc(2rem+env(safe-area-inset-bottom))] shadow-[0_-10px_40px_-15px_rgba(0,0,0,0.3)] animate-in slide-in-from-bottom duration-500 flex flex-col">
              <div className="space-y-6">
                  <div>
                      <label className="block text-sm font-bold text-gray-700 mb-2 ml-1">মোবাইল নম্বর</label>
@@ -317,7 +321,7 @@ const App: React.FC = () => {
   );
 
   const renderRegister = () => (
-    <div className="flex flex-col h-full bg-white animate-in slide-in-from-right duration-300">
+    <div className="flex flex-col h-screen bg-white animate-in slide-in-from-right duration-300">
         <div className="bg-rose-600 px-6 pt-12 pb-8 rounded-b-[35px] shadow-lg relative z-10">
             <button onClick={() => setCurrentScreen(AppScreen.LOGIN)} className="absolute top-12 left-4 p-2 bg-white/20 rounded-full text-white backdrop-blur-md">
                 <ArrowLeft size={20} />
@@ -401,7 +405,7 @@ const App: React.FC = () => {
   );
 
   const renderHome = () => (
-    <div className="pb-[calc(7rem+env(safe-area-inset-bottom))] animate-in fade-in duration-500 relative">
+    <div className="pb-[calc(7rem+env(safe-area-inset-bottom))] animate-in fade-in duration-500 relative min-h-screen">
       {/* Background Ambient Blobs for Glass Effect */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
           <div className="absolute top-[20%] left-[-10%] w-72 h-72 bg-purple-200/40 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob"></div>
@@ -413,6 +417,7 @@ const App: React.FC = () => {
         <BalanceHeader 
             user={user} 
             onProfileClick={() => setCurrentScreen(AppScreen.SETTINGS)} 
+            onNotificationClick={handleNotificationClick}
         />
         <ActionGrid onNavigate={setCurrentScreen} />
         
@@ -470,7 +475,7 @@ const App: React.FC = () => {
   );
 
   const renderOffers = () => (
-    <div className="flex flex-col h-full bg-gray-50 animate-in fade-in slide-in-from-right duration-300">
+    <div className="flex flex-col min-h-screen bg-gray-50 animate-in fade-in slide-in-from-right duration-300">
        {/* Header */}
        <div className="bg-white px-4 pb-4 pt-[calc(env(safe-area-inset-top)+1rem)] flex items-center shadow-sm sticky top-0 z-20">
           <button onClick={() => setCurrentScreen(AppScreen.HOME)} className="p-2 hover:bg-gray-100 rounded-full mr-2 -ml-2 transition-colors">
@@ -579,7 +584,7 @@ const App: React.FC = () => {
   );
 
   const renderScan = () => (
-    <div className="flex flex-col h-full bg-black text-white relative animate-in fade-in">
+    <div className="flex flex-col h-screen bg-black text-white relative animate-in fade-in">
       {/* Header */}
       <div className="absolute top-0 left-0 right-0 pt-[calc(env(safe-area-inset-top)+1rem)] px-4 pb-4 z-20 flex justify-between items-center bg-gradient-to-b from-black/80 to-transparent">
          <button onClick={() => setCurrentScreen(AppScreen.HOME)} className="p-2 bg-white/20 rounded-full backdrop-blur-md active:scale-95 transition-transform">
@@ -626,7 +631,7 @@ const App: React.FC = () => {
     const config = getScreenConfig();
     
     return (
-    <div className="flex flex-col h-full bg-gray-50 animate-in slide-in-from-right duration-300">
+    <div className="flex flex-col min-h-screen bg-gray-50 animate-in slide-in-from-right duration-300">
       <div className="bg-white px-4 pb-4 pt-[calc(env(safe-area-inset-top)+1rem)] flex items-center justify-between shadow-sm sticky top-0 z-20">
         <div className="flex items-center">
             <button onClick={handleBack} className="p-2 hover:bg-gray-100 rounded-full mr-2 -ml-2 transition-colors">
@@ -772,7 +777,7 @@ const App: React.FC = () => {
   const renderSuccess = () => {
      const config = getScreenConfig();
      return (
-     <div className="flex flex-col items-center justify-center h-full bg-white p-8 pb-[calc(2rem+env(safe-area-inset-bottom))] animate-in zoom-in duration-500">
+     <div className="flex flex-col items-center justify-center min-h-screen bg-white p-8 pb-[calc(2rem+env(safe-area-inset-bottom))] animate-in zoom-in duration-500">
         <div className="relative mb-8">
             <div className="absolute inset-0 bg-emerald-200 rounded-full blur-xl opacity-50 animate-pulse"></div>
             <div className="w-28 h-28 bg-gradient-to-br from-emerald-400 to-emerald-600 rounded-full flex items-center justify-center shadow-2xl shadow-emerald-200 relative z-10">
@@ -810,7 +815,7 @@ const App: React.FC = () => {
   )};
 
   const renderTransactions = () => (
-    <div className="flex flex-col h-full bg-[#f8f9fa] animate-in fade-in relative overflow-hidden">
+    <div className="flex flex-col min-h-screen bg-[#f8f9fa] animate-in fade-in relative overflow-hidden">
       {/* Decorative Background Elements for Glass Effect */}
       <div className="absolute top-[-10%] right-[-10%] w-[50%] h-[30%] bg-purple-200/30 rounded-full blur-[80px] pointer-events-none"></div>
       <div className="absolute bottom-[10%] left-[-10%] w-[50%] h-[30%] bg-rose-200/30 rounded-full blur-[80px] pointer-events-none"></div>
@@ -857,7 +862,7 @@ const App: React.FC = () => {
   );
 
   const renderSettings = () => (
-      <div className="flex flex-col h-full bg-gray-50 animate-in slide-in-from-right duration-300">
+      <div className="flex flex-col min-h-screen bg-gray-50 animate-in slide-in-from-right duration-300">
         {/* Header */}
         <div className="bg-white px-4 pb-4 pt-[calc(env(safe-area-inset-top)+1rem)] flex items-center shadow-sm sticky top-0 z-20">
             <button onClick={() => setCurrentScreen(AppScreen.HOME)} className="p-2 hover:bg-gray-100 rounded-full mr-2 -ml-2 transition-colors">
@@ -924,12 +929,11 @@ const App: React.FC = () => {
                         <p className="font-medium text-gray-800">লেনদেন অ্যালার্ট</p>
                         <p className="text-xs text-gray-400">টাকা পাঠানো বা গ্রহণের নোটিফিকেশন</p>
                     </div>
-                    <button
-                        type="button"
+                    <div
                         className={`w-12 h-6 rounded-full transition-colors duration-300 relative ${notificationPrefs.transactions ? 'bg-rose-500' : 'bg-gray-300'}`}
                     >
                         <div className={`w-4 h-4 bg-white rounded-full shadow-md absolute top-1 left-1 transition-transform duration-300 ${notificationPrefs.transactions ? 'translate-x-6' : 'translate-x-0'}`}></div>
-                    </button>
+                    </div>
                 </div>
 
                  {/* Offers Toggle */}
@@ -941,12 +945,11 @@ const App: React.FC = () => {
                         <p className="font-medium text-gray-800">অফার সমূহ</p>
                         <p className="text-xs text-gray-400">নতুন অফার এবং ডিসকাউন্ট আপডেট</p>
                     </div>
-                    <button
-                        type="button"
+                    <div
                         className={`w-12 h-6 rounded-full transition-colors duration-300 relative ${notificationPrefs.offers ? 'bg-rose-500' : 'bg-gray-300'}`}
                     >
                         <div className={`w-4 h-4 bg-white rounded-full shadow-md absolute top-1 left-1 transition-transform duration-300 ${notificationPrefs.offers ? 'translate-x-6' : 'translate-x-0'}`}></div>
-                    </button>
+                    </div>
                 </div>
 
                 {/* Security Toggle */}
@@ -958,12 +961,11 @@ const App: React.FC = () => {
                         <p className="font-medium text-gray-800">সিকিউরিটি অ্যালার্ট</p>
                         <p className="text-xs text-gray-400">লগইন এবং পাসওয়ার্ড পরিবর্তন সতর্কতা</p>
                     </div>
-                    <button
-                        type="button"
+                    <div
                         className={`w-12 h-6 rounded-full transition-colors duration-300 relative ${notificationPrefs.securityAlerts ? 'bg-rose-500' : 'bg-gray-300'}`}
                     >
                         <div className={`w-4 h-4 bg-white rounded-full shadow-md absolute top-1 left-1 transition-transform duration-300 ${notificationPrefs.securityAlerts ? 'translate-x-6' : 'translate-x-0'}`}></div>
-                    </button>
+                    </div>
                 </div>
             </div>
 
@@ -995,7 +997,7 @@ const App: React.FC = () => {
   // --- MAIN RENDER ---
   return (
     <div className="min-h-screen flex justify-center bg-gray-100 font-sans selection:bg-rose-100">
-      <div className="w-full max-w-md bg-[#FAFAFA] h-screen shadow-2xl shadow-gray-300 relative overflow-hidden flex flex-col border-x border-white">
+      <div className="w-full max-w-md bg-[#FAFAFA] min-h-screen shadow-2xl shadow-gray-300 relative overflow-hidden flex flex-col border-x border-white">
         
         {/* Screen Content */}
         <div className="flex-1 overflow-y-auto scroll-smooth no-scrollbar">
