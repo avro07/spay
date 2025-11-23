@@ -398,8 +398,13 @@ const App: React.FC = () => {
                      >
                          লগ ইন <ArrowRightIcon className="w-4 h-4" />
                      </button>
+                    
+                    <div className="bg-slate-100 p-3 rounded-lg border border-slate-200 text-center">
+                        <p className="text-[10px] text-slate-500 font-medium uppercase tracking-wide mb-1">Demo Credentials</p>
+                        <p className="text-xs text-slate-700 font-mono">User: <span className="font-bold">admin</span> | Pass: <span className="font-bold">1234</span></p>
+                    </div>
 
-                     <div className="text-center mt-6">
+                     <div className="text-center mt-4">
                         <button 
                            onClick={() => {
                               setIsAdminMode(false);
