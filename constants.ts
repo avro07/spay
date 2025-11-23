@@ -1,13 +1,37 @@
 
-import { Transaction, User } from './types';
+import { Transaction, User, Contact } from './types';
 import { Send, Download, Smartphone, ShoppingBag, PlusCircle, ArrowDownLeft, FileText, Landmark } from 'lucide-react';
 
 export const INITIAL_USER: User = {
+  id: '1',
   name: "তানভীর আহমেদ",
   phone: "01711234567",
   balance: 25450.50,
-  avatarUrl: "https://picsum.photos/100/100"
+  avatarUrl: "https://picsum.photos/100/100",
+  role: 'CUSTOMER',
+  type: 'user'
 };
+
+// Centralized User Database for Name Lookup and Admin Panel
+export const MOCK_USERS_DB: User[] = [
+  INITIAL_USER,
+  { id: '2', name: 'করিম চৌধুরী', phone: '01812345678', balance: 500.00, avatarUrl: 'https://picsum.photos/101/101', status: 'blocked', role: 'CUSTOMER', type: 'user' },
+  { id: '3', name: 'স্বপ্ন সুপার শপ', phone: '01912345678', balance: 150000.00, avatarUrl: 'https://picsum.photos/102/102', status: 'active', role: 'MERCHANT', type: 'agent' },
+  { id: '4', name: 'রহিম স্টোর (এজেন্ট)', phone: '01612345678', balance: 4500.00, avatarUrl: 'https://picsum.photos/103/103', status: 'active', role: 'AGENT', type: 'agent' },
+  { id: '5', name: 'সালমা খাতুন', phone: '01512345678', balance: 1200.00, avatarUrl: 'https://picsum.photos/104/104', status: 'active', role: 'CUSTOMER', type: 'user' },
+  { id: '6', name: 'ঢাকা ডিস্ট্রিবিউশন হাউজ', phone: '01700000001', balance: 500000.00, avatarUrl: 'https://picsum.photos/105/105', status: 'active', role: 'DISTRIBUTOR', type: 'agent' },
+  { id: '7', name: 'আম্মু', phone: '01711111111', balance: 5000.00, avatarUrl: 'https://picsum.photos/106/106', status: 'active', role: 'CUSTOMER', type: 'user' },
+  { id: '8', name: 'রফিক ইসলাম', phone: '01722222222', balance: 100.00, avatarUrl: 'https://picsum.photos/107/107', status: 'active', role: 'CUSTOMER', type: 'user' },
+];
+
+export const MOCK_CONTACTS: Contact[] = [
+  { id: 'c1', name: 'আম্মু', phone: '01711111111', avatar: 'https://picsum.photos/201/201' },
+  { id: 'c2', name: 'আব্বু', phone: '01711111112', avatar: 'https://picsum.photos/202/202' },
+  { id: 'c3', name: 'ছোট ভাই', phone: '01911111113', avatar: 'https://picsum.photos/203/203' },
+  { id: 'c4', name: 'অফিস বস', phone: '01811111114', avatar: 'https://picsum.photos/204/204' },
+  { id: 'c5', name: 'বাড়ির মালিক', phone: '01611111115', avatar: 'https://picsum.photos/205/205' },
+  { id: 'c6', name: 'ইন্টারনেট বিল', phone: '01511111116', avatar: 'https://picsum.photos/206/206' },
+];
 
 export const TRANSLATIONS = {
   bn: {

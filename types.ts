@@ -9,7 +9,10 @@ export interface Transaction {
   date: string;
   icon?: string;
   description?: string;
+  fee?: number;
 }
+
+export type UserRole = 'CUSTOMER' | 'AGENT' | 'MERCHANT' | 'DISTRIBUTOR' | 'ADMIN';
 
 export interface User {
   id?: string;
@@ -18,7 +21,15 @@ export interface User {
   balance: number;
   avatarUrl: string;
   status?: 'active' | 'blocked';
-  type?: 'user' | 'agent';
+  role?: UserRole; // Updated from 'type' to 'role' for better clarity, though keeping backward compat if needed
+  type?: 'user' | 'agent'; // Deprecated but kept for compatibility
+}
+
+export interface Contact {
+  id: string;
+  name: string;
+  phone: string;
+  avatar?: string;
 }
 
 export enum AppScreen {

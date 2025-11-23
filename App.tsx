@@ -1,5 +1,6 @@
+
 import React, { useState, useEffect, useRef } from 'react';
-import { ArrowLeft, ChevronRight, ArrowUpRight, CreditCard, Wallet, X, Bell, Shield, Settings as SettingsIcon, FileText, Landmark, ShoppingBag, Utensils, LogOut, Lock, User as UserIcon, Phone, Eye, EyeOff, QrCode as QrCodeIcon, Signal, Globe, UserCog } from 'lucide-react';
+import { ArrowLeft, ChevronRight, ArrowUpRight, CreditCard, Wallet, X, Bell, Shield, Settings as SettingsIcon, FileText, Landmark, ShoppingBag, Utensils, LogOut, Lock, User as UserIcon, Phone, Eye, EyeOff, QrCode as QrCodeIcon, Signal, Globe, UserCog, Contact as ContactIcon } from 'lucide-react';
 import BalanceHeader from './components/BalanceHeader';
 import ActionGrid from './components/ActionGrid';
 import BottomNav from './components/BottomNav';
@@ -9,8 +10,8 @@ import OfferCarousel from './components/OfferCarousel';
 import NumericKeypad from './components/NumericKeypad';
 import AdminDashboard from './components/AdminDashboard';
 import TransactionDetails from './components/TransactionDetails';
-import { AppScreen, User, Transaction, SendMoneyFormData, NotificationPreferences, Language } from './types';
-import { INITIAL_USER, MOCK_TRANSACTIONS, TRANSLATIONS } from './constants';
+import { AppScreen, User, Transaction, SendMoneyFormData, NotificationPreferences, Language, Contact } from './types';
+import { INITIAL_USER, MOCK_TRANSACTIONS, TRANSLATIONS, MOCK_USERS_DB, MOCK_CONTACTS } from './constants';
 
 const App: React.FC = () => {
   // Start at LOGIN screen
@@ -19,6 +20,9 @@ const App: React.FC = () => {
   const [transactions, setTransactions] = useState<Transaction[]>(MOCK_TRANSACTIONS);
   const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
+  
+  // Contacts Permission Simulation
+  const [contactsPermission, setContactsPermission] = useState(false);
   
   // Language State
   const [language, setLanguage] = useState<Language>('bn');
@@ -53,6 +57,9 @@ const App: React.FC = () => {
     reference: '',
     pin: ''
   });
+  
+  // Derived state for recipient name lookup
+  const [recipientNameDisplay, setRecipientNameDisplay] = useState<string>('');
 
   // Check for admin URL parameter on mount
   useEffect(() => {
@@ -62,6 +69,22 @@ const App: React.FC = () => {
       setIsAdminMode(true);
     }
   }, []);
+  
+  // Lookup recipient name when number changes
+  useEffect(() => {
+    if (formData.recipient.length === 11) {
+        const foundUser = MOCK_USERS_DB.find(u => u.phone === formData.recipient);
+        if (foundUser) {
+            setRecipientNameDisplay(foundUser.name);
+        } else {
+             // Look in contacts
+            const foundContact = MOCK_CONTACTS.find(c => c.phone === formData.recipient);
+            setRecipientNameDisplay(foundContact ? foundContact.name : '');
+        }
+    } else {
+        setRecipientNameDisplay('');
+    }
+  }, [formData.recipient]);
 
   // Dynamic Status Bar Color
   useEffect(() => {
@@ -241,7 +264,7 @@ const App: React.FC = () => {
   // Simulate scanning a QR code
   const simulateScan = () => {
     // In a real app, this would be data parsed from the QR code
-    const mockMerchantNumber = "01712345678";
+    const mockMerchantNumber = "01912345678";
     
     setFormData(prev => ({
       ...prev,
@@ -286,7 +309,7 @@ const App: React.FC = () => {
       case AppScreen.MOBILE_RECHARGE:
         return { title: 'মোবাইল রিচার্জ', label: 'মোবাইল নম্বর', type: 'MOBILE_RECHARGE' as const, operatorPrefix: true };
       case AppScreen.PAYMENT:
-        return { title: 'পেমেন্ট', label: 'মার্চেন্ট নম্বর/নাম', type: 'PAYMENT' as const, operatorPrefix: false };
+        return { title: 'পেমেন্ট', label: 'মার্চেন্ট নম্বর', type: 'PAYMENT' as const, operatorPrefix: false };
       case AppScreen.ADD_MONEY:
         return { title: 'অ্যাড মানি', label: 'ব্যাংক/কার্ড নম্বর', type: 'ADD_MONEY' as const, operatorPrefix: false };
       case AppScreen.PAY_BILL:
@@ -309,6 +332,7 @@ const App: React.FC = () => {
       setCurrentScreen(AppScreen.HOME);
       setTransactionStep(1);
       setFormData({ recipient: '', amount: '', reference: '', pin: '' });
+      setRecipientNameDisplay('');
     }
   };
 
@@ -316,10 +340,33 @@ const App: React.FC = () => {
   const executeTransaction = () => {
     const config = getScreenConfig();
     const amount = parseFloat(formData.amount);
+    let finalAmountToDeduct = amount;
+    let fee = 0;
+    
+    // CASH OUT LOGIC: 1% Total Fee
+    // Agent: 0.30%
+    // Distributor: 0.05%
+    // Admin: Remainder (0.65%)
+    if (config.type === 'CASH_OUT') {
+        fee = amount * 0.01;
+        finalAmountToDeduct = amount + fee;
+
+        // In a real backend, we would update the agent and distributor balances here.
+        // For simulation, we can console log the distribution.
+        const agentCommission = amount * 0.0030;
+        const distributorCommission = amount * 0.0005;
+        const adminCommission = fee - (agentCommission + distributorCommission);
+
+        console.log(`Cash Out Distribution for ${amount}:`);
+        console.log(`- Total Fee (1%): ${fee}`);
+        console.log(`- Agent Gets (0.30%): ${agentCommission}`);
+        console.log(`- Distributor Gets (0.05%): ${distributorCommission}`);
+        console.log(`- Admin Gets (Remainder): ${adminCommission}`);
+    }
     
     // Balance check for debit transactions
-    if (config.type !== 'ADD_MONEY' && config.type !== 'REQUEST_MONEY' && amount > user.balance) {
-       alert('অপর্যাপ্ত ব্যালেন্স');
+    if (config.type !== 'ADD_MONEY' && config.type !== 'REQUEST_MONEY' && finalAmountToDeduct > user.balance) {
+       alert(`অপর্যাপ্ত ব্যালেন্স। চার্জ সহ প্রয়োজন ৳${finalAmountToDeduct}`);
        return;
     }
 
@@ -327,9 +374,10 @@ const App: React.FC = () => {
       id: `TXN${Date.now()}`,
       type: config.type,
       amount: amount,
-      recipientName: formData.recipient,
+      recipientName: recipientNameDisplay || formData.recipient,
       date: 'এইমাত্র',
-      description: formData.reference || config.title
+      description: formData.reference || config.title,
+      fee: fee > 0 ? fee : undefined
     };
 
     setTransactions([newTxn, ...transactions]);
@@ -338,8 +386,8 @@ const App: React.FC = () => {
     if (config.type === 'ADD_MONEY') {
         setUser(prev => ({ ...prev, balance: prev.balance + amount }));
     } else if (config.type !== 'REQUEST_MONEY') {
-        // Request Money doesn't deduct balance immediately in this simulation
-        setUser(prev => ({ ...prev, balance: prev.balance - amount }));
+        // Deduct amount + fee
+        setUser(prev => ({ ...prev, balance: prev.balance - finalAmountToDeduct }));
     }
 
     setCurrentScreen(AppScreen.SUCCESS);
@@ -765,7 +813,13 @@ const App: React.FC = () => {
                     type="tel" 
                     placeholder={config.operatorPrefix ? "01XXXXXXXXX" : ""}
                     value={formData.recipient}
-                    onChange={e => setFormData({...formData, recipient: e.target.value})}
+                    maxLength={11}
+                    onChange={e => {
+                        const val = e.target.value.replace(/\D/g, ''); // Only digits
+                        if (val.length <= 11) {
+                            setFormData({...formData, recipient: val});
+                        }
+                    }}
                     onFocus={() => setActiveInput(null)}
                     className="w-full text-lg font-semibold border-b-2 border-gray-200 focus:border-rose-500 outline-none py-2 px-1 placeholder-gray-300 bg-transparent text-gray-800 transition-colors"
                     autoFocus
@@ -776,6 +830,14 @@ const App: React.FC = () => {
                      </button>
                  )}
                </div>
+               
+               {/* Recipient Name Lookup Display */}
+               {recipientNameDisplay && (
+                   <div className="mt-2 text-emerald-600 text-xs font-bold flex items-center gap-1 animate-in fade-in">
+                       <Shield size={12} /> {recipientNameDisplay}
+                   </div>
+               )}
+
                {/* Operator Detection */}
                {config.type === 'MOBILE_RECHARGE' && formData.recipient.length >= 3 && (
                  (() => {
@@ -796,10 +858,68 @@ const App: React.FC = () => {
                     return null;
                  })()
                )}
+
+                {/* Contacts Section */}
+                {['SEND_MONEY', 'CASH_OUT', 'PAYMENT', 'REQUEST_MONEY'].includes(config.type) && (
+                   <div className="mt-6">
+                       {!contactsPermission ? (
+                           <div className="bg-gray-50 rounded-xl p-4 text-center border border-gray-100">
+                               <ContactIcon className="w-8 h-8 text-gray-400 mx-auto mb-2" />
+                               <p className="text-xs text-gray-500 mb-3">সহজেই নাম্বার সিলেক্ট করতে কন্টাক্ট পারমিশন দিন</p>
+                               <button 
+                                   onClick={() => setContactsPermission(true)}
+                                   className="text-rose-600 text-xs font-bold border border-rose-200 bg-rose-50 px-3 py-1.5 rounded-full hover:bg-rose-100 transition-colors"
+                               >
+                                   পারমিশন দিন
+                               </button>
+                           </div>
+                       ) : (
+                           <div className="animate-in fade-in">
+                               {/* Recent Contacts from Transactions */}
+                               <h3 className="text-xs font-bold text-gray-400 mb-3 uppercase tracking-wider">Recent Contacts</h3>
+                               <div className="flex gap-4 overflow-x-auto pb-4 no-scrollbar -mx-1 px-1">
+                                   {transactions.slice(0, 5).map(t => (
+                                       <div 
+                                         key={t.id} 
+                                         className="flex flex-col items-center gap-1 min-w-[60px] cursor-pointer"
+                                         onClick={() => setFormData({...formData, recipient: MOCK_USERS_DB.find(u => u.name === t.recipientName)?.phone || '01711234567'})} 
+                                       >
+                                           <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center text-xs font-bold text-gray-600 border border-gray-200">
+                                               {t.recipientName?.substring(0, 2)}
+                                           </div>
+                                           <span className="text-[10px] text-gray-600 font-medium text-center line-clamp-1 w-full">{t.recipientName}</span>
+                                       </div>
+                                   ))}
+                               </div>
+
+                               {/* All Contacts List */}
+                               <h3 className="text-xs font-bold text-gray-400 mb-2 mt-2 uppercase tracking-wider">All Contacts</h3>
+                               <div className="space-y-2 max-h-48 overflow-y-auto pr-1 custom-scrollbar">
+                                   {MOCK_CONTACTS.map(contact => (
+                                       <div 
+                                         key={contact.id}
+                                         className="flex items-center gap-3 p-2 hover:bg-gray-50 rounded-lg cursor-pointer transition-colors"
+                                         onClick={() => setFormData({...formData, recipient: contact.phone})}
+                                       >
+                                           <div className="w-10 h-10 rounded-full bg-gray-200 overflow-hidden">
+                                               <img src={contact.avatar} alt={contact.name} className="w-full h-full object-cover" />
+                                           </div>
+                                           <div>
+                                               <p className="text-sm font-bold text-gray-800">{contact.name}</p>
+                                               <p className="text-xs text-gray-500 font-mono">{contact.phone}</p>
+                                           </div>
+                                       </div>
+                                   ))}
+                               </div>
+                           </div>
+                       )}
+                   </div>
+                )}
+
                <div className="mt-6">
                 <button 
-                    onClick={() => formData.recipient.length > 3 && setTransactionStep(2)}
-                    disabled={formData.recipient.length < 3}
+                    onClick={() => formData.recipient.length === 11 && setTransactionStep(2)}
+                    disabled={formData.recipient.length !== 11}
                     className="w-full bg-rose-600 text-white py-3.5 rounded-xl font-bold shadow-lg shadow-rose-200 hover:shadow-xl hover:bg-rose-700 active:scale-[0.98] transition-all disabled:opacity-50 disabled:shadow-none text-sm"
                 >
                     পরবর্তী ধাপ
@@ -811,12 +931,15 @@ const App: React.FC = () => {
              <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
                <div className="flex items-center justify-between mb-6 bg-rose-50 p-3 rounded-xl border border-rose-100">
                  <div className="flex items-center space-x-2.5">
-                    <div className="w-9 h-9 bg-rose-100 rounded-full flex items-center justify-center text-rose-600 font-bold text-sm">
-                        {formData.recipient.substring(0,2)}
+                    <div className="w-9 h-9 bg-rose-100 rounded-full flex items-center justify-center text-rose-600 font-bold text-sm overflow-hidden">
+                         {/* Show Image if available (from mock db or contacts) */}
+                         <span className="text-xs">{recipientNameDisplay ? recipientNameDisplay.substring(0,2) : formData.recipient.substring(0,2)}</span>
                     </div>
                     <div>
                         <div className="text-[10px] text-gray-500 font-medium">{config.label === 'প্রাপক নম্বর' ? 'প্রাপক' : config.label}</div>
-                        <div className="font-bold text-gray-800 text-sm line-clamp-1 break-all">{formData.recipient}</div>
+                        <div className="font-bold text-gray-800 text-sm line-clamp-1 break-all">
+                             {recipientNameDisplay ? `${recipientNameDisplay} (${formData.recipient})` : formData.recipient}
+                        </div>
                     </div>
                  </div>
                  <button onClick={() => setTransactionStep(1)} className="text-rose-600 text-[10px] font-bold px-2.5 py-1 bg-white rounded-full shadow-sm shrink-0">পরিবর্তন</button>
@@ -863,11 +986,26 @@ const App: React.FC = () => {
              <div className="text-center animate-in fade-in slide-in-from-bottom-4 duration-500">
                <div className="mb-5 text-left bg-gray-50 p-4 rounded-xl space-y-2.5 border border-gray-100 relative overflow-hidden">
                  <div className="absolute top-0 right-0 w-16 h-16 bg-rose-100 rounded-full -mr-8 -mt-8 opacity-50"></div>
-                 <div className="flex justify-between text-xs text-gray-600 relative z-10"><span>প্রাপক/হিসাব</span> <span className="font-bold text-gray-800 font-mono break-all pl-2">{formData.recipient}</span></div>
+                 <div className="flex justify-between text-xs text-gray-600 relative z-10">
+                     <span>প্রাপক/হিসাব</span> 
+                     <span className="font-bold text-gray-800 font-mono break-all pl-2 text-right">
+                         {recipientNameDisplay}<br/>{formData.recipient}
+                     </span>
+                 </div>
                  <div className="flex justify-between text-xs text-gray-600 relative z-10"><span>পরিমাণ</span> <span className="font-bold text-gray-800 font-mono">৳ {formData.amount}</span></div>
-                 <div className="flex justify-between text-xs text-gray-600 relative z-10"><span>চার্জ</span> <span className="font-bold text-emerald-600">ফ্রি</span></div>
+                 <div className="flex justify-between text-xs text-gray-600 relative z-10">
+                     <span>চার্জ</span> 
+                     <span className={`font-bold ${config.type === 'CASH_OUT' ? 'text-rose-600' : 'text-emerald-600'}`}>
+                         {config.type === 'CASH_OUT' ? `৳ ${(parseFloat(formData.amount) * 0.01).toFixed(2)}` : 'ফ্রি'}
+                     </span>
+                 </div>
                  <div className="my-1.5 border-t border-gray-200 border-dashed"></div>
-                 <div className="flex justify-between text-base pt-0.5 text-rose-600 font-black relative z-10"><span>সর্বমোট</span> <span className="font-mono">৳ {formData.amount}</span></div>
+                 <div className="flex justify-between text-base pt-0.5 text-rose-600 font-black relative z-10">
+                     <span>সর্বমোট</span> 
+                     <span className="font-mono">
+                         ৳ {config.type === 'CASH_OUT' ? (parseFloat(formData.amount) * 1.01).toFixed(2) : formData.amount}
+                     </span>
+                 </div>
                </div>
                <div className="mb-6">
                   <label className="block text-left text-xs font-medium text-gray-500 mb-1.5 ml-1">পিন নম্বর</label>
@@ -916,7 +1054,7 @@ const App: React.FC = () => {
         
         <div className="w-full bg-gray-50 rounded-2xl p-5 mb-6 border border-gray-100 relative overflow-hidden">
            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-emerald-400 to-teal-500"></div>
-           <div className="flex justify-between mb-2.5"><span className="text-gray-500 text-xs">প্রাপক/হিসাব</span> <span className="font-bold text-gray-800 text-sm">{formData.recipient}</span></div>
+           <div className="flex justify-between mb-2.5"><span className="text-gray-500 text-xs">প্রাপক/হিসাব</span> <span className="font-bold text-gray-800 text-sm">{recipientNameDisplay || formData.recipient}</span></div>
            <div className="flex justify-between mb-2.5"><span className="text-gray-500 text-xs">ট্রানজেকশন আইডি</span> <span className="font-mono font-bold text-gray-800 text-[10px] bg-white px-1.5 py-0.5 rounded border border-gray-200">{transactions[0].id}</span></div>
            <div className="flex justify-between"><span className="text-gray-500 text-xs">সময়</span> <span className="font-bold text-gray-800 text-xs">{transactions[0].date}</span></div>
         </div>
@@ -925,6 +1063,7 @@ const App: React.FC = () => {
           onClick={() => {
             setTransactionStep(1);
             setFormData({ recipient: '', amount: '', reference: '', pin: '' });
+            setRecipientNameDisplay('');
             setCurrentScreen(AppScreen.HOME);
           }}
           className="w-full bg-gray-900 text-white py-3.5 rounded-xl font-bold shadow-xl hover:bg-black transition-all text-sm"
@@ -978,6 +1117,9 @@ const App: React.FC = () => {
                  <p className={`font-bold text-base font-mono ${['RECEIVED_MONEY', 'ADD_MONEY'].includes(txn.type) ? 'text-emerald-600' : 'text-gray-800'}`}>
                     {['RECEIVED_MONEY', 'ADD_MONEY'].includes(txn.type) ? '+' : '-'}৳{txn.amount.toLocaleString(language === 'bn' ? 'bn-BD' : 'en-US')}
                  </p>
+                 {txn.fee && txn.fee > 0 && (
+                     <p className="text-[9px] text-rose-500 mt-0.5">ফি: ৳{txn.fee}</p>
+                 )}
               </div>
            </div>
          ))}
