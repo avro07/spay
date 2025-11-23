@@ -6,6 +6,7 @@ import ActionGrid from './components/ActionGrid';
 import BottomNav from './components/BottomNav';
 import AIAssistant from './components/AIAssistant';
 import HoldToConfirm from './components/HoldToConfirm';
+import OfferCarousel from './components/OfferCarousel';
 import { AppScreen, User, Transaction, SendMoneyFormData, NotificationPreferences } from './types';
 import { INITIAL_USER, MOCK_TRANSACTIONS } from './constants';
 
@@ -157,31 +158,9 @@ const App: React.FC = () => {
         />
         <ActionGrid onNavigate={setCurrentScreen} />
         
-        {/* Promotions Banner */}
+        {/* Promotions Carousel */}
         <div className="px-5 mt-6">
-            <div 
-              onClick={() => setCurrentScreen(AppScreen.OFFERS)}
-              className="relative overflow-hidden bg-gradient-to-r from-violet-600 via-indigo-600 to-blue-600 rounded-2xl p-5 shadow-lg shadow-indigo-200 group cursor-pointer transition-transform active:scale-[0.98]"
-            >
-                <div className="absolute top-0 right-0 w-32 h-32 bg-white opacity-10 rounded-full -mr-10 -mt-10 blur-2xl"></div>
-                <div className="absolute bottom-0 left-0 w-24 h-24 bg-rose-500 opacity-20 rounded-full -ml-10 -mb-10 blur-xl"></div>
-                
-                <div className="relative z-10 flex justify-between items-center">
-                    <div className="space-y-1">
-                        <span className="bg-white/20 backdrop-blur-sm px-2.5 py-0.5 rounded text-[10px] font-bold text-white border border-white/20 inline-block mb-1">
-                            স্পেশাল অফার
-                        </span>
-                        <h3 className="font-bold text-white text-xl">২০০০ টাকা অ্যাড মানি</h3>
-                        <p className="text-indigo-100 text-sm">ব্যাংক বা কার্ড থেকে অ্যাড করলেই</p>
-                    </div>
-                    <div className="flex flex-col items-end">
-                        <div className="text-right">
-                            <span className="block text-3xl font-black text-white drop-shadow-sm">২০৳</span>
-                            <span className="text-xs text-indigo-200 font-medium">ইনস্ট্যান্ট বোনাস</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            <OfferCarousel onNavigate={setCurrentScreen} />
         </div>
 
         {/* Recent Transactions Preview */}
