@@ -8,6 +8,7 @@ import HoldToConfirm from './components/HoldToConfirm';
 import OfferCarousel from './components/OfferCarousel';
 import NumericKeypad from './components/NumericKeypad';
 import AdminDashboard from './components/AdminDashboard';
+import TransactionDetails from './components/TransactionDetails';
 import { AppScreen, User, Transaction, SendMoneyFormData, NotificationPreferences, Language } from './types';
 import { INITIAL_USER, MOCK_TRANSACTIONS, TRANSLATIONS } from './constants';
 
@@ -16,6 +17,7 @@ const App: React.FC = () => {
   const [currentScreen, setCurrentScreen] = useState<AppScreen>(AppScreen.LOGIN);
   const [user, setUser] = useState<User>(INITIAL_USER);
   const [transactions, setTransactions] = useState<Transaction[]>(MOCK_TRANSACTIONS);
+  const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   
   // Language State
@@ -612,7 +614,7 @@ const App: React.FC = () => {
             </div>
             <div className="flex flex-col gap-2.5">
             {transactions.slice(0, 3).map((txn) => (
-                <div key={txn.id} className="bg-white/40 backdrop-blur-xl p-3 rounded-xl shadow-[0_4px_20px_-10px_rgba(0,0,0,0.1)] border border-white/50 flex items-center justify-between active:scale-[0.99] transition-transform hover:bg-white/50 group">
+                <div key={txn.id} onClick={() => setSelectedTransaction(txn)} className="bg-white/40 backdrop-blur-xl p-3 rounded-xl shadow-[0_4px_20px_-10px_rgba(0,0,0,0.1)] border border-white/50 flex items-center justify-between active:scale-[0.99] transition-transform hover:bg-white/50 group cursor-pointer">
                 <div className="flex items-center space-x-3">
                     <div className={`
                         w-10 h-10 rounded-xl flex items-center justify-center text-lg font-bold shadow-inner backdrop-blur-sm
@@ -952,7 +954,8 @@ const App: React.FC = () => {
          {transactions.map((txn, index) => (
            <div 
                 key={txn.id} 
-                className="bg-white/60 backdrop-blur-xl p-4 rounded-xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/50 flex justify-between items-center hover:bg-white/70 transition-all duration-300"
+                onClick={() => setSelectedTransaction(txn)}
+                className="bg-white/60 backdrop-blur-xl p-4 rounded-xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/50 flex justify-between items-center hover:bg-white/70 active:scale-[0.99] transition-all duration-300 cursor-pointer"
                 style={{ animationDelay: `${index * 50}ms` }}
             >
               <div className="flex items-center space-x-3.5">
@@ -1223,6 +1226,15 @@ const App: React.FC = () => {
                     onDone={handleKeypadDone} 
                 />
             </>
+        )}
+
+        {/* Transaction Details Modal */}
+        {selectedTransaction && (
+           <TransactionDetails 
+              transaction={selectedTransaction} 
+              onClose={() => setSelectedTransaction(null)} 
+              language={language}
+           />
         )}
 
         {/* AI Assistant Modal */}
