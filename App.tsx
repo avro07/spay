@@ -255,7 +255,7 @@ const App: React.FC = () => {
             <p className="text-rose-100 text-sm mb-12">আপনার নিরাপদ লেনদেনের সাথী</p>
         </div>
 
-        <div className="bg-white rounded-t-[35px] p-8 shadow-[0_-10px_40px_-15px_rgba(0,0,0,0.3)] min-h-[50%] animate-in slide-in-from-bottom duration-500">
+        <div className="bg-white rounded-t-[35px] p-8 pb-[calc(2rem+env(safe-area-inset-bottom))] shadow-[0_-10px_40px_-15px_rgba(0,0,0,0.3)] min-h-[50%] animate-in slide-in-from-bottom duration-500">
              <div className="space-y-6">
                  <div>
                      <label className="block text-sm font-bold text-gray-700 mb-2 ml-1">মোবাইল নম্বর</label>
@@ -326,7 +326,7 @@ const App: React.FC = () => {
             <p className="text-rose-100 text-sm">SPay-তে রেজিস্ট্রেশন করুন</p>
         </div>
 
-        <div className="flex-1 overflow-y-auto p-6 space-y-5">
+        <div className="flex-1 overflow-y-auto p-6 pb-[calc(1.5rem+env(safe-area-inset-bottom))] space-y-5">
             <div>
                 <label className="block text-sm font-bold text-gray-700 mb-2 ml-1">আপনার নাম</label>
                 <div className="relative">
@@ -401,7 +401,7 @@ const App: React.FC = () => {
   );
 
   const renderHome = () => (
-    <div className="pb-28 animate-in fade-in duration-500 relative">
+    <div className="pb-[calc(7rem+env(safe-area-inset-bottom))] animate-in fade-in duration-500 relative">
       {/* Background Ambient Blobs for Glass Effect */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
           <div className="absolute top-[20%] left-[-10%] w-72 h-72 bg-purple-200/40 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob"></div>
@@ -479,7 +479,7 @@ const App: React.FC = () => {
           <h1 className="font-bold text-xl text-gray-800">অফার সমূহ</h1>
        </div>
 
-       <div className="flex-1 overflow-y-auto p-5 pb-28 space-y-5">
+       <div className="flex-1 overflow-y-auto p-5 pb-[calc(7rem+env(safe-area-inset-bottom))] space-y-5">
           {/* Banner 1: Recharge */}
           <div 
              onClick={() => setCurrentScreen(AppScreen.MOBILE_RECHARGE)}
@@ -639,7 +639,7 @@ const App: React.FC = () => {
         </div>
       </div>
 
-      <div className="flex-1 p-5">
+      <div className="flex-1 p-5 pb-[calc(1.25rem+env(safe-area-inset-bottom))]">
          {/* Step Indicator */}
          <div className="w-full bg-gray-200 h-1.5 rounded-full mb-8 overflow-hidden">
             <div 
@@ -772,7 +772,7 @@ const App: React.FC = () => {
   const renderSuccess = () => {
      const config = getScreenConfig();
      return (
-     <div className="flex flex-col items-center justify-center h-full bg-white p-8 animate-in zoom-in duration-500">
+     <div className="flex flex-col items-center justify-center h-full bg-white p-8 pb-[calc(2rem+env(safe-area-inset-bottom))] animate-in zoom-in duration-500">
         <div className="relative mb-8">
             <div className="absolute inset-0 bg-emerald-200 rounded-full blur-xl opacity-50 animate-pulse"></div>
             <div className="w-28 h-28 bg-gradient-to-br from-emerald-400 to-emerald-600 rounded-full flex items-center justify-center shadow-2xl shadow-emerald-200 relative z-10">
@@ -822,7 +822,7 @@ const App: React.FC = () => {
         <h1 className="font-bold text-xl text-gray-800">লেনদেন সমূহ</h1>
       </div>
       
-      <div className="flex-1 overflow-y-auto p-5 pb-28 space-y-4 relative z-10">
+      <div className="flex-1 overflow-y-auto p-5 pb-[calc(7rem+env(safe-area-inset-bottom))] space-y-4 relative z-10">
          {transactions.map((txn, index) => (
            <div 
                 key={txn.id} 
@@ -866,7 +866,7 @@ const App: React.FC = () => {
             <h1 className="font-bold text-xl text-gray-800">সেটিংস</h1>
         </div>
 
-        <div className="p-5 space-y-6">
+        <div className="p-5 pb-[calc(1.25rem+env(safe-area-inset-bottom))] space-y-6">
             <div className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm">
                 <h2 className="text-gray-800 font-bold mb-4 flex items-center gap-2">
                     <SettingsIcon size={20} className="text-rose-600" />
