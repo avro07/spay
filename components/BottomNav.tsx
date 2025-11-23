@@ -22,17 +22,17 @@ const BottomNav: React.FC<BottomNavProps> = ({ currentScreen, onNavigate, langua
   ];
 
   return (
-    <div className="absolute bottom-0 left-0 w-full z-50 pointer-events-none">
-      {/* Background Container */}
-      <div className="pointer-events-auto absolute bottom-0 w-full bg-white border-t border-gray-100 shadow-[0_-4px_20px_rgba(0,0,0,0.05)] pb-[env(safe-area-inset-bottom)] rounded-t-[30px]">
-        <div className="flex justify-between items-end px-4 h-[70px]">
+    <div className="absolute bottom-0 left-0 w-full z-50 pointer-events-none flex justify-center pb-[calc(env(safe-area-inset-bottom)+16px)]">
+      {/* Background Container - Floating Style */}
+      <div className="pointer-events-auto w-[calc(100%-32px)] max-w-[400px] bg-white border border-gray-100 shadow-[0_10px_30px_rgba(0,0,0,0.1)] rounded-[35px] relative">
+        <div className="flex justify-between items-end px-2 h-[72px] pb-2.5">
           {navItems.map((item) => {
             const isActive = currentScreen === item.id;
             
             // Special Scan Button (Diamond/Squircle Design)
             if (item.isSpecial) {
                return (
-                 <div key={item.id} className="relative flex flex-col items-center justify-end w-[20%] h-full cursor-pointer group pb-2" onClick={() => onNavigate(AppScreen.SCAN)}>
+                 <div key={item.id} className="relative flex flex-col items-center justify-end w-[20%] h-full cursor-pointer group pb-1" onClick={() => onNavigate(AppScreen.SCAN)}>
                     <div className="absolute -top-6 left-1/2 -translate-x-1/2 z-10 transition-transform duration-200 group-active:scale-90">
                         {/* Glow Effect */}
                         <div className="absolute inset-0 bg-rose-500 blur-xl opacity-20 rounded-full translate-y-2 scale-110"></div>
@@ -56,7 +56,7 @@ const BottomNav: React.FC<BottomNavProps> = ({ currentScreen, onNavigate, langua
               <button
                 key={item.id}
                 onClick={() => onNavigate(item.id as AppScreen)}
-                className={`relative flex flex-col items-center justify-center w-[20%] h-full pb-3 gap-1.5 transition-colors duration-300 group`}
+                className={`relative flex flex-col items-center justify-center w-[20%] h-full pb-1 gap-1.5 transition-colors duration-300 group`}
               >
                 <div className={`
                     p-1.5 rounded-xl transition-all duration-300
