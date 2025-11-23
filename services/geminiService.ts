@@ -18,8 +18,7 @@ export const getAIResponse = async (
       `- ${t.date}: ${t.type} of ${t.amount} BDT to/from ${t.recipientName || 'Unknown'} (${t.description || ''})`
     ).join('\n');
 
-    const systemPrompt = `
-      You are 'DeshPay Assistant', a helpful AI support agent for a Bangladeshi mobile financial app.
+    const systemInstruction = `You are 'DeshPay Assistant', a helpful AI support agent for a Bangladeshi mobile financial app.
       
       Current User Context:
       - Name: ${userContext.name}
@@ -33,14 +32,14 @@ export const getAIResponse = async (
       2. Be polite, concise, and use natural language (supports Bengali and English).
       3. If they ask about spending, summarize it.
       4. If the query is unrelated to finance/app, politely steer them back.
-      5. Keep responses short (under 3 sentences if possible).
-      
-      User Query: ${userQuery}
-    `;
+      5. Keep responses short (under 3 sentences if possible).`;
 
     const response = await ai.models.generateContent({
       model: model,
-      contents: systemPrompt,
+      contents: userQuery,
+      config: {
+        systemInstruction: systemInstruction,
+      },
     });
 
     return response.text || "দুঃখিত, আমি এখন উত্তর দিতে পারছি না।";
