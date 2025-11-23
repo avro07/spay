@@ -29,16 +29,16 @@ const BottomNav: React.FC<BottomNavProps> = ({ currentScreen, onNavigate, langua
           {navItems.map((item) => {
             const isActive = currentScreen === item.id;
             
-            // Special Scan Button (Compact Circular Floating)
+            // Special Scan Button (Prominent Floating Style)
             if (item.isSpecial) {
                return (
                  <div key={item.id} className="relative flex flex-col items-center justify-end w-[20%] h-full cursor-pointer group pb-1.5" onClick={() => onNavigate(AppScreen.SCAN)}>
-                    <div className="absolute -top-8 transition-transform duration-200 group-active:scale-95">
-                        <div className="w-[64px] h-[64px] bg-rose-600 rounded-full flex items-center justify-center shadow-xl shadow-rose-300/50 border-[4px] border-[#f3f4f6]">
-                             <ScanLine size={28} className="text-white" strokeWidth={2.5} />
+                    <div className="absolute -top-9 left-1/2 -translate-x-1/2 transition-transform duration-200 group-active:scale-95 z-10">
+                        <div className="w-[72px] h-[72px] bg-rose-600 rounded-full flex items-center justify-center shadow-[0_8px_20px_rgba(225,29,72,0.4)] border-[6px] border-white">
+                             <ScanLine size={32} className="text-white" strokeWidth={2.5} />
                         </div>
                     </div>
-                    <span className="text-[10px] font-bold text-gray-500 mt-7">
+                    <span className="text-[10px] font-bold text-gray-500 mt-8 leading-none">
                       {item.label}
                     </span>
                  </div>
@@ -52,11 +52,13 @@ const BottomNav: React.FC<BottomNavProps> = ({ currentScreen, onNavigate, langua
                 onClick={() => onNavigate(item.id as AppScreen)}
                 className={`relative flex flex-col items-center justify-center w-[20%] h-full pb-1.5 gap-1 transition-colors duration-300 group`}
               >
-                <item.icon 
-                   size={20} 
-                   strokeWidth={isActive ? 2.5 : 2} 
-                   className={`transition-colors duration-300 ${isActive ? 'text-rose-600' : 'text-gray-400 group-hover:text-gray-600'}`} 
-                />
+                <div className={`transition-all duration-300 ${isActive ? '-translate-y-1' : ''}`}>
+                    <item.icon 
+                       size={20} 
+                       strokeWidth={isActive ? 2.5 : 2} 
+                       className={`transition-colors duration-300 ${isActive ? 'text-rose-600' : 'text-gray-400 group-hover:text-gray-600'}`} 
+                    />
+                </div>
                 
                 <span className={`
                   text-[10px] font-semibold transition-colors duration-300 leading-none
