@@ -33,12 +33,12 @@ const BottomNav: React.FC<BottomNavProps> = ({ currentScreen, onNavigate, langua
             if (item.isSpecial) {
                return (
                  <div key={item.id} className="relative flex flex-col items-center justify-end w-[20%] h-full cursor-pointer group pb-1.5" onClick={() => onNavigate(AppScreen.SCAN)}>
-                    <div className="absolute -top-5 transition-transform duration-200 group-active:scale-95">
-                        <div className="w-[48px] h-[48px] bg-rose-600 rounded-full flex items-center justify-center shadow-lg shadow-rose-200 border-[3px] border-[#f3f4f6]">
-                             <ScanLine size={20} className="text-white" strokeWidth={2.5} />
+                    <div className="absolute -top-8 transition-transform duration-200 group-active:scale-95">
+                        <div className="w-[64px] h-[64px] bg-rose-600 rounded-full flex items-center justify-center shadow-xl shadow-rose-300/50 border-[4px] border-[#f3f4f6]">
+                             <ScanLine size={28} className="text-white" strokeWidth={2.5} />
                         </div>
                     </div>
-                    <span className="text-[10px] font-bold text-gray-500 mt-6">
+                    <span className="text-[10px] font-bold text-gray-500 mt-7">
                       {item.label}
                     </span>
                  </div>
