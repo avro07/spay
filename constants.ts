@@ -1,5 +1,5 @@
 import { Transaction, User } from './types';
-import { Send, Download, Smartphone, ShoppingBag, PlusCircle, ArrowDownLeft, FileText, Landmark } from 'lucide-react';
+import { Send, Download, Smartphone, ShoppingBag, PlusCircle, ArrowDownLeft, FileText, Landmark, ScanLine } from 'lucide-react';
 
 export const INITIAL_USER: User = {
   name: "তানভীর আহমেদ",
@@ -44,6 +44,7 @@ export const MOCK_TRANSACTIONS: Transaction[] = [
 ];
 
 export const QUICK_ACTIONS = [
+  { id: 'scan', label: 'QR স্ক্যান', icon: ScanLine, color: 'text-rose-600' },
   { id: 'send', label: 'সেন্ড মানি', icon: Send, color: 'text-rose-500' },
   { id: 'cashout', label: 'ক্যাশ আউট', icon: Download, color: 'text-emerald-500' },
   { id: 'recharge', label: 'মোবাইল রিচার্জ', icon: Smartphone, color: 'text-violet-500' },
