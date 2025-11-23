@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { ArrowLeft, ChevronRight, ArrowUpRight, CreditCard, Wallet, X, Bell, Shield, Settings as SettingsIcon, FileText, Landmark, ShoppingBag, Utensils, LogOut, Lock, User as UserIcon, Phone, Eye, EyeOff } from 'lucide-react';
+import { ArrowLeft, ChevronRight, ArrowUpRight, CreditCard, Wallet, X, Bell, Shield, Settings as SettingsIcon, FileText, Landmark, ShoppingBag, Utensils, LogOut, Lock, User as UserIcon, Phone, Eye, EyeOff, QrCode as QrCodeIcon } from 'lucide-react';
 import BalanceHeader from './components/BalanceHeader';
 import ActionGrid from './components/ActionGrid';
 import BottomNav from './components/BottomNav';
@@ -867,6 +867,48 @@ const App: React.FC = () => {
         </div>
 
         <div className="p-5 pb-[calc(1.25rem+env(safe-area-inset-bottom))] space-y-6">
+            {/* User Profile & QR Card */}
+            <div className="bg-white rounded-3xl border border-gray-100 shadow-[0_10px_30px_-10px_rgba(0,0,0,0.05)] overflow-hidden">
+                <div className="bg-gradient-to-br from-rose-600 to-pink-700 p-8 flex flex-col items-center text-white relative overflow-hidden">
+                     {/* Background deco */}
+                     <div className="absolute top-0 right-0 w-32 h-32 bg-white opacity-10 rounded-full -mr-10 -mt-10 blur-2xl"></div>
+                     <div className="absolute bottom-0 left-0 w-24 h-24 bg-rose-900 opacity-20 rounded-full -ml-10 -mb-10 blur-xl"></div>
+                     
+                     <div className="relative z-10 flex flex-col items-center">
+                        <div className="w-24 h-24 rounded-full p-1.5 bg-white/20 backdrop-blur-md mb-4 shadow-lg">
+                            <img src={user.avatarUrl} alt="User" className="w-full h-full rounded-full object-cover border-2 border-white" />
+                        </div>
+                        <h2 className="font-bold text-2xl tracking-tight">{user.name}</h2>
+                        <p className="text-rose-100 font-medium opacity-90 font-mono mt-1">{user.phone}</p>
+                        <span className="mt-3 bg-white/20 backdrop-blur-md px-3 py-1 rounded-full text-[10px] font-bold border border-white/20 shadow-sm">
+                            গোল্ড মেম্বার
+                        </span>
+                     </div>
+                </div>
+                
+                <div className="p-8 flex flex-col items-center bg-white relative">
+                    <div className="absolute -top-6 bg-white p-2 rounded-2xl shadow-sm border border-gray-50">
+                        <div className="bg-rose-50 p-2 rounded-xl">
+                            <QrCodeIcon size={24} className="text-rose-600" />
+                        </div>
+                    </div>
+                    
+                    <div className="mt-4 p-4 bg-white border-2 border-dashed border-gray-200 rounded-2xl shadow-sm group hover:border-rose-300 transition-colors">
+                         <img 
+                            src={`https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${user.phone}&color=1f2937&bgcolor=ffffff`} 
+                            alt="User QR" 
+                            className="w-48 h-48 mix-blend-multiply opacity-90 group-hover:opacity-100 transition-opacity"
+                        />
+                    </div>
+                    <p className="text-center text-sm font-semibold text-gray-600 mt-6">
+                        আমার QR কোড
+                    </p>
+                    <p className="text-center text-xs text-gray-400 mt-2 max-w-[220px] leading-relaxed">
+                        টাকা গ্রহণ করতে অন্য কাউকে এই QR কোডটি স্ক্যান করতে বলুন
+                    </p>
+                </div>
+            </div>
+
             <div className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm">
                 <h2 className="text-gray-800 font-bold mb-4 flex items-center gap-2">
                     <SettingsIcon size={20} className="text-rose-600" />
