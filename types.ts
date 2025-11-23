@@ -12,10 +12,13 @@ export interface Transaction {
 }
 
 export interface User {
+  id?: string;
   name: string;
   phone: string;
   balance: number;
   avatarUrl: string;
+  status?: 'active' | 'blocked';
+  type?: 'user' | 'agent';
 }
 
 export enum AppScreen {
@@ -35,7 +38,8 @@ export enum AppScreen {
   SUCCESS = 'SUCCESS',
   SETTINGS = 'SETTINGS',
   SCAN = 'SCAN',
-  OFFERS = 'OFFERS'
+  OFFERS = 'OFFERS',
+  ADMIN_DASHBOARD = 'ADMIN_DASHBOARD'
 }
 
 export type Language = 'bn' | 'en';

@@ -9,8 +9,8 @@ interface HoldToConfirmProps {
 const HoldToConfirm: React.FC<HoldToConfirmProps> = ({ onConfirm, label = "ট্যাপ করে ধরে রাখুন" }) => {
   const [progress, setProgress] = useState(0);
   const [isHolding, setIsHolding] = useState(false);
-  const requestRef = useRef<number>();
-  const startTimeRef = useRef<number>();
+  const requestRef = useRef<number>(0);
+  const startTimeRef = useRef<number>(0);
   
   const DURATION = 1500; // 1.5 seconds to confirm
 
@@ -33,7 +33,7 @@ const HoldToConfirm: React.FC<HoldToConfirmProps> = ({ onConfirm, label = "ট�
 
   const startHolding = () => {
     setIsHolding(true);
-    startTimeRef.current = undefined; // Reset start time
+    startTimeRef.current = 0; // Reset start time
     requestRef.current = requestAnimationFrame(animate);
   };
 

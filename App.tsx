@@ -1,6 +1,5 @@
-
 import React, { useState, useEffect, useRef } from 'react';
-import { ArrowLeft, ChevronRight, ArrowUpRight, CreditCard, Wallet, X, Bell, Shield, Settings as SettingsIcon, FileText, Landmark, ShoppingBag, Utensils, LogOut, Lock, User as UserIcon, Phone, Eye, EyeOff, QrCode as QrCodeIcon, Signal, Globe } from 'lucide-react';
+import { ArrowLeft, ChevronRight, ArrowUpRight, CreditCard, Wallet, X, Bell, Shield, Settings as SettingsIcon, FileText, Landmark, ShoppingBag, Utensils, LogOut, Lock, User as UserIcon, Phone, Eye, EyeOff, QrCode as QrCodeIcon, Signal, Globe, UserCog } from 'lucide-react';
 import BalanceHeader from './components/BalanceHeader';
 import ActionGrid from './components/ActionGrid';
 import BottomNav from './components/BottomNav';
@@ -8,6 +7,7 @@ import AIAssistant from './components/AIAssistant';
 import HoldToConfirm from './components/HoldToConfirm';
 import OfferCarousel from './components/OfferCarousel';
 import NumericKeypad from './components/NumericKeypad';
+import AdminDashboard from './components/AdminDashboard';
 import { AppScreen, User, Transaction, SendMoneyFormData, NotificationPreferences, Language } from './types';
 import { INITIAL_USER, MOCK_TRANSACTIONS, TRANSLATIONS } from './constants';
 
@@ -28,6 +28,11 @@ const App: React.FC = () => {
   const [showPin, setShowPin] = useState(false);
   const [registerData, setRegisterData] = useState({ name: '', phone: '', pin: '', confirmPin: '' });
   
+  // Admin Login State
+  const [isAdminMode, setIsAdminMode] = useState(false);
+  const [adminUsername, setAdminUsername] = useState('');
+  const [adminPassword, setAdminPassword] = useState('');
+
   // Keypad State
   const [activeInput, setActiveInput] = useState<'LOGIN_PIN' | 'AMOUNT' | 'TXN_PIN' | null>(null);
 
@@ -46,6 +51,15 @@ const App: React.FC = () => {
     reference: '',
     pin: ''
   });
+
+  // Check for admin URL parameter on mount
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const path = window.location.pathname;
+    if (params.get('mode') === 'admin' || path === '/spay-admin') {
+      setIsAdminMode(true);
+    }
+  }, []);
 
   // Dynamic Status Bar Color
   useEffect(() => {
@@ -67,6 +81,9 @@ const App: React.FC = () => {
         break;
       case AppScreen.AI_CHAT:
         color = '#000000'; // Dark overlay
+        break;
+      case AppScreen.ADMIN_DASHBOARD:
+        color = '#0f172a'; // Slate-900 for admin
         break;
       case AppScreen.SETTINGS:
       case AppScreen.SUCCESS:
@@ -166,6 +183,17 @@ const App: React.FC = () => {
       } else {
         alert("ভুল পিন নম্বর (Demo PIN: 6175)");
       }
+    }
+  };
+
+  const handleAdminLogin = () => {
+    // Mock admin credentials
+    if (adminUsername === 'admin' && adminPassword === '1234') {
+      setCurrentScreen(AppScreen.ADMIN_DASHBOARD);
+      setAdminUsername('');
+      setAdminPassword('');
+    } else {
+      alert('ভুল ইউজারনেম বা পাসওয়ার্ড (User: admin, Pass: 1234)');
     }
   };
 
@@ -318,73 +346,136 @@ const App: React.FC = () => {
   // --- RENDER HELPERS ---
 
   const renderLogin = () => (
-    <div className="flex flex-col h-screen bg-gradient-to-br from-rose-600 to-pink-700 animate-in fade-in overflow-hidden">
+    <div className="flex flex-col h-screen bg-gradient-to-br from-rose-600 to-pink-700 animate-in fade-in overflow-hidden relative">
         <div className="h-[35vh] flex flex-col items-center justify-end pb-8 text-white">
             <div className="w-20 h-20 bg-white/20 backdrop-blur-xl rounded-3xl flex items-center justify-center mb-5 shadow-2xl shadow-rose-900/30 border border-white/30">
                  <span className="text-3xl font-bold tracking-tighter italic">SPay</span>
             </div>
-            <h1 className="text-2xl font-bold mb-1">স্বাগতম!</h1>
-            <p className="text-rose-100 text-xs">আপনার নিরাপদ লেনদেনের সাথী</p>
+            <h1 className="text-2xl font-bold mb-1">{isAdminMode ? 'অ্যাডমিন প্যানেল' : 'স্বাগতম!'}</h1>
+            <p className="text-rose-100 text-xs">{isAdminMode ? 'সিস্টেম কন্ট্রোল সেন্টার' : 'আপনার নিরাপদ লেনদেনের সাথী'}</p>
         </div>
 
         <div className="flex-1 bg-white rounded-t-[30px] p-6 pb-[calc(2rem+env(safe-area-inset-bottom))] shadow-[0_-10px_40px_-15px_rgba(0,0,0,0.3)] animate-in slide-in-from-bottom duration-500 flex flex-col">
-             <div className="space-y-4">
-                 <div>
-                     <label className="block text-xs font-bold text-gray-700 mb-1.5 ml-1">মোবাইল নম্বর</label>
-                     <div className="relative">
-                         <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
-                             <Phone size={18} />
+             
+             {isAdminMode ? (
+                // ADMIN LOGIN FORM
+                <div className="space-y-4 animate-in fade-in">
+                    <div>
+                         <label className="block text-xs font-bold text-gray-700 mb-1.5 ml-1">ইউজারনেম</label>
+                         <div className="relative">
+                             <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
+                                 <UserIcon size={18} />
+                             </div>
+                             <input 
+                                type="text"
+                                value={adminUsername}
+                                onChange={(e) => setAdminUsername(e.target.value)}
+                                className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3.5 pl-11 pr-4 font-medium text-gray-800 focus:outline-none focus:border-rose-500 focus:ring-1 focus:ring-rose-500 transition-all text-sm"
+                                placeholder="Username"
+                             />
                          </div>
-                         <input 
-                            type="tel"
-                            value={loginPhone}
-                            onChange={(e) => setLoginPhone(e.target.value)}
-                            onFocus={() => setActiveInput(null)} // System keyboard for phone
-                            className="w-full bg-gray-50 border border-gray-200 rounded-xl py-3.5 pl-11 pr-4 font-semibold text-gray-800 focus:outline-none focus:border-rose-500 focus:ring-1 focus:ring-rose-500 transition-all text-sm"
-                            placeholder="01XXXXXXXXX"
-                         />
                      </div>
-                 </div>
 
-                 <div>
-                     <label className="block text-xs font-bold text-gray-700 mb-1.5 ml-1">পিন নম্বর</label>
-                     <div className="relative">
-                         <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
-                             <Lock size={18} />
+                     <div>
+                         <label className="block text-xs font-bold text-gray-700 mb-1.5 ml-1">পাসওয়ার্ড</label>
+                         <div className="relative">
+                             <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
+                                 <Lock size={18} />
+                             </div>
+                             <input 
+                                type="password"
+                                value={adminPassword}
+                                onChange={(e) => setAdminPassword(e.target.value)}
+                                className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3.5 pl-11 pr-4 font-bold text-gray-800 focus:outline-none focus:border-rose-500 focus:ring-1 focus:ring-rose-500 transition-all text-sm"
+                                placeholder="Password"
+                             />
                          </div>
-                         <input 
-                            type={showPin ? "text" : "password"}
-                            value={loginPin}
-                            readOnly // Prevent system keyboard
-                            onClick={() => setActiveInput('LOGIN_PIN')}
-                            className={`w-full bg-gray-50 border rounded-xl py-3.5 pl-11 pr-11 font-bold text-gray-800 focus:outline-none transition-all tracking-widest cursor-pointer text-sm ${activeInput === 'LOGIN_PIN' ? 'border-rose-500 ring-1 ring-rose-500 bg-white' : 'border-gray-200'}`}
-                            placeholder="****"
-                         />
-                         <button 
-                            onClick={(e) => { e.stopPropagation(); setShowPin(!showPin); }}
-                            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 p-1"
-                         >
-                             {showPin ? <EyeOff size={18} /> : <Eye size={18} />}
-                         </button>
                      </div>
-                     <div className="flex justify-end mt-2">
-                        <button className="text-[10px] text-rose-600 font-semibold hover:underline">পিন ভুলে গেছেন?</button>
+
+                     <button 
+                        onClick={handleAdminLogin}
+                        className="w-full bg-slate-800 text-white font-bold py-3.5 rounded-xl shadow-lg hover:bg-slate-900 transition-all flex items-center justify-center gap-2 text-sm mt-2"
+                     >
+                         লগ ইন <ArrowRightIcon className="w-4 h-4" />
+                     </button>
+
+                     <div className="text-center mt-6">
+                        <button 
+                           onClick={() => {
+                              setIsAdminMode(false);
+                              setAdminUsername('');
+                              setAdminPassword('');
+                              // Clean up URL parameters if they exist
+                              const url = new URL(window.location.href);
+                              url.searchParams.delete('mode');
+                              window.history.replaceState({}, '', url);
+                           }}
+                           className="text-slate-400 text-xs font-medium hover:text-rose-600 transition-colors flex items-center justify-center gap-1 mx-auto"
+                        >
+                           <ArrowLeft size={14} /> ইউজার লগইনে ফিরে যান
+                        </button>
+                    </div>
+                </div>
+             ) : (
+                // USER LOGIN FORM
+                <div className="space-y-4 animate-in fade-in flex flex-col h-full">
+                     <div>
+                         <label className="block text-xs font-bold text-gray-700 mb-1.5 ml-1">মোবাইল নম্বর</label>
+                         <div className="relative">
+                             <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
+                                 <Phone size={18} />
+                             </div>
+                             <input 
+                                type="tel"
+                                value={loginPhone}
+                                onChange={(e) => setLoginPhone(e.target.value)}
+                                onFocus={() => setActiveInput(null)} // System keyboard for phone
+                                className="w-full bg-gray-50 border border-gray-200 rounded-xl py-3.5 pl-11 pr-4 font-semibold text-gray-800 focus:outline-none focus:border-rose-500 focus:ring-1 focus:ring-rose-500 transition-all text-sm"
+                                placeholder="01XXXXXXXXX"
+                             />
+                         </div>
+                     </div>
+
+                     <div>
+                         <label className="block text-xs font-bold text-gray-700 mb-1.5 ml-1">পিন নম্বর</label>
+                         <div className="relative">
+                             <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
+                                 <Lock size={18} />
+                             </div>
+                             <input 
+                                type={showPin ? "text" : "password"}
+                                value={loginPin}
+                                readOnly // Prevent system keyboard
+                                onClick={() => setActiveInput('LOGIN_PIN')}
+                                className={`w-full bg-gray-50 border rounded-xl py-3.5 pl-11 pr-11 font-bold text-gray-800 focus:outline-none transition-all tracking-widest cursor-pointer text-sm ${activeInput === 'LOGIN_PIN' ? 'border-rose-500 ring-1 ring-rose-500 bg-white' : 'border-gray-200'}`}
+                                placeholder="****"
+                             />
+                             <button 
+                                onClick={(e) => { e.stopPropagation(); setShowPin(!showPin); }}
+                                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 p-1"
+                             >
+                                 {showPin ? <EyeOff size={18} /> : <Eye size={18} />}
+                             </button>
+                         </div>
+                         <div className="flex justify-end mt-2">
+                            <button className="text-[10px] text-rose-600 font-semibold hover:underline">পিন ভুলে গেছেন?</button>
+                         </div>
+                     </div>
+
+                     <button 
+                        onClick={handleLogin}
+                        className="w-full bg-rose-600 text-white font-bold py-3.5 rounded-xl shadow-lg shadow-rose-200 hover:bg-rose-700 hover:shadow-xl active:scale-[0.98] transition-all flex items-center justify-center gap-2 text-sm"
+                     >
+                         লগ ইন <ArrowRightIcon className="w-4 h-4" />
+                     </button>
+
+                     <div className="text-center mt-4">
+                         <p className="text-gray-500 text-xs">
+                             অ্যাকাউন্ট নেই? <button onClick={() => setCurrentScreen(AppScreen.REGISTER)} className="text-rose-600 font-bold hover:underline">রেজিস্ট্রেশন করুন</button>
+                         </p>
                      </div>
                  </div>
-
-                 <button 
-                    onClick={handleLogin}
-                    className="w-full bg-rose-600 text-white font-bold py-3.5 rounded-xl shadow-lg shadow-rose-200 hover:bg-rose-700 hover:shadow-xl active:scale-[0.98] transition-all flex items-center justify-center gap-2 text-sm"
-                 >
-                     লগ ইন <ArrowRightIcon className="w-4 h-4" />
-                 </button>
-
-                 <div className="text-center mt-4">
-                     <p className="text-gray-500 text-xs">
-                         অ্যাকাউন্ট নেই? <button onClick={() => setCurrentScreen(AppScreen.REGISTER)} className="text-rose-600 font-bold hover:underline">রেজিস্ট্রেশন করুন</button>
-                     </p>
-                 </div>
-             </div>
+             )}
         </div>
     </div>
   );
@@ -400,8 +491,6 @@ const App: React.FC = () => {
         </div>
 
         <div className="flex-1 overflow-y-auto p-5 pb-[calc(1.5rem+env(safe-area-inset-bottom))] space-y-4">
-            {/* Register form contents omitted for brevity, keeping existing logic */}
-            {/* Same structure as before, just using existing code inside */}
             <div>
                 <label className="block text-xs font-bold text-gray-700 mb-1.5 ml-1">আপনার নাম</label>
                 <div className="relative">
@@ -418,7 +507,6 @@ const App: React.FC = () => {
                     />
                 </div>
             </div>
-            {/* ... other register fields ... */}
              <div>
                 <label className="block text-xs font-bold text-gray-700 mb-1.5 ml-1">মোবাইল নম্বর</label>
                 <div className="relative">
@@ -1086,7 +1174,7 @@ const App: React.FC = () => {
   // --- MAIN RENDER ---
   return (
     <div className="min-h-screen flex justify-center bg-gray-100 font-sans selection:bg-rose-100">
-      <div className="w-full max-w-md bg-[#FAFAFA] min-h-screen shadow-2xl shadow-gray-300 relative overflow-hidden flex flex-col border-x border-white">
+      <div className={`w-full ${currentScreen === AppScreen.ADMIN_DASHBOARD ? 'max-w-none' : 'max-w-md'} bg-[#FAFAFA] min-h-screen shadow-2xl shadow-gray-300 relative overflow-hidden flex flex-col border-x border-white`}>
         
         {/* Screen Content */}
         <div className="flex-1 overflow-y-auto scroll-smooth no-scrollbar">
@@ -1098,9 +1186,9 @@ const App: React.FC = () => {
             AppScreen.CASH_OUT, 
             AppScreen.MOBILE_RECHARGE, 
             AppScreen.PAYMENT, 
-            AppScreen.ADD_MONEY,
-            AppScreen.REQUEST_MONEY,
-            AppScreen.PAY_BILL,
+            AppScreen.ADD_MONEY, 
+            AppScreen.REQUEST_MONEY, 
+            AppScreen.PAY_BILL, 
             AppScreen.TRANSFER_TO_BANK
           ].includes(currentScreen) && renderTransactionFlow()}
           {currentScreen === AppScreen.TRANSACTIONS && renderTransactions()}
@@ -1108,6 +1196,11 @@ const App: React.FC = () => {
           {currentScreen === AppScreen.SETTINGS && renderSettings()}
           {currentScreen === AppScreen.SCAN && renderScan()}
           {currentScreen === AppScreen.OFFERS && renderOffers()}
+          
+          {/* Admin Dashboard */}
+          {currentScreen === AppScreen.ADMIN_DASHBOARD && (
+            <AdminDashboard transactions={transactions} onLogout={() => setCurrentScreen(AppScreen.LOGIN)} />
+          )}
         </div>
 
         {/* Navigation */}
@@ -1115,8 +1208,8 @@ const App: React.FC = () => {
           <BottomNav currentScreen={currentScreen} onNavigate={setCurrentScreen} language={language} />
         )}
 
-        {/* Custom Numeric Keypad Overlay */}
-        {activeInput && (
+        {/* Custom Numeric Keypad Overlay (Only for non-admin screens) */}
+        {activeInput && !isAdminMode && (
             <>
                 <div className="fixed inset-0 bg-black/10 z-50 backdrop-blur-[1px]" onClick={() => setActiveInput(null)}></div>
                 <NumericKeypad 
