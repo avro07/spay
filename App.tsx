@@ -916,44 +916,53 @@ const App: React.FC = () => {
                 </h2>
 
                 {/* Transaction Alert Toggle */}
-                <div className="flex items-center justify-between py-3 border-b border-gray-50 last:border-0">
+                <div 
+                  className="flex items-center justify-between py-3 border-b border-gray-50 last:border-0 cursor-pointer active:bg-gray-50 transition-colors rounded-lg px-2 -mx-2"
+                  onClick={() => setNotificationPrefs(p => ({...p, transactions: !p.transactions}))}
+                >
                     <div>
                         <p className="font-medium text-gray-800">লেনদেন অ্যালার্ট</p>
                         <p className="text-xs text-gray-400">টাকা পাঠানো বা গ্রহণের নোটিফিকেশন</p>
                     </div>
                     <button
-                        onClick={() => setNotificationPrefs(p => ({...p, transactions: !p.transactions}))}
-                        className={`w-12 h-6 rounded-full transition-colors relative ${notificationPrefs.transactions ? 'bg-rose-500' : 'bg-gray-300'}`}
+                        type="button"
+                        className={`w-12 h-6 rounded-full transition-colors duration-300 relative ${notificationPrefs.transactions ? 'bg-rose-500' : 'bg-gray-300'}`}
                     >
-                        <div className={`w-4 h-4 bg-white rounded-full shadow-md absolute top-1 transition-transform ${notificationPrefs.transactions ? 'left-7' : 'left-1'}`}></div>
+                        <div className={`w-4 h-4 bg-white rounded-full shadow-md absolute top-1 left-1 transition-transform duration-300 ${notificationPrefs.transactions ? 'translate-x-6' : 'translate-x-0'}`}></div>
                     </button>
                 </div>
 
                  {/* Offers Toggle */}
-                <div className="flex items-center justify-between py-3 border-b border-gray-50 last:border-0">
+                <div 
+                  className="flex items-center justify-between py-3 border-b border-gray-50 last:border-0 cursor-pointer active:bg-gray-50 transition-colors rounded-lg px-2 -mx-2"
+                  onClick={() => setNotificationPrefs(p => ({...p, offers: !p.offers}))}
+                >
                     <div>
                         <p className="font-medium text-gray-800">অফার সমূহ</p>
                         <p className="text-xs text-gray-400">নতুন অফার এবং ডিসকাউন্ট আপডেট</p>
                     </div>
                     <button
-                        onClick={() => setNotificationPrefs(p => ({...p, offers: !p.offers}))}
-                        className={`w-12 h-6 rounded-full transition-colors relative ${notificationPrefs.offers ? 'bg-rose-500' : 'bg-gray-300'}`}
+                        type="button"
+                        className={`w-12 h-6 rounded-full transition-colors duration-300 relative ${notificationPrefs.offers ? 'bg-rose-500' : 'bg-gray-300'}`}
                     >
-                        <div className={`w-4 h-4 bg-white rounded-full shadow-md absolute top-1 transition-transform ${notificationPrefs.offers ? 'left-7' : 'left-1'}`}></div>
+                        <div className={`w-4 h-4 bg-white rounded-full shadow-md absolute top-1 left-1 transition-transform duration-300 ${notificationPrefs.offers ? 'translate-x-6' : 'translate-x-0'}`}></div>
                     </button>
                 </div>
 
                 {/* Security Toggle */}
-                <div className="flex items-center justify-between py-3">
+                <div 
+                  className="flex items-center justify-between py-3 cursor-pointer active:bg-gray-50 transition-colors rounded-lg px-2 -mx-2"
+                  onClick={() => setNotificationPrefs(p => ({...p, securityAlerts: !p.securityAlerts}))}
+                >
                     <div>
                         <p className="font-medium text-gray-800">সিকিউরিটি অ্যালার্ট</p>
                         <p className="text-xs text-gray-400">লগইন এবং পাসওয়ার্ড পরিবর্তন সতর্কতা</p>
                     </div>
                     <button
-                        onClick={() => setNotificationPrefs(p => ({...p, securityAlerts: !p.securityAlerts}))}
-                        className={`w-12 h-6 rounded-full transition-colors relative ${notificationPrefs.securityAlerts ? 'bg-rose-500' : 'bg-gray-300'}`}
+                        type="button"
+                        className={`w-12 h-6 rounded-full transition-colors duration-300 relative ${notificationPrefs.securityAlerts ? 'bg-rose-500' : 'bg-gray-300'}`}
                     >
-                        <div className={`w-4 h-4 bg-white rounded-full shadow-md absolute top-1 transition-transform ${notificationPrefs.securityAlerts ? 'left-7' : 'left-1'}`}></div>
+                        <div className={`w-4 h-4 bg-white rounded-full shadow-md absolute top-1 left-1 transition-transform duration-300 ${notificationPrefs.securityAlerts ? 'translate-x-6' : 'translate-x-0'}`}></div>
                     </button>
                 </div>
             </div>
