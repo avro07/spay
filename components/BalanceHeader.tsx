@@ -29,7 +29,7 @@ const BalanceHeader: React.FC<BalanceHeaderProps> = ({ user, onProfileClick }) =
   };
 
   return (
-    <div className="relative z-10 bg-gradient-to-br from-rose-600 via-pink-600 to-purple-700 rounded-b-[35px] shadow-[0_10px_40px_-10px_rgba(225,29,72,0.5)] pt-12 pb-16 px-6 overflow-hidden">
+    <div className="relative z-10 bg-gradient-to-br from-rose-600 via-pink-600 to-purple-700 rounded-b-[35px] shadow-[0_10px_40px_-10px_rgba(225,29,72,0.5)] pt-[calc(env(safe-area-inset-top)+3rem)] pb-16 px-6 overflow-hidden">
         {/* Live Animated Background Elements */}
         <div className="absolute -top-24 -left-24 w-80 h-80 bg-rose-500 mix-blend-multiply filter blur-3xl opacity-40 animate-blob"></div>
         <div className="absolute -bottom-32 -right-32 w-80 h-80 bg-purple-500 mix-blend-multiply filter blur-3xl opacity-40 animate-blob animation-delay-2000"></div>

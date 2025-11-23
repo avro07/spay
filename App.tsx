@@ -185,7 +185,7 @@ const App: React.FC = () => {
   const renderScan = () => (
     <div className="flex flex-col h-full bg-black text-white relative animate-in fade-in">
       {/* Header */}
-      <div className="absolute top-0 left-0 right-0 p-4 z-20 flex justify-between items-center bg-gradient-to-b from-black/80 to-transparent">
+      <div className="absolute top-0 left-0 right-0 pt-[calc(env(safe-area-inset-top)+1rem)] px-4 pb-4 z-20 flex justify-between items-center bg-gradient-to-b from-black/80 to-transparent">
          <button onClick={() => setCurrentScreen(AppScreen.HOME)} className="p-2 bg-white/20 rounded-full backdrop-blur-md active:scale-95 transition-transform">
             <X className="w-6 h-6 text-white" />
          </button>
@@ -231,7 +231,7 @@ const App: React.FC = () => {
 
   const renderSendMoney = () => (
     <div className="flex flex-col h-full bg-gray-50 animate-in slide-in-from-right duration-300">
-      <div className="bg-white px-4 py-4 flex items-center justify-between shadow-sm sticky top-0 z-20">
+      <div className="bg-white px-4 pb-4 pt-[calc(env(safe-area-inset-top)+1rem)] flex items-center justify-between shadow-sm sticky top-0 z-20">
         <div className="flex items-center">
             <button onClick={handleBack} className="p-2 hover:bg-gray-100 rounded-full mr-2 -ml-2 transition-colors">
             <ArrowLeft className="text-gray-700 w-6 h-6" />
@@ -417,7 +417,7 @@ const App: React.FC = () => {
       <div className="absolute top-[-10%] right-[-10%] w-[50%] h-[30%] bg-purple-200/30 rounded-full blur-[80px] pointer-events-none"></div>
       <div className="absolute bottom-[10%] left-[-10%] w-[50%] h-[30%] bg-rose-200/30 rounded-full blur-[80px] pointer-events-none"></div>
 
-      <div className="bg-white/70 backdrop-blur-lg px-4 py-4 flex items-center shadow-sm sticky top-0 z-20 border-b border-white/30">
+      <div className="bg-white/70 backdrop-blur-lg px-4 pb-4 pt-[calc(env(safe-area-inset-top)+1rem)] flex items-center shadow-sm sticky top-0 z-20 border-b border-white/30">
         <button onClick={() => setCurrentScreen(AppScreen.HOME)} className="p-2 hover:bg-black/5 rounded-full mr-2 -ml-2 transition-colors">
           <ArrowLeft className="text-gray-700 w-6 h-6" />
         </button>
@@ -461,7 +461,7 @@ const App: React.FC = () => {
   const renderSettings = () => (
       <div className="flex flex-col h-full bg-gray-50 animate-in slide-in-from-right duration-300">
         {/* Header */}
-        <div className="bg-white px-4 py-4 flex items-center shadow-sm sticky top-0 z-20">
+        <div className="bg-white px-4 pb-4 pt-[calc(env(safe-area-inset-top)+1rem)] flex items-center shadow-sm sticky top-0 z-20">
             <button onClick={() => setCurrentScreen(AppScreen.HOME)} className="p-2 hover:bg-gray-100 rounded-full mr-2 -ml-2 transition-colors">
             <ArrowLeft className="text-gray-700 w-6 h-6" />
             </button>
