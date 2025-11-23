@@ -1179,7 +1179,7 @@ const App: React.FC = () => {
   // --- MAIN RENDER ---
   return (
     <div className="min-h-screen flex justify-center bg-gray-100 font-sans selection:bg-rose-100">
-      <div className={`w-full ${currentScreen === AppScreen.ADMIN_DASHBOARD ? 'max-w-none' : 'max-w-md'} bg-[#FAFAFA] min-h-screen shadow-2xl shadow-gray-300 relative overflow-hidden flex flex-col border-x border-white`}>
+      <div className={`w-full ${currentScreen === AppScreen.ADMIN_DASHBOARD ? 'max-w-none' : 'sm:max-w-md'} bg-[#FAFAFA] min-h-screen shadow-2xl shadow-gray-300 relative overflow-hidden flex flex-col sm:border-x border-white`}>
         
         {/* Screen Content */}
         <div className="flex-1 overflow-y-auto scroll-smooth no-scrollbar">
