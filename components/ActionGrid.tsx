@@ -35,12 +35,12 @@ const ActionGrid: React.FC<ActionGridProps> = ({ onNavigate, language }) => {
               style={{ animationDelay: `${index * 50}ms` }}
             >
               <div className={`
-                w-11 h-11 flex items-center justify-center rounded-[16px] 
+                w-12 h-12 flex items-center justify-center rounded-[18px] 
                 bg-white/60 group-hover:bg-white/90 group-active:scale-95 
                 transition-all duration-300 border border-white/60 group-hover:border-rose-200 shadow-sm group-hover:shadow-rose-100/50
                 ${action.color}
               `}>
-                <action.icon size={22} strokeWidth={1.5} className="transform group-hover:-rotate-12 transition-transform duration-300" />
+                <action.icon size={26} strokeWidth={1.5} className="transform group-hover:-rotate-12 transition-transform duration-300" />
               </div>
               <span className="text-[10px] font-medium text-gray-700 text-center leading-tight group-hover:text-rose-600 transition-colors">
                 {/* @ts-ignore */}
