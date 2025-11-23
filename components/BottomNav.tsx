@@ -24,7 +24,7 @@ const BottomNav: React.FC<BottomNavProps> = ({ currentScreen, onNavigate, langua
   return (
     <div className="absolute bottom-0 left-0 w-full z-50 pointer-events-none">
       {/* Background Container */}
-      <div className="pointer-events-auto absolute bottom-0 w-full bg-white border-t border-gray-100 shadow-[0_-4px_20px_rgba(0,0,0,0.05)] pb-[env(safe-area-inset-bottom)]">
+      <div className="pointer-events-auto absolute bottom-0 w-full bg-white border-t border-gray-100 shadow-[0_-4px_20px_rgba(0,0,0,0.05)] pb-[env(safe-area-inset-bottom)] rounded-t-[30px]">
         <div className="flex justify-between items-end px-4 h-[70px]">
           {navItems.map((item) => {
             const isActive = currentScreen === item.id;
