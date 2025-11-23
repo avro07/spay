@@ -13,7 +13,7 @@ const BottomNav: React.FC<BottomNavProps> = ({ currentScreen, onNavigate }) => {
     { id: AppScreen.HOME, icon: Home, label: 'হোম' },
     { id: AppScreen.TRANSACTIONS, icon: History, label: 'লেনদেন' },
     { id: AppScreen.SCAN, icon: ScanLine, label: '', isSpecial: true },
-    { id: 'OFFERS', icon: Gift, label: 'অফার' },
+    { id: AppScreen.OFFERS, icon: Gift, label: 'অফার' },
     { id: AppScreen.AI_CHAT, icon: Bot, label: 'সহায়তা' },
   ];
 
@@ -41,7 +41,7 @@ const BottomNav: React.FC<BottomNavProps> = ({ currentScreen, onNavigate }) => {
           return (
             <button
               key={item.id}
-              onClick={() => item.id !== 'OFFERS' && onNavigate(item.id as AppScreen)}
+              onClick={() => onNavigate(item.id as AppScreen)}
               className={`relative flex flex-col items-center justify-center w-14 h-14 rounded-xl transition-all duration-300 ${
                 isActive ? 'text-rose-600 bg-rose-50' : 'text-gray-400 hover:text-gray-600 hover:bg-gray-50'
               }`}

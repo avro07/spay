@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, ChevronRight, ArrowUpRight, CreditCard, Wallet, X, Bell, Shield, Settings as SettingsIcon, FileText, Landmark } from 'lucide-react';
+import { ArrowLeft, ChevronRight, ArrowUpRight, CreditCard, Wallet, X, Bell, Shield, Settings as SettingsIcon, FileText, Landmark, ShoppingBag, Utensils } from 'lucide-react';
 import BalanceHeader from './components/BalanceHeader';
 import ActionGrid from './components/ActionGrid';
 import BottomNav from './components/BottomNav';
@@ -57,6 +57,7 @@ const App: React.FC = () => {
       case AppScreen.REQUEST_MONEY:
       case AppScreen.PAY_BILL:
       case AppScreen.TRANSFER_TO_BANK:
+      case AppScreen.OFFERS:
         color = '#ffffff'; // White for standard screens
         break;
       default:
@@ -158,7 +159,10 @@ const App: React.FC = () => {
         
         {/* Promotions Banner */}
         <div className="px-5 mt-6">
-            <div className="relative overflow-hidden bg-gradient-to-r from-violet-600 via-indigo-600 to-blue-600 rounded-2xl p-5 shadow-lg shadow-indigo-200 group cursor-pointer">
+            <div 
+              onClick={() => setCurrentScreen(AppScreen.OFFERS)}
+              className="relative overflow-hidden bg-gradient-to-r from-violet-600 via-indigo-600 to-blue-600 rounded-2xl p-5 shadow-lg shadow-indigo-200 group cursor-pointer transition-transform active:scale-[0.98]"
+            >
                 <div className="absolute top-0 right-0 w-32 h-32 bg-white opacity-10 rounded-full -mr-10 -mt-10 blur-2xl"></div>
                 <div className="absolute bottom-0 left-0 w-24 h-24 bg-rose-500 opacity-20 rounded-full -ml-10 -mb-10 blur-xl"></div>
                 
@@ -225,6 +229,115 @@ const App: React.FC = () => {
             </div>
         </div>
       </div>
+    </div>
+  );
+
+  const renderOffers = () => (
+    <div className="flex flex-col h-full bg-gray-50 animate-in fade-in slide-in-from-right duration-300">
+       {/* Header */}
+       <div className="bg-white px-4 pb-4 pt-[calc(env(safe-area-inset-top)+1rem)] flex items-center shadow-sm sticky top-0 z-20">
+          <button onClick={() => setCurrentScreen(AppScreen.HOME)} className="p-2 hover:bg-gray-100 rounded-full mr-2 -ml-2 transition-colors">
+            <ArrowLeft className="text-gray-700 w-6 h-6" />
+          </button>
+          <h1 className="font-bold text-xl text-gray-800">অফার সমূহ</h1>
+       </div>
+
+       <div className="flex-1 overflow-y-auto p-5 pb-28 space-y-5">
+          {/* Banner 1: Recharge */}
+          <div 
+             onClick={() => setCurrentScreen(AppScreen.MOBILE_RECHARGE)}
+             className="relative overflow-hidden bg-gradient-to-r from-violet-600 to-fuchsia-600 rounded-2xl p-5 shadow-lg shadow-violet-200 group cursor-pointer transition-transform active:scale-[0.98]"
+          >
+              <div className="absolute top-0 right-0 w-32 h-32 bg-white opacity-10 rounded-full -mr-10 -mt-10 blur-2xl"></div>
+              <div className="absolute bottom-0 left-0 w-24 h-24 bg-yellow-400 opacity-20 rounded-full -ml-10 -mb-10 blur-xl"></div>
+              
+              <div className="relative z-10">
+                  <span className="bg-white/20 backdrop-blur-sm px-2.5 py-0.5 rounded text-[10px] font-bold text-white border border-white/20 inline-block mb-2">
+                      মোবাইল রিচার্জ
+                  </span>
+                  <h3 className="font-bold text-white text-xl mb-1">২০ টাকা ক্যাশব্যাক</h3>
+                  <p className="text-violet-100 text-sm mb-3">৫০ টাকা বা তার বেশি রিচার্জে</p>
+                  <div className="flex justify-between items-end">
+                      <span className="text-xs text-white/80">মেয়াদ: ৩০ জুন পর্যন্ত</span>
+                      <button className="bg-white text-violet-600 px-4 py-1.5 rounded-full text-xs font-bold shadow-sm">নিন</button>
+                  </div>
+              </div>
+          </div>
+
+          {/* Banner 2: Grocery (Swapno) */}
+          <div 
+             onClick={() => setCurrentScreen(AppScreen.PAYMENT)}
+             className="relative overflow-hidden bg-gradient-to-br from-orange-500 to-red-500 rounded-2xl p-5 shadow-lg shadow-orange-200 group cursor-pointer transition-transform active:scale-[0.98]"
+          >
+              <div className="absolute top-10 right-10 w-40 h-40 bg-yellow-300 opacity-20 rounded-full blur-3xl"></div>
+              
+              <div className="relative z-10">
+                  <div className="flex justify-between items-start">
+                    <div>
+                        <span className="bg-white/20 backdrop-blur-sm px-2.5 py-0.5 rounded text-[10px] font-bold text-white border border-white/20 inline-block mb-2">
+                            সুপার শপ
+                        </span>
+                        <h3 className="font-bold text-white text-xl">স্বপ্ন-তে ১০% ছাড়</h3>
+                        <p className="text-orange-100 text-sm mt-1">যেকোনো গ্রোসারি কেনাকাটায়</p>
+                    </div>
+                    <div className="bg-white/20 rounded-lg p-2 backdrop-blur-sm">
+                        <ShoppingBag className="text-white w-6 h-6" />
+                    </div>
+                  </div>
+                  <div className="mt-4 pt-3 border-t border-white/10 flex justify-between items-center">
+                      <span className="text-xs text-white/90">মিনিমাম ৫০০ টাকার কেনাকাটায়</span>
+                      <span className="font-bold text-white text-lg">১০%</span>
+                  </div>
+              </div>
+          </div>
+
+          {/* Banner 3: Add Money (Existing style) */}
+          <div 
+             onClick={() => setCurrentScreen(AppScreen.ADD_MONEY)}
+             className="relative overflow-hidden bg-gradient-to-r from-blue-600 to-cyan-500 rounded-2xl p-5 shadow-lg shadow-blue-200 group cursor-pointer transition-transform active:scale-[0.98]"
+          >
+               <div className="absolute top-0 right-0 w-32 h-32 bg-white opacity-10 rounded-full -mr-10 -mt-10 blur-2xl"></div>
+               <div className="absolute bottom-0 left-0 w-24 h-24 bg-rose-500 opacity-20 rounded-full -ml-10 -mb-10 blur-xl"></div>
+               
+               <div className="relative z-10 flex justify-between items-center">
+                    <div className="space-y-1">
+                        <span className="bg-white/20 backdrop-blur-sm px-2.5 py-0.5 rounded text-[10px] font-bold text-white border border-white/20 inline-block mb-1">
+                            অ্যাড মানি
+                        </span>
+                        <h3 className="font-bold text-white text-xl">২০০০ টাকা অ্যাড মানি</h3>
+                        <p className="text-indigo-100 text-sm">ব্যাংক বা কার্ড থেকে করলেই</p>
+                    </div>
+                    <div className="text-right">
+                        <span className="block text-3xl font-black text-white drop-shadow-sm">২০৳</span>
+                        <span className="text-xs text-indigo-100 font-medium">বোনাস</span>
+                    </div>
+                </div>
+          </div>
+
+           {/* Banner 4: Food (KFC) */}
+           <div 
+              onClick={() => setCurrentScreen(AppScreen.PAYMENT)}
+              className="relative overflow-hidden bg-black rounded-2xl p-5 shadow-lg shadow-gray-300 group cursor-pointer transition-transform active:scale-[0.98]"
+           >
+              <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1513104890138-7c749659a591?q=80&w=2070&auto=format&fit=crop')] bg-cover opacity-40 mix-blend-overlay"></div>
+              <div className="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-transparent"></div>
+              
+              <div className="relative z-10">
+                  <div className="flex justify-between items-center mb-6">
+                     <span className="bg-red-600 px-2.5 py-0.5 rounded text-[10px] font-bold text-white inline-block">
+                          ফুড অফার
+                      </span>
+                      <div className="bg-white/10 backdrop-blur-sm p-1.5 rounded-lg">
+                        <Utensils className="text-yellow-400 w-5 h-5" />
+                      </div>
+                  </div>
+                  
+                  <h3 className="font-bold text-white text-2xl leading-none">১টি কিনলে <br/><span className="text-red-500">১টি ফ্রি!</span></h3>
+                  <p className="text-gray-300 text-xs mt-2">KFC-তে নির্দিষ্ট বার্গার এবং মিল অর্ডারে</p>
+              </div>
+          </div>
+
+       </div>
     </div>
   );
 
@@ -599,10 +712,11 @@ const App: React.FC = () => {
           {currentScreen === AppScreen.SUCCESS && renderSuccess()}
           {currentScreen === AppScreen.SETTINGS && renderSettings()}
           {currentScreen === AppScreen.SCAN && renderScan()}
+          {currentScreen === AppScreen.OFFERS && renderOffers()}
         </div>
 
         {/* Navigation */}
-        {(currentScreen === AppScreen.HOME || currentScreen === AppScreen.TRANSACTIONS) && (
+        {(currentScreen === AppScreen.HOME || currentScreen === AppScreen.TRANSACTIONS || currentScreen === AppScreen.OFFERS) && (
           <BottomNav currentScreen={currentScreen} onNavigate={setCurrentScreen} />
         )}
 
