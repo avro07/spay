@@ -1,16 +1,20 @@
+
 import React, { useState } from 'react';
 import { Bell, Search, ChevronRight } from 'lucide-react';
-import { User } from '../types';
+import { User, Language } from '../types';
+import { TRANSLATIONS } from '../constants';
 
 interface BalanceHeaderProps {
   user: User;
   onProfileClick: () => void;
   onNotificationClick: () => void;
+  language: Language;
 }
 
-const BalanceHeader: React.FC<BalanceHeaderProps> = ({ user, onProfileClick, onNotificationClick }) => {
+const BalanceHeader: React.FC<BalanceHeaderProps> = ({ user, onProfileClick, onNotificationClick, language }) => {
   const [showBalance, setShowBalance] = useState(false);
   const [animating, setAnimating] = useState(false);
+  const t = TRANSLATIONS[language];
 
   const toggleBalance = () => {
     if (!animating) {
@@ -59,7 +63,8 @@ const BalanceHeader: React.FC<BalanceHeaderProps> = ({ user, onProfileClick, onN
                         </h2>
                         <div className="flex items-center mt-0.5">
                             <span className="bg-white/10 backdrop-blur-md px-1.5 py-0.5 rounded-full text-[9px] font-semibold text-white/90 border border-white/10 shadow-sm">
-                            গোল্ড মেম্বার
+                            {/* @ts-ignore */}
+                            {t.gold_member}
                             </span>
                         </div>
                     </div>
@@ -94,14 +99,17 @@ const BalanceHeader: React.FC<BalanceHeaderProps> = ({ user, onProfileClick, onN
                             <div className="w-5 h-5 bg-white/90 rounded-full flex items-center justify-center text-rose-600 shadow-sm">
                                 <span className="text-xs font-bold">৳</span>
                             </div>
-                            <span className="font-medium tracking-wide text-xs drop-shadow-sm">ব্যালেন্স দেখুন</span>
+                            <span className="font-medium tracking-wide text-xs drop-shadow-sm">
+                                {/* @ts-ignore */}
+                                {t.balance_check}
+                            </span>
                         </div>
                     </div>
 
                     {/* Visible State (Amount) */}
                     <div className={`absolute inset-0 flex items-center justify-center transition-all duration-500 transform ${showBalance ? 'opacity-100 scale-100 translate-y-0' : 'opacity-0 scale-110 -translate-y-4'}`}>
                         <div className="flex flex-col items-center leading-none">
-                            <span className="text-lg font-bold text-rose-600 tracking-tight font-mono">৳ {user.balance.toLocaleString('bn-BD')}</span>
+                            <span className="text-lg font-bold text-rose-600 tracking-tight font-mono">৳ {user.balance.toLocaleString(language === 'bn' ? 'bn-BD' : 'en-US')}</span>
                         </div>
                     </div>
                     

@@ -1,4 +1,5 @@
 
+
 export interface Transaction {
   id: string;
   type: 'SEND_MONEY' | 'CASH_OUT' | 'MOBILE_RECHARGE' | 'PAYMENT' | 'ADD_MONEY' | 'RECEIVED_MONEY' | 'REQUEST_MONEY' | 'PAY_BILL' | 'TRANSFER_TO_BANK';
@@ -36,6 +37,8 @@ export enum AppScreen {
   SCAN = 'SCAN',
   OFFERS = 'OFFERS'
 }
+
+export type Language = 'bn' | 'en';
 
 export interface SendMoneyFormData {
   recipient: string;

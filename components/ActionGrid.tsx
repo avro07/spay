@@ -1,12 +1,16 @@
+
 import React from 'react';
-import { QUICK_ACTIONS } from '../constants';
-import { AppScreen } from '../types';
+import { QUICK_ACTIONS, TRANSLATIONS } from '../constants';
+import { AppScreen, Language } from '../types';
 
 interface ActionGridProps {
   onNavigate: (screen: AppScreen) => void;
+  language: Language;
 }
 
-const ActionGrid: React.FC<ActionGridProps> = ({ onNavigate }) => {
+const ActionGrid: React.FC<ActionGridProps> = ({ onNavigate, language }) => {
+  const t = TRANSLATIONS[language];
+
   return (
     <div className="px-4 -mt-8 relative z-20">
       {/* Glass Effect Container */}
@@ -39,7 +43,8 @@ const ActionGrid: React.FC<ActionGridProps> = ({ onNavigate }) => {
                 <action.icon size={22} strokeWidth={1.5} className="transform group-hover:-rotate-12 transition-transform duration-300" />
               </div>
               <span className="text-[10px] font-medium text-gray-700 text-center leading-tight group-hover:text-rose-600 transition-colors">
-                {action.label}
+                {/* @ts-ignore */}
+                {t[action.key] || action.label}
               </span>
             </button>
           ))}

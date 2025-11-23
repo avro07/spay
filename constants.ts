@@ -1,3 +1,4 @@
+
 import { Transaction, User } from './types';
 import { Send, Download, Smartphone, ShoppingBag, PlusCircle, ArrowDownLeft, FileText, Landmark } from 'lucide-react';
 
@@ -6,6 +7,91 @@ export const INITIAL_USER: User = {
   phone: "01711234567",
   balance: 25450.50,
   avatarUrl: "https://picsum.photos/100/100"
+};
+
+export const TRANSLATIONS = {
+  bn: {
+    // Navigation
+    nav_home: 'হোম',
+    nav_history: 'লেনদেন',
+    nav_scan: 'স্ক্যান',
+    nav_offers: 'অফার',
+    nav_help: 'সহায়তা',
+    
+    // Header
+    balance_check: 'ব্যালেন্স দেখুন',
+    gold_member: 'গোল্ড মেম্বার',
+    
+    // Quick Actions
+    act_send: 'সেন্ড মানি',
+    act_cashout: 'ক্যাশ আউট',
+    act_recharge: 'মোবাইল রিচার্জ',
+    act_payment: 'পেমেন্ট',
+    act_addmoney: 'অ্যাড মানি',
+    act_paybill: 'পে বিল',
+    act_tobank: 'SPay টু ব্যাংক',
+    act_reqmoney: 'রিকোয়েস্ট মানি',
+    
+    // Sections
+    recent_transactions: 'সাম্প্রতিক লেনদেন',
+    see_all: 'সব দেখুন',
+    
+    // Settings
+    settings_title: 'সেটিংস',
+    language_label: 'ভাষা / Language',
+    notif_title: 'নোটিফিকেশন প্রিফারেন্স',
+    notif_txn: 'লেনদেন অ্যালার্ট',
+    notif_txn_desc: 'টাকা পাঠানো বা গ্রহণের নোটিফিকেশন',
+    notif_offer: 'অফার সমূহ',
+    notif_offer_desc: 'নতুন অফার এবং ডিসকাউন্ট আপডেট',
+    notif_sec: 'সিকিউরিটি অ্যালার্ট',
+    notif_sec_desc: 'লগইন এবং পাসওয়ার্ড পরিবর্তন সতর্কতা',
+    my_qr: 'আমার QR কোড',
+    my_qr_desc: 'টাকা গ্রহণ করতে অন্য কাউকে এই QR কোডটি স্ক্যান করতে বলুন',
+    logout: 'লগ আউট করুন',
+    version: 'SPay অ্যাপ ভার্সন ১.০.০'
+  },
+  en: {
+    // Navigation
+    nav_home: 'Home',
+    nav_history: 'History',
+    nav_scan: 'Scan',
+    nav_offers: 'Offers',
+    nav_help: 'Support',
+    
+    // Header
+    balance_check: 'Check Balance',
+    gold_member: 'Gold Member',
+    
+    // Quick Actions
+    act_send: 'Send Money',
+    act_cashout: 'Cash Out',
+    act_recharge: 'Recharge',
+    act_payment: 'Payment',
+    act_addmoney: 'Add Money',
+    act_paybill: 'Pay Bill',
+    act_tobank: 'To Bank',
+    act_reqmoney: 'Request Money',
+    
+    // Sections
+    recent_transactions: 'Recent Transactions',
+    see_all: 'See All',
+    
+    // Settings
+    settings_title: 'Settings',
+    language_label: 'Language / ভাষা',
+    notif_title: 'Notification Preferences',
+    notif_txn: 'Transaction Alerts',
+    notif_txn_desc: 'Alerts for sending or receiving money',
+    notif_offer: 'Offers',
+    notif_offer_desc: 'Updates on new offers and discounts',
+    notif_sec: 'Security Alerts',
+    notif_sec_desc: 'Alerts for login and password changes',
+    my_qr: 'My QR Code',
+    my_qr_desc: 'Scan this QR code to receive money',
+    logout: 'Log Out',
+    version: 'SPay App Version 1.0.0'
+  }
 };
 
 export const MOCK_TRANSACTIONS: Transaction[] = [
@@ -44,12 +130,12 @@ export const MOCK_TRANSACTIONS: Transaction[] = [
 ];
 
 export const QUICK_ACTIONS = [
-  { id: 'send', label: 'সেন্ড মানি', icon: Send, color: 'text-rose-500' },
-  { id: 'cashout', label: 'ক্যাশ আউট', icon: Download, color: 'text-emerald-500' },
-  { id: 'recharge', label: 'মোবাইল রিচার্জ', icon: Smartphone, color: 'text-violet-500' },
-  { id: 'payment', label: 'পেমেন্ট', icon: ShoppingBag, color: 'text-blue-500' },
-  { id: 'addmoney', label: 'অ্যাড মানি', icon: PlusCircle, color: 'text-rose-400' },
-  { id: 'paybill', label: 'পে বিল', icon: FileText, color: 'text-teal-500' },
-  { id: 'tobank', label: 'SPay টু ব্যাংক', icon: Landmark, color: 'text-indigo-500' },
-  { id: 'reqmoney', label: 'রিকোয়েস্ট মানি', icon: ArrowDownLeft, color: 'text-orange-500' },
+  { id: 'send', key: 'act_send', label: 'সেন্ড মানি', icon: Send, color: 'text-rose-500' },
+  { id: 'cashout', key: 'act_cashout', label: 'ক্যাশ আউট', icon: Download, color: 'text-emerald-500' },
+  { id: 'recharge', key: 'act_recharge', label: 'মোবাইল রিচার্জ', icon: Smartphone, color: 'text-violet-500' },
+  { id: 'payment', key: 'act_payment', label: 'পেমেন্ট', icon: ShoppingBag, color: 'text-blue-500' },
+  { id: 'addmoney', key: 'act_addmoney', label: 'অ্যাড মানি', icon: PlusCircle, color: 'text-rose-400' },
+  { id: 'paybill', key: 'act_paybill', label: 'পে বিল', icon: FileText, color: 'text-teal-500' },
+  { id: 'tobank', key: 'act_tobank', label: 'SPay টু ব্যাংক', icon: Landmark, color: 'text-indigo-500' },
+  { id: 'reqmoney', key: 'act_reqmoney', label: 'রিকোয়েস্ট মানি', icon: ArrowDownLeft, color: 'text-orange-500' },
 ];
