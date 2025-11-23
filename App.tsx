@@ -30,6 +30,39 @@ const App: React.FC = () => {
     pin: ''
   });
 
+  // Dynamic Status Bar Color
+  useEffect(() => {
+    let color = '#ffffff';
+
+    switch (currentScreen) {
+      case AppScreen.HOME:
+        color = '#e11d48'; // Matches the rose-600 gradient start of BalanceHeader
+        break;
+      case AppScreen.SCAN:
+        color = '#000000'; // Black for scan screen
+        break;
+      case AppScreen.TRANSACTIONS:
+        color = '#f8f9fa'; // Matches transaction screen background
+        break;
+      case AppScreen.SEND_MONEY:
+      case AppScreen.SETTINGS:
+      case AppScreen.SUCCESS:
+        color = '#ffffff'; // White for standard screens
+        break;
+      case AppScreen.AI_CHAT:
+        color = '#000000'; // Dark overlay
+        break;
+      default:
+        color = '#e11d48';
+    }
+
+    // Update the meta tag
+    const metaThemeColor = document.querySelector("meta[name='theme-color']");
+    if (metaThemeColor) {
+      metaThemeColor.setAttribute('content', color);
+    }
+  }, [currentScreen]);
+
   // Utility to handle back navigation
   const handleBack = () => {
     if (currentScreen === AppScreen.SEND_MONEY && sendMoneyStep > 1) {
