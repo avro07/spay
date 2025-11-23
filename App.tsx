@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { ArrowLeft, ChevronRight, ArrowUpRight, CreditCard, Wallet, X, Bell, Shield, Settings as SettingsIcon, FileText, Landmark, ShoppingBag, Utensils, LogOut, Lock, User as UserIcon, Phone, Eye, EyeOff, QrCode as QrCodeIcon } from 'lucide-react';
+import { ArrowLeft, ChevronRight, ArrowUpRight, CreditCard, Wallet, X, Bell, Shield, Settings as SettingsIcon, FileText, Landmark, ShoppingBag, Utensils, LogOut, Lock, User as UserIcon, Phone, Eye, EyeOff, QrCode as QrCodeIcon, Signal } from 'lucide-react';
 import BalanceHeader from './components/BalanceHeader';
 import ActionGrid from './components/ActionGrid';
 import BottomNav from './components/BottomNav';
@@ -216,6 +216,29 @@ const App: React.FC = () => {
     // Navigate to Payment screen and skip to amount input
     setCurrentScreen(AppScreen.PAYMENT);
     setTransactionStep(2);
+  };
+
+  // Helper for operator detection
+  const getOperatorInfo = (phone: string) => {
+    if (!phone || phone.length < 3) return null;
+    const prefix = phone.substring(0, 3);
+    
+    switch (prefix) {
+      case '017':
+      case '013':
+        return { name: 'Grameenphone', bg: 'bg-sky-500', text: 'text-white', short: 'GP' };
+      case '019':
+      case '014':
+        return { name: 'Banglalink', bg: 'bg-orange-500', text: 'text-white', short: 'BL' };
+      case '018':
+        return { name: 'Robi', bg: 'bg-red-600', text: 'text-white', short: 'Robi' };
+      case '016':
+        return { name: 'Airtel', bg: 'bg-red-500', text: 'text-white', short: 'Air' };
+      case '015':
+        return { name: 'Teletalk', bg: 'bg-teal-600', text: 'text-white', short: 'TT' };
+      default:
+        return null;
+    }
   };
 
   // Configuration for different transaction types
@@ -718,6 +741,35 @@ const App: React.FC = () => {
                      </button>
                  )}
                </div>
+
+               {/* Operator Detection for Mobile Recharge */}
+               {config.type === 'MOBILE_RECHARGE' && formData.recipient.length >= 3 && (
+                 (() => {
+                    const op = getOperatorInfo(formData.recipient);
+                    if (op) {
+                        return (
+                             <div className={`mt-4 p-3 rounded-xl flex items-center gap-3 shadow-lg shadow-gray-200/50 ${op.bg} ${op.text} animate-in slide-in-from-top-2 fade-in duration-300 ring-4 ring-white`}>
+                                <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center shadow-inner">
+                                    <span className={`font-black text-xs ${op.bg.replace('bg-', 'text-')}`}>{op.short}</span>
+                                </div>
+                                <div>
+                                    <p className="text-[10px] opacity-80 font-medium tracking-wide">অপারেটর</p>
+                                    <p className="font-bold text-base leading-none tracking-tight">{op.name}</p>
+                                </div>
+                                <div className="ml-auto bg-white/20 p-1.5 rounded-full backdrop-blur-sm">
+                                   <div className="flex gap-0.5 items-end h-3">
+                                       <div className="w-1 h-1 bg-white rounded-full animate-bounce delay-75"></div>
+                                       <div className="w-1 h-2 bg-white rounded-full animate-bounce delay-150"></div>
+                                       <div className="w-1 h-3 bg-white rounded-full animate-bounce delay-300"></div>
+                                   </div>
+                                </div>
+                            </div>
+                        )
+                    }
+                    return null;
+                 })()
+               )}
+
                <div className="mt-6">
                 <button 
                     onClick={() => formData.recipient.length > 3 && setTransactionStep(2)}
