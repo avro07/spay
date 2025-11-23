@@ -22,25 +22,25 @@ const BottomNav: React.FC<BottomNavProps> = ({ currentScreen, onNavigate, langua
   ];
 
   return (
-    <div className="absolute bottom-0 left-0 w-full z-50 pointer-events-none flex justify-center pb-[calc(env(safe-area-inset-bottom)+16px)]">
-      {/* Background Container - Floating Style */}
-      <div className="pointer-events-auto w-[calc(100%-32px)] max-w-[400px] bg-white border border-gray-100 shadow-[0_10px_30px_rgba(0,0,0,0.1)] rounded-[35px] relative">
-        <div className="flex justify-between items-end px-2 h-[72px] pb-2.5">
+    <div className="absolute bottom-0 left-0 w-full z-50 pointer-events-none">
+      {/* Background Container - Docked Bottom Style */}
+      <div className="pointer-events-auto w-full bg-white border-t border-gray-100 shadow-[0_-10px_30px_rgba(0,0,0,0.05)] rounded-t-[30px] relative pb-[env(safe-area-inset-bottom)]">
+        <div className="flex justify-between items-end px-6 h-[72px] pb-2">
           {navItems.map((item) => {
             const isActive = currentScreen === item.id;
             
-            // Special Scan Button (Diamond/Squircle Design)
+            // Special Scan Button
             if (item.isSpecial) {
                return (
                  <div key={item.id} className="relative flex flex-col items-center justify-end w-[20%] h-full cursor-pointer group pb-1" onClick={() => onNavigate(AppScreen.SCAN)}>
-                    <div className="absolute -top-6 left-1/2 -translate-x-1/2 z-10 transition-transform duration-200 group-active:scale-90">
+                    <div className="absolute -top-8 left-1/2 -translate-x-1/2 z-10 transition-transform duration-200 group-active:scale-90">
                         {/* Glow Effect */}
                         <div className="absolute inset-0 bg-rose-500 blur-xl opacity-20 rounded-full translate-y-2 scale-110"></div>
                         
                         {/* Main Button */}
-                        <div className="relative w-[46px] h-[46px] bg-gradient-to-tr from-rose-600 to-pink-500 rotate-45 rounded-[15px] flex items-center justify-center shadow-[0_8px_16px_-4px_rgba(225,29,72,0.4)] border-[4px] border-white ring-1 ring-black/5">
+                        <div className="relative w-[52px] h-[52px] bg-gradient-to-tr from-rose-600 to-pink-500 rotate-45 rounded-[18px] flex items-center justify-center shadow-[0_8px_16px_-4px_rgba(225,29,72,0.4)] border-[4px] border-white ring-1 ring-black/5">
                              <div className="-rotate-45">
-                                <ScanLine size={20} className="text-white" strokeWidth={2.5} />
+                                <ScanLine size={24} className="text-white" strokeWidth={2.5} />
                              </div>
                         </div>
                     </div>
