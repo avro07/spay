@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Home, History, ScanLine, Gift, Bot } from 'lucide-react';
 import { AppScreen, Language } from '../types';
@@ -23,21 +24,21 @@ const BottomNav: React.FC<BottomNavProps> = ({ currentScreen, onNavigate, langua
   return (
     <div className="absolute bottom-0 left-0 w-full z-50 pointer-events-none">
       {/* Background Container */}
-      <div className="pointer-events-auto absolute bottom-0 w-full bg-white/90 backdrop-blur-2xl border-t border-white/60 shadow-[0_-10px_40px_-10px_rgba(0,0,0,0.1)] rounded-t-[25px] pb-[env(safe-area-inset-bottom)]">
-        <div className="flex justify-between items-center px-4 h-[65px]">
+      <div className="pointer-events-auto absolute bottom-0 w-full bg-white border-t border-gray-100 shadow-[0_-4px_20px_rgba(0,0,0,0.05)] pb-[env(safe-area-inset-bottom)]">
+        <div className="flex justify-between items-end px-2 h-[70px]">
           {navItems.map((item) => {
             const isActive = currentScreen === item.id;
             
-            // Special Scan Button (Diamond Shape)
+            // Special Scan Button (Circular Floating)
             if (item.isSpecial) {
                return (
-                 <div key={item.id} className="relative -top-6 flex flex-col items-center justify-center w-[20%] h-full group cursor-pointer" onClick={() => onNavigate(AppScreen.SCAN)}>
-                    <div className="relative w-[50px] h-[50px] bg-gradient-to-tr from-rose-600 to-rose-500 rounded-[18px] rotate-45 flex items-center justify-center shadow-lg shadow-rose-500/40 border-[4px] border-[#FAFAFA] transform transition-transform duration-300 hover:scale-105 active:scale-95 hover:rotate-[50deg] group-active:rotate-90">
-                      {/* Inner Shine */}
-                      <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent rounded-[14px]"></div>
-                      <ScanLine strokeWidth={2.5} className="w-5 h-5 text-white -rotate-45 drop-shadow-sm" />
+                 <div key={item.id} className="relative flex flex-col items-center justify-end w-[20%] h-full cursor-pointer group pb-2" onClick={() => onNavigate(AppScreen.SCAN)}>
+                    <div className="absolute -top-6 transition-transform duration-200 group-active:scale-95">
+                        <div className="w-[60px] h-[60px] bg-rose-600 rounded-full flex items-center justify-center shadow-lg shadow-rose-200 border-[4px] border-[#f3f4f6]">
+                             <ScanLine size={24} className="text-white" strokeWidth={2.5} />
+                        </div>
                     </div>
-                    <span className="absolute bottom-1 text-[9px] font-bold text-gray-500/90 tracking-wide bg-white/80 px-2 py-0.5 rounded-full shadow-sm backdrop-blur-sm border border-white">
+                    <span className="text-[10px] font-bold text-gray-500 mt-8">
                       {item.label}
                     </span>
                  </div>
@@ -49,31 +50,20 @@ const BottomNav: React.FC<BottomNavProps> = ({ currentScreen, onNavigate, langua
               <button
                 key={item.id}
                 onClick={() => onNavigate(item.id as AppScreen)}
-                className={`relative flex flex-col items-center justify-center w-[20%] h-full gap-0.5 transition-all duration-300 group`}
+                className={`relative flex flex-col items-center justify-center w-[20%] h-full pb-2 gap-1 transition-colors duration-300 group`}
               >
-                <div className={`
-                    relative p-2 rounded-xl transition-all duration-500 ease-out
-                    ${isActive ? 'bg-rose-50 text-rose-600 -translate-y-2 shadow-sm shadow-rose-100' : 'bg-transparent text-gray-400 hover:text-gray-600 hover:bg-gray-50'}
-                `}>
-                   <item.icon 
-                      size={20} 
-                      strokeWidth={isActive ? 2.5 : 2} 
-                      className={`transition-transform duration-300 ${isActive ? 'scale-110' : ''}`} 
-                   />
-                </div>
+                <item.icon 
+                   size={24} 
+                   strokeWidth={isActive ? 2.5 : 2} 
+                   className={`transition-colors duration-300 ${isActive ? 'text-rose-600' : 'text-gray-400 group-hover:text-gray-600'}`} 
+                />
                 
                 <span className={`
-                  text-[9px] font-semibold transition-all duration-300 absolute bottom-2
-                  ${isActive ? 'text-rose-600 opacity-100 translate-y-0 scale-105' : 'text-gray-400 opacity-80 translate-y-1'}
+                  text-[10px] font-semibold transition-colors duration-300
+                  ${isActive ? 'text-rose-600' : 'text-gray-500'}
                 `}>
                   {item.label}
                 </span>
-
-                {/* Active Indicator Dot */}
-                <div className={`
-                  absolute bottom-1 w-1 h-1 bg-rose-600 rounded-full transition-all duration-300
-                  ${isActive ? 'opacity-100 scale-100' : 'opacity-0 scale-0'}
-                `}></div>
               </button>
             );
           })}
