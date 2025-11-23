@@ -1,11 +1,12 @@
+
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, ChevronRight, ArrowUpRight, CreditCard, Wallet, X } from 'lucide-react';
+import { ArrowLeft, ChevronRight, ArrowUpRight, CreditCard, Wallet, X, Bell, Shield, Settings as SettingsIcon } from 'lucide-react';
 import BalanceHeader from './components/BalanceHeader';
 import ActionGrid from './components/ActionGrid';
 import BottomNav from './components/BottomNav';
 import AIAssistant from './components/AIAssistant';
 import HoldToConfirm from './components/HoldToConfirm';
-import { AppScreen, User, Transaction, SendMoneyFormData } from './types';
+import { AppScreen, User, Transaction, SendMoneyFormData, NotificationPreferences } from './types';
 import { INITIAL_USER, MOCK_TRANSACTIONS } from './constants';
 
 const App: React.FC = () => {
@@ -13,6 +14,13 @@ const App: React.FC = () => {
   const [user, setUser] = useState<User>(INITIAL_USER);
   const [transactions, setTransactions] = useState<Transaction[]>(MOCK_TRANSACTIONS);
   
+  // Notification Preferences State
+  const [notificationPrefs, setNotificationPrefs] = useState<NotificationPreferences>({
+    transactions: true,
+    offers: true,
+    securityAlerts: true
+  });
+
   // Send Money Flow State
   const [sendMoneyStep, setSendMoneyStep] = useState(1);
   const [formData, setFormData] = useState<SendMoneyFormData>({
@@ -58,72 +66,84 @@ const App: React.FC = () => {
   // --- RENDER HELPERS ---
 
   const renderHome = () => (
-    <div className="pb-28 animate-in fade-in duration-500">
-      <BalanceHeader user={user} />
-      <ActionGrid onNavigate={setCurrentScreen} />
-      
-      {/* Promotions Banner */}
-      <div className="px-5 mt-6">
-         <div className="relative overflow-hidden bg-gradient-to-r from-violet-600 via-indigo-600 to-blue-600 rounded-2xl p-5 shadow-lg shadow-indigo-200 group cursor-pointer">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-white opacity-10 rounded-full -mr-10 -mt-10 blur-2xl"></div>
-            <div className="absolute bottom-0 left-0 w-24 h-24 bg-rose-500 opacity-20 rounded-full -ml-10 -mb-10 blur-xl"></div>
-            
-            <div className="relative z-10 flex justify-between items-center">
-                <div className="space-y-1">
-                    <span className="bg-white/20 backdrop-blur-sm px-2.5 py-0.5 rounded text-[10px] font-bold text-white border border-white/20 inline-block mb-1">
-                        স্পেশাল অফার
-                    </span>
-                    <h3 className="font-bold text-white text-xl">২০০০ টাকা অ্যাড মানি</h3>
-                    <p className="text-indigo-100 text-sm">ব্যাংক বা কার্ড থেকে অ্যাড করলেই</p>
-                </div>
-                <div className="flex flex-col items-end">
-                    <div className="text-right">
-                        <span className="block text-3xl font-black text-white drop-shadow-sm">২০৳</span>
-                        <span className="text-xs text-indigo-200 font-medium">ইনস্ট্যান্ট বোনাস</span>
+    <div className="pb-28 animate-in fade-in duration-500 relative">
+      {/* Background Ambient Blobs for Glass Effect */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
+          <div className="absolute top-[20%] left-[-10%] w-72 h-72 bg-purple-200/40 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob"></div>
+          <div className="absolute top-[40%] right-[-10%] w-72 h-72 bg-yellow-200/40 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob animation-delay-2000"></div>
+          <div className="absolute bottom-[20%] left-[20%] w-72 h-72 bg-pink-200/40 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob animation-delay-4000"></div>
+      </div>
+
+      <div className="relative z-10">
+        <BalanceHeader 
+            user={user} 
+            onProfileClick={() => setCurrentScreen(AppScreen.SETTINGS)} 
+        />
+        <ActionGrid onNavigate={setCurrentScreen} />
+        
+        {/* Promotions Banner */}
+        <div className="px-5 mt-6">
+            <div className="relative overflow-hidden bg-gradient-to-r from-violet-600 via-indigo-600 to-blue-600 rounded-2xl p-5 shadow-lg shadow-indigo-200 group cursor-pointer">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-white opacity-10 rounded-full -mr-10 -mt-10 blur-2xl"></div>
+                <div className="absolute bottom-0 left-0 w-24 h-24 bg-rose-500 opacity-20 rounded-full -ml-10 -mb-10 blur-xl"></div>
+                
+                <div className="relative z-10 flex justify-between items-center">
+                    <div className="space-y-1">
+                        <span className="bg-white/20 backdrop-blur-sm px-2.5 py-0.5 rounded text-[10px] font-bold text-white border border-white/20 inline-block mb-1">
+                            স্পেশাল অফার
+                        </span>
+                        <h3 className="font-bold text-white text-xl">২০০০ টাকা অ্যাড মানি</h3>
+                        <p className="text-indigo-100 text-sm">ব্যাংক বা কার্ড থেকে অ্যাড করলেই</p>
+                    </div>
+                    <div className="flex flex-col items-end">
+                        <div className="text-right">
+                            <span className="block text-3xl font-black text-white drop-shadow-sm">২০৳</span>
+                            <span className="text-xs text-indigo-200 font-medium">ইনস্ট্যান্ট বোনাস</span>
+                        </div>
                     </div>
                 </div>
             </div>
-         </div>
-      </div>
-
-      {/* Recent Transactions Preview */}
-      <div className="px-5 mt-8">
-        <div className="flex justify-between items-center mb-4">
-           <h3 className="text-gray-800 font-bold text-lg">সাম্প্রতিক লেনদেন</h3>
-           <button 
-             onClick={() => setCurrentScreen(AppScreen.TRANSACTIONS)}
-             className="text-rose-600 text-sm font-semibold flex items-center hover:gap-1 transition-all"
-           >
-             সব দেখুন <ChevronRight size={16} />
-           </button>
         </div>
-        <div className="flex flex-col gap-3">
-           {transactions.slice(0, 3).map((txn) => (
-             <div key={txn.id} className="bg-white p-4 rounded-2xl shadow-sm border border-gray-50 flex items-center justify-between active:scale-[0.99] transition-transform">
-               <div className="flex items-center space-x-4">
-                  <div className={`
-                    w-12 h-12 rounded-2xl flex items-center justify-center text-lg font-bold shadow-sm
-                    ${txn.type === 'RECEIVED_MONEY' || txn.type === 'ADD_MONEY' 
-                        ? 'bg-emerald-50 text-emerald-600' 
-                        : 'bg-rose-50 text-rose-600'}
-                  `}>
-                     {txn.type === 'SEND_MONEY' && <ArrowUpRight size={24} />}
-                     {txn.type === 'MOBILE_RECHARGE' && <Wallet size={24} />}
-                     {(txn.type === 'RECEIVED_MONEY' || txn.type === 'ADD_MONEY') && <ArrowUpRight size={24} className="rotate-180" />}
-                     {txn.type === 'PAYMENT' && <CreditCard size={24} />}
-                  </div>
-                  <div>
-                    <p className="text-sm font-bold text-gray-800 line-clamp-1">{txn.recipientName}</p>
-                    <p className="text-xs text-gray-400 font-medium mt-0.5">{txn.description} • {txn.date}</p>
-                  </div>
-               </div>
-               <div className="text-right">
-                 <p className={`text-base font-bold font-mono tracking-tight ${txn.type === 'RECEIVED_MONEY' || txn.type === 'ADD_MONEY' ? 'text-emerald-600' : 'text-gray-900'}`}>
-                   {txn.type === 'RECEIVED_MONEY' || txn.type === 'ADD_MONEY' ? '+' : '-'}৳{txn.amount.toLocaleString('bn-BD')}
-                 </p>
-               </div>
-             </div>
-           ))}
+
+        {/* Recent Transactions Preview */}
+        <div className="px-5 mt-8">
+            <div className="flex justify-between items-center mb-4">
+            <h3 className="text-gray-800 font-bold text-lg">সাম্প্রতিক লেনদেন</h3>
+            <button 
+                onClick={() => setCurrentScreen(AppScreen.TRANSACTIONS)}
+                className="text-rose-600 text-sm font-semibold flex items-center hover:gap-1 transition-all"
+            >
+                সব দেখুন <ChevronRight size={16} />
+            </button>
+            </div>
+            <div className="flex flex-col gap-3">
+            {transactions.slice(0, 3).map((txn) => (
+                <div key={txn.id} className="bg-white/40 backdrop-blur-xl p-4 rounded-2xl shadow-[0_4px_20px_-10px_rgba(0,0,0,0.1)] border border-white/50 flex items-center justify-between active:scale-[0.99] transition-transform hover:bg-white/50 group">
+                <div className="flex items-center space-x-4">
+                    <div className={`
+                        w-12 h-12 rounded-2xl flex items-center justify-center text-lg font-bold shadow-inner backdrop-blur-sm
+                        ${txn.type === 'RECEIVED_MONEY' || txn.type === 'ADD_MONEY' 
+                            ? 'bg-emerald-100/40 text-emerald-600' 
+                            : 'bg-rose-100/40 text-rose-600'}
+                    `}>
+                        {txn.type === 'SEND_MONEY' && <ArrowUpRight size={24} />}
+                        {txn.type === 'MOBILE_RECHARGE' && <Wallet size={24} />}
+                        {(txn.type === 'RECEIVED_MONEY' || txn.type === 'ADD_MONEY') && <ArrowUpRight size={24} className="rotate-180" />}
+                        {txn.type === 'PAYMENT' && <CreditCard size={24} />}
+                    </div>
+                    <div>
+                        <p className="text-sm font-bold text-gray-800 line-clamp-1 group-hover:text-rose-600 transition-colors">{txn.recipientName}</p>
+                        <p className="text-xs text-gray-500 font-medium mt-0.5">{txn.description} • {txn.date}</p>
+                    </div>
+                </div>
+                <div className="text-right">
+                    <p className={`text-base font-bold font-mono tracking-tight ${txn.type === 'RECEIVED_MONEY' || txn.type === 'ADD_MONEY' ? 'text-emerald-600' : 'text-gray-900'}`}>
+                    {txn.type === 'RECEIVED_MONEY' || txn.type === 'ADD_MONEY' ? '+' : '-'}৳{txn.amount.toLocaleString('bn-BD')}
+                    </p>
+                </div>
+                </div>
+            ))}
+            </div>
         </div>
       </div>
     </div>
@@ -312,31 +332,36 @@ const App: React.FC = () => {
   );
 
   const renderTransactions = () => (
-    <div className="flex flex-col h-full bg-gray-50 animate-in fade-in">
-      <div className="bg-white px-4 py-4 flex items-center shadow-sm sticky top-0 z-20">
-        <button onClick={() => setCurrentScreen(AppScreen.HOME)} className="p-2 hover:bg-gray-100 rounded-full mr-2 -ml-2 transition-colors">
+    <div className="flex flex-col h-full bg-[#f8f9fa] animate-in fade-in relative overflow-hidden">
+      {/* Decorative Background Elements for Glass Effect */}
+      <div className="absolute top-[-10%] right-[-10%] w-[50%] h-[30%] bg-purple-200/30 rounded-full blur-[80px] pointer-events-none"></div>
+      <div className="absolute bottom-[10%] left-[-10%] w-[50%] h-[30%] bg-rose-200/30 rounded-full blur-[80px] pointer-events-none"></div>
+
+      <div className="bg-white/70 backdrop-blur-lg px-4 py-4 flex items-center shadow-sm sticky top-0 z-20 border-b border-white/30">
+        <button onClick={() => setCurrentScreen(AppScreen.HOME)} className="p-2 hover:bg-black/5 rounded-full mr-2 -ml-2 transition-colors">
           <ArrowLeft className="text-gray-700 w-6 h-6" />
         </button>
         <h1 className="font-bold text-xl text-gray-800">লেনদেন সমূহ</h1>
       </div>
-      <div className="flex-1 overflow-y-auto p-5 pb-28 space-y-4">
+      
+      <div className="flex-1 overflow-y-auto p-5 pb-28 space-y-4 relative z-10">
          {transactions.map((txn, index) => (
            <div 
                 key={txn.id} 
-                className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex justify-between items-center hover:shadow-md transition-shadow"
+                className="bg-white/60 backdrop-blur-xl p-5 rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/50 flex justify-between items-center hover:bg-white/70 transition-all duration-300"
                 style={{ animationDelay: `${index * 50}ms` }}
             >
               <div className="flex items-center space-x-4">
                  <div className={`
-                    w-12 h-12 rounded-full flex items-center justify-center border
-                    ${txn.type === 'RECEIVED_MONEY' || txn.type === 'ADD_MONEY' ? 'bg-emerald-50 border-emerald-100 text-emerald-600' : 'bg-gray-50 border-gray-100 text-gray-500'}
+                    w-12 h-12 rounded-full flex items-center justify-center border shadow-sm
+                    ${txn.type === 'RECEIVED_MONEY' || txn.type === 'ADD_MONEY' ? 'bg-emerald-50/80 border-emerald-100 text-emerald-600' : 'bg-gray-50/80 border-gray-200 text-gray-500'}
                  `}>
                     <span className="font-bold text-sm">{txn.recipientName?.substring(0,2) || 'Tx'}</span>
                  </div>
                  <div>
                     <h4 className="font-bold text-gray-800 text-base">{txn.recipientName || txn.type}</h4>
-                    <div className="flex items-center text-xs text-gray-400 mt-1 gap-2">
-                        <span className="bg-gray-100 px-1.5 py-0.5 rounded text-gray-500 font-medium">{txn.type.split('_')[0]}</span>
+                    <div className="flex items-center text-xs text-gray-500 mt-1 gap-2">
+                        <span className="bg-white/50 px-1.5 py-0.5 rounded text-gray-500 font-medium border border-gray-100">{txn.type.split('_')[0]}</span>
                         <span>•</span>
                         <span>{txn.date}</span>
                     </div>
@@ -353,6 +378,74 @@ const App: React.FC = () => {
     </div>
   );
 
+  const renderSettings = () => (
+      <div className="flex flex-col h-full bg-gray-50 animate-in slide-in-from-right duration-300">
+        {/* Header */}
+        <div className="bg-white px-4 py-4 flex items-center shadow-sm sticky top-0 z-20">
+            <button onClick={() => setCurrentScreen(AppScreen.HOME)} className="p-2 hover:bg-gray-100 rounded-full mr-2 -ml-2 transition-colors">
+            <ArrowLeft className="text-gray-700 w-6 h-6" />
+            </button>
+            <h1 className="font-bold text-xl text-gray-800">সেটিংস</h1>
+        </div>
+
+        <div className="p-5 space-y-6">
+            <div className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm">
+                <h2 className="text-gray-800 font-bold mb-4 flex items-center gap-2">
+                    <SettingsIcon size={20} className="text-rose-600" />
+                    নোটিফিকেশন প্রিফারেন্স
+                </h2>
+
+                {/* Transaction Alert Toggle */}
+                <div className="flex items-center justify-between py-3 border-b border-gray-50 last:border-0">
+                    <div>
+                        <p className="font-medium text-gray-800">লেনদেন অ্যালার্ট</p>
+                        <p className="text-xs text-gray-400">টাকা পাঠানো বা গ্রহণের নোটিফিকেশন</p>
+                    </div>
+                    <button
+                        onClick={() => setNotificationPrefs(p => ({...p, transactions: !p.transactions}))}
+                        className={`w-12 h-6 rounded-full transition-colors relative ${notificationPrefs.transactions ? 'bg-rose-500' : 'bg-gray-300'}`}
+                    >
+                        <div className={`w-4 h-4 bg-white rounded-full shadow-md absolute top-1 transition-transform ${notificationPrefs.transactions ? 'left-7' : 'left-1'}`}></div>
+                    </button>
+                </div>
+
+                 {/* Offers Toggle */}
+                <div className="flex items-center justify-between py-3 border-b border-gray-50 last:border-0">
+                    <div>
+                        <p className="font-medium text-gray-800">অফার সমূহ</p>
+                        <p className="text-xs text-gray-400">নতুন অফার এবং ডিসকাউন্ট আপডেট</p>
+                    </div>
+                    <button
+                        onClick={() => setNotificationPrefs(p => ({...p, offers: !p.offers}))}
+                        className={`w-12 h-6 rounded-full transition-colors relative ${notificationPrefs.offers ? 'bg-rose-500' : 'bg-gray-300'}`}
+                    >
+                        <div className={`w-4 h-4 bg-white rounded-full shadow-md absolute top-1 transition-transform ${notificationPrefs.offers ? 'left-7' : 'left-1'}`}></div>
+                    </button>
+                </div>
+
+                {/* Security Toggle */}
+                <div className="flex items-center justify-between py-3">
+                    <div>
+                        <p className="font-medium text-gray-800">সিকিউরিটি অ্যালার্ট</p>
+                        <p className="text-xs text-gray-400">লগইন এবং পাসওয়ার্ড পরিবর্তন সতর্কতা</p>
+                    </div>
+                    <button
+                        onClick={() => setNotificationPrefs(p => ({...p, securityAlerts: !p.securityAlerts}))}
+                        className={`w-12 h-6 rounded-full transition-colors relative ${notificationPrefs.securityAlerts ? 'bg-rose-500' : 'bg-gray-300'}`}
+                    >
+                        <div className={`w-4 h-4 bg-white rounded-full shadow-md absolute top-1 transition-transform ${notificationPrefs.securityAlerts ? 'left-7' : 'left-1'}`}></div>
+                    </button>
+                </div>
+            </div>
+
+             {/* Version Info */}
+            <div className="text-center mt-8">
+                <p className="text-gray-400 text-xs">DeshPay অ্যাপ ভার্সন ১.০.০</p>
+            </div>
+        </div>
+      </div>
+  );
+
   // --- MAIN RENDER ---
   return (
     <div className="min-h-screen flex justify-center bg-gray-100 font-sans selection:bg-rose-100">
@@ -364,6 +457,7 @@ const App: React.FC = () => {
           {currentScreen === AppScreen.SEND_MONEY && renderSendMoney()}
           {currentScreen === AppScreen.TRANSACTIONS && renderTransactions()}
           {currentScreen === AppScreen.SUCCESS && renderSuccess()}
+          {currentScreen === AppScreen.SETTINGS && renderSettings()}
         </div>
 
         {/* Navigation */}

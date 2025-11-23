@@ -1,12 +1,14 @@
+
 import React, { useState } from 'react';
 import { Bell, Search, ChevronRight } from 'lucide-react';
 import { User } from '../types';
 
 interface BalanceHeaderProps {
   user: User;
+  onProfileClick: () => void;
 }
 
-const BalanceHeader: React.FC<BalanceHeaderProps> = ({ user }) => {
+const BalanceHeader: React.FC<BalanceHeaderProps> = ({ user, onProfileClick }) => {
   const [showBalance, setShowBalance] = useState(false);
   const [animating, setAnimating] = useState(false);
 
@@ -40,7 +42,10 @@ const BalanceHeader: React.FC<BalanceHeaderProps> = ({ user }) => {
         <div className="relative z-10">
             {/* Top Bar */}
             <div className="flex justify-between items-center mb-8">
-                <div className="flex items-center space-x-3 group cursor-pointer">
+                <div 
+                  className="flex items-center space-x-3 group cursor-pointer"
+                  onClick={onProfileClick}
+                >
                     <div className="relative">
                         <div className="w-12 h-12 rounded-full p-[2px] bg-gradient-to-r from-white/40 to-white/10 backdrop-blur-sm">
                             <img src={user.avatarUrl} alt="User" className="w-full h-full rounded-full object-cover border-2 border-white/50" />
