@@ -33,18 +33,18 @@ const BottomNav: React.FC<BottomNavProps> = ({ currentScreen, onNavigate, langua
             if (item.isSpecial) {
                return (
                  <div key={item.id} className="relative flex flex-col items-center justify-end w-[20%] h-full cursor-pointer group pb-2" onClick={() => onNavigate(AppScreen.SCAN)}>
-                    <div className="absolute -top-10 left-1/2 -translate-x-1/2 z-10 transition-transform duration-200 group-active:scale-90">
+                    <div className="absolute -top-6 left-1/2 -translate-x-1/2 z-10 transition-transform duration-200 group-active:scale-90">
                         {/* Glow Effect */}
                         <div className="absolute inset-0 bg-rose-500 blur-xl opacity-20 rounded-full translate-y-2 scale-110"></div>
                         
                         {/* Main Button */}
-                        <div className="relative w-[58px] h-[58px] bg-gradient-to-tr from-rose-600 to-pink-500 rotate-45 rounded-[20px] flex items-center justify-center shadow-[0_10px_20px_-5px_rgba(225,29,72,0.4)] border-[5px] border-white ring-1 ring-black/5">
+                        <div className="relative w-[46px] h-[46px] bg-gradient-to-tr from-rose-600 to-pink-500 rotate-45 rounded-[15px] flex items-center justify-center shadow-[0_8px_16px_-4px_rgba(225,29,72,0.4)] border-[4px] border-white ring-1 ring-black/5">
                              <div className="-rotate-45">
-                                <ScanLine size={26} className="text-white" strokeWidth={2.5} />
+                                <ScanLine size={20} className="text-white" strokeWidth={2.5} />
                              </div>
                         </div>
                     </div>
-                    <span className="text-[10px] font-bold text-gray-500 mt-10 leading-none group-hover:text-rose-600 transition-colors">
+                    <span className="text-[10px] font-bold text-gray-500 mt-8 leading-none group-hover:text-rose-600 transition-colors">
                       {item.label}
                     </span>
                  </div>
