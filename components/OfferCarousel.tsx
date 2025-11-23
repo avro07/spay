@@ -21,11 +21,11 @@ const OfferCarousel: React.FC<OfferCarouselProps> = ({ onNavigate }) => {
           <div className="absolute top-0 right-0 w-32 h-32 bg-white opacity-10 rounded-full -mr-10 -mt-10 blur-2xl"></div>
           <div className="absolute bottom-0 left-0 w-24 h-24 bg-yellow-400 opacity-20 rounded-full -ml-10 -mb-10 blur-xl"></div>
           <div className="relative z-10">
-              <span className="bg-white/20 backdrop-blur-sm px-2.5 py-0.5 rounded text-[10px] font-bold text-white border border-white/20 inline-block mb-2">
+              <span className="bg-white/20 backdrop-blur-sm px-2 py-0.5 rounded text-[10px] font-bold text-white border border-white/20 inline-block mb-1">
                   মোবাইল রিচার্জ
               </span>
-              <h3 className="font-bold text-white text-xl mb-1">২০ টাকা ক্যাশব্যাক</h3>
-              <p className="text-violet-100 text-sm">৫০ টাকা বা তার বেশি রিচার্জে</p>
+              <h3 className="font-bold text-white text-lg mb-0.5">২০ টাকা ক্যাশব্যাক</h3>
+              <p className="text-violet-100 text-xs">৫০ টাকা বা তার বেশি রিচার্জে</p>
           </div>
         </>
       )
@@ -41,14 +41,14 @@ const OfferCarousel: React.FC<OfferCarouselProps> = ({ onNavigate }) => {
           <div className="relative z-10">
               <div className="flex justify-between items-start">
                 <div>
-                    <span className="bg-white/20 backdrop-blur-sm px-2.5 py-0.5 rounded text-[10px] font-bold text-white border border-white/20 inline-block mb-2">
+                    <span className="bg-white/20 backdrop-blur-sm px-2 py-0.5 rounded text-[10px] font-bold text-white border border-white/20 inline-block mb-1">
                         সুপার শপ
                     </span>
-                    <h3 className="font-bold text-white text-xl">স্বপ্ন-তে ১০% ছাড়</h3>
-                    <p className="text-orange-100 text-sm mt-1">যেকোনো গ্রোসারি কেনাকাটায়</p>
+                    <h3 className="font-bold text-white text-lg">স্বপ্ন-তে ১০% ছাড়</h3>
+                    <p className="text-orange-100 text-xs mt-0.5">যেকোনো গ্রোসারি কেনাকাটায়</p>
                 </div>
-                <div className="bg-white/20 rounded-lg p-2 backdrop-blur-sm">
-                    <ShoppingBag className="text-white w-6 h-6" />
+                <div className="bg-white/20 rounded-lg p-1.5 backdrop-blur-sm">
+                    <ShoppingBag className="text-white w-5 h-5" />
                 </div>
               </div>
           </div>
@@ -67,15 +67,15 @@ const OfferCarousel: React.FC<OfferCarouselProps> = ({ onNavigate }) => {
            
            <div className="relative z-10 flex justify-between items-center">
                 <div className="space-y-1">
-                    <span className="bg-white/20 backdrop-blur-sm px-2.5 py-0.5 rounded text-[10px] font-bold text-white border border-white/20 inline-block mb-1">
+                    <span className="bg-white/20 backdrop-blur-sm px-2 py-0.5 rounded text-[10px] font-bold text-white border border-white/20 inline-block mb-0.5">
                         অ্যাড মানি
                     </span>
-                    <h3 className="font-bold text-white text-xl">২০০০ টাকা অ্যাড মানি</h3>
-                    <p className="text-indigo-100 text-sm">ব্যাংক/কার্ড থেকে</p>
+                    <h3 className="font-bold text-white text-lg">২০০০ টাকা অ্যাড মানি</h3>
+                    <p className="text-indigo-100 text-xs">ব্যাংক/কার্ড থেকে</p>
                 </div>
                 <div className="text-right">
-                    <span className="block text-3xl font-black text-white drop-shadow-sm">২০৳</span>
-                    <span className="text-xs text-indigo-100 font-medium">বোনাস</span>
+                    <span className="block text-2xl font-black text-white drop-shadow-sm">২০৳</span>
+                    <span className="text-[10px] text-indigo-100 font-medium">বোনাস</span>
                 </div>
             </div>
         </>
@@ -93,16 +93,16 @@ const OfferCarousel: React.FC<OfferCarouselProps> = ({ onNavigate }) => {
           
           <div className="relative z-10 h-full flex flex-col justify-center">
               <div className="flex justify-between items-center mb-1">
-                 <span className="bg-red-600 px-2.5 py-0.5 rounded text-[10px] font-bold text-white inline-block">
+                 <span className="bg-red-600 px-2 py-0.5 rounded text-[10px] font-bold text-white inline-block">
                       ফুড অফার
                   </span>
                   <div className="bg-white/10 backdrop-blur-sm p-1.5 rounded-lg">
-                    <Utensils className="text-yellow-400 w-5 h-5" />
+                    <Utensils className="text-yellow-400 w-4 h-4" />
                   </div>
               </div>
               
-              <h3 className="font-bold text-white text-xl leading-none">১টি কিনলে <span className="text-red-500">১টি ফ্রি!</span></h3>
-              <p className="text-gray-300 text-xs mt-1">KFC-তে নির্দিষ্ট বার্গার এবং মিল অর্ডারে</p>
+              <h3 className="font-bold text-white text-lg leading-none">১টি কিনলে <span className="text-red-500">১টি ফ্রি!</span></h3>
+              <p className="text-gray-300 text-[10px] mt-1">KFC-তে নির্দিষ্ট বার্গার এবং মিল অর্ডারে</p>
           </div>
         </>
       )
@@ -129,7 +129,7 @@ const OfferCarousel: React.FC<OfferCarouselProps> = ({ onNavigate }) => {
                     className="w-full flex-shrink-0 cursor-pointer"
                     onClick={() => onNavigate(offer.action)}
                 >
-                    <div className={`relative overflow-hidden ${offer.bgClass} p-5 h-40 shadow-lg ${offer.shadowClass} flex flex-col justify-center`}>
+                    <div className={`relative overflow-hidden ${offer.bgClass} p-4 h-32 shadow-lg ${offer.shadowClass} flex flex-col justify-center`}>
                         {offer.content}
                     </div>
                 </div>
@@ -138,11 +138,11 @@ const OfferCarousel: React.FC<OfferCarouselProps> = ({ onNavigate }) => {
       </div>
       
       {/* Indicators */}
-      <div className="absolute bottom-3 left-0 right-0 flex justify-center gap-1.5 z-20 pointer-events-none">
+      <div className="absolute bottom-2 left-0 right-0 flex justify-center gap-1.5 z-20 pointer-events-none">
         {offers.map((_, idx) => (
           <div
             key={idx}
-            className={`h-1.5 rounded-full transition-all duration-300 shadow-sm ${idx === currentIndex ? 'bg-white w-5' : 'bg-white/40 w-1.5'}`}
+            className={`h-1 rounded-full transition-all duration-300 shadow-sm ${idx === currentIndex ? 'bg-white w-4' : 'bg-white/40 w-1'}`}
           />
         ))}
       </div>
