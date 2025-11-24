@@ -1,7 +1,6 @@
 
-
 import React, { useState, useEffect, useRef } from 'react';
-import { ArrowLeft, ChevronRight, ArrowUpRight, CreditCard, Wallet, X, Bell, Shield, Settings as SettingsIcon, FileText, Landmark, ShoppingBag, Utensils, LogOut, Lock, User as UserIcon, Phone, Eye, EyeOff, QrCode as QrCodeIcon, Signal, Globe, UserCog, Contact as ContactIcon, ArrowRightLeft } from 'lucide-react';
+import { ArrowLeft, ChevronRight, ArrowUpRight, CreditCard, Wallet, X, Bell, Shield, Settings as SettingsIcon, FileText, Landmark, ShoppingBag, Utensils, LogOut, Lock, User as UserIcon, Phone, Eye, EyeOff, QrCode as QrCodeIcon, Signal, Globe, UserCog, Contact as ContactIcon, ArrowRightLeft, Zap, Flame, Droplet, Tv, ShieldCheck, Car, MoreHorizontal, ScrollText, BarChart3, ScanLine, ArrowRight } from 'lucide-react';
 import BalanceHeader from './components/BalanceHeader';
 import ActionGrid from './components/ActionGrid';
 import BottomNav from './components/BottomNav';
@@ -112,6 +111,10 @@ const App: React.FC = () => {
       case AppScreen.ADMIN_DASHBOARD:
         color = '#0f172a'; // Slate-900 for admin
         break;
+      case AppScreen.PAY_BILL:
+         if (transactionStep === 0) color = '#e11d48'; // Header color for Pay Bill Dashboard
+         else color = '#ffffff';
+         break;
       case AppScreen.SETTINGS:
       case AppScreen.SUCCESS:
       case AppScreen.SEND_MONEY:
@@ -120,7 +123,6 @@ const App: React.FC = () => {
       case AppScreen.PAYMENT:
       case AppScreen.ADD_MONEY:
       case AppScreen.MFS_TRANSFER:
-      case AppScreen.PAY_BILL:
       case AppScreen.TRANSFER_TO_BANK:
       case AppScreen.OFFERS:
         color = '#ffffff'; // White for standard screens
@@ -134,7 +136,7 @@ const App: React.FC = () => {
     if (metaThemeColor) {
       metaThemeColor.setAttribute('content', color);
     }
-  }, [currentScreen]);
+  }, [currentScreen, transactionStep]);
 
   // Reset keypad when screen changes
   useEffect(() => {
@@ -198,7 +200,6 @@ const App: React.FC = () => {
      if (activeInput === 'LOGIN_PIN' && loginPin.length === 4) handleLogin();
   };
 
-
   // Auth Handlers
   const handleLogin = () => {
     if (loginPin.length >= 4) {
@@ -257,6 +258,17 @@ const App: React.FC = () => {
     setCurrentScreen(AppScreen.LOGIN);
     setTransactionStep(1);
     setFormData({ recipient: '', amount: '', reference: '', pin: '', mfsProvider: 'Bkash' });
+  };
+
+  // Navigation Handler
+  const handleNavigation = (screen: AppScreen) => {
+    setCurrentScreen(screen);
+    // For Pay Bill, start at dashboard (step 0), for others start at step 1
+    setTransactionStep(screen === AppScreen.PAY_BILL ? 0 : 1);
+    
+    // Reset form data
+    setFormData({ recipient: '', amount: '', reference: '', pin: '', mfsProvider: 'Bkash' });
+    setRecipientNameDisplay('');
   };
 
   const handleNotificationClick = () => {
@@ -328,6 +340,13 @@ const App: React.FC = () => {
   // Utility to handle back navigation
   const handleBack = () => {
     setActiveInput(null);
+    
+    // For Pay Bill specific back logic
+    if (currentScreen === AppScreen.PAY_BILL && transactionStep === 1) {
+        setTransactionStep(0); // Go back to dashboard from input screen
+        return;
+    }
+
     if (transactionStep > 1) {
       setTransactionStep(prev => prev - 1);
     } else {
@@ -365,16 +384,6 @@ const App: React.FC = () => {
     if (config.type === 'CASH_OUT') {
         fee = amount * 0.01;
         finalAmountToDeduct = amount + fee;
-
-        const agentCommission = amount * 0.0030;
-        const distributorCommission = amount * 0.0005;
-        const adminCommission = fee - (agentCommission + distributorCommission);
-
-        console.log(`Cash Out Distribution for ${amount}:`);
-        console.log(`- Total Fee (1%): ${fee}`);
-        console.log(`- Agent Gets (0.30%): ${agentCommission}`);
-        console.log(`- Distributor Gets (0.05%): ${distributorCommission}`);
-        console.log(`- Admin Gets (Remainder): ${adminCommission}`);
     }
 
     // MFS TRANSFER LOGIC: 0.85% Fee
@@ -466,7 +475,7 @@ const App: React.FC = () => {
                         onClick={handleAdminLogin}
                         className="w-full bg-slate-800 text-white font-bold py-3.5 rounded-xl shadow-lg hover:bg-slate-900 transition-all flex items-center justify-center gap-2 text-sm mt-2"
                      >
-                         লগ ইন <ArrowRightIcon className="w-4 h-4" />
+                         লগ ইন <ArrowRight className="w-4 h-4" />
                      </button>
                     
                     <div className="bg-slate-100 p-3 rounded-lg border border-slate-200 text-center">
@@ -480,7 +489,6 @@ const App: React.FC = () => {
                               setIsAdminMode(false);
                               setAdminUsername('');
                               setAdminPassword('');
-                              // Clean up URL parameters if they exist
                               const url = new URL(window.location.href);
                               url.searchParams.delete('mode');
                               window.history.replaceState({}, '', url);
@@ -541,7 +549,7 @@ const App: React.FC = () => {
                         onClick={handleLogin}
                         className="w-full bg-rose-600 text-white font-bold py-3.5 rounded-xl shadow-lg shadow-rose-200 hover:bg-rose-700 hover:shadow-xl active:scale-[0.98] transition-all flex items-center justify-center gap-2 text-sm"
                      >
-                         লগ ইন <ArrowRightIcon className="w-4 h-4" />
+                         লগ ইন <ArrowRight className="w-4 h-4" />
                      </button>
 
                      <div className="text-center mt-4">
@@ -566,7 +574,8 @@ const App: React.FC = () => {
         </div>
 
         <div className="flex-1 overflow-y-auto p-5 pb-[calc(1.5rem+env(safe-area-inset-bottom))] space-y-4">
-            <div>
+            {/* ... Register fields same as before ... */}
+             <div>
                 <label className="block text-xs font-bold text-gray-700 mb-1.5 ml-1">আপনার নাম</label>
                 <div className="relative">
                     <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
@@ -658,11 +667,11 @@ const App: React.FC = () => {
             onNotificationClick={handleNotificationClick}
             language={language}
         />
-        <ActionGrid onNavigate={setCurrentScreen} language={language} />
+        <ActionGrid onNavigate={handleNavigation} language={language} />
         
         {/* Promotions Carousel */}
         <div className="px-4 mt-4">
-            <OfferCarousel onNavigate={setCurrentScreen} />
+            <OfferCarousel onNavigate={handleNavigation} />
         </div>
 
         {/* Recent Transactions Preview */}
@@ -729,15 +738,14 @@ const App: React.FC = () => {
             {t.nav_offers}
           </h1>
        </div>
-       {/* Offers Content (simplified/omitted for brevity) */}
-       {/* ... keeping carousel logic for now, but in real app this would be full list */}
+       {/* Offers Content */}
        <div className="flex-1 overflow-y-auto p-4 pb-[calc(7rem+env(safe-area-inset-bottom))] space-y-4">
-          {/* Banner 1 */}
           <div 
-             onClick={() => setCurrentScreen(AppScreen.MOBILE_RECHARGE)}
+             onClick={() => { setCurrentScreen(AppScreen.MOBILE_RECHARGE); setTransactionStep(1); }}
              className="relative overflow-hidden bg-gradient-to-r from-violet-600 to-fuchsia-600 rounded-2xl p-4 shadow-lg shadow-violet-200 group cursor-pointer transition-transform active:scale-[0.98]"
           >
-              <div className="absolute top-0 right-0 w-32 h-32 bg-white opacity-10 rounded-full -mr-10 -mt-10 blur-2xl"></div>
+              {/* ... Offer Banner Content ... */}
+               <div className="absolute top-0 right-0 w-32 h-32 bg-white opacity-10 rounded-full -mr-10 -mt-10 blur-2xl"></div>
               <div className="absolute bottom-0 left-0 w-24 h-24 bg-yellow-400 opacity-20 rounded-full -ml-10 -mb-10 blur-xl"></div>
               
               <div className="relative z-10">
@@ -752,49 +760,101 @@ const App: React.FC = () => {
                   </div>
               </div>
           </div>
-          {/* Other banners can remain similar */}
        </div>
     </div>
   );
 
-  const renderScan = () => (
-    <div className="flex flex-col h-screen bg-black text-white relative animate-in fade-in">
+  const renderPayBillDashboard = () => (
+    <div className="flex flex-col min-h-screen bg-gray-50 animate-in slide-in-from-right duration-300">
       {/* Header */}
-      <div className="absolute top-0 left-0 right-0 pt-[calc(env(safe-area-inset-top)+1rem)] px-4 pb-4 z-20 flex justify-between items-center bg-gradient-to-b from-black/80 to-transparent">
-         <button onClick={() => setCurrentScreen(AppScreen.HOME)} className="p-2 bg-white/20 rounded-full backdrop-blur-md active:scale-95 transition-transform">
-            <X className="w-5 h-5 text-white" />
-         </button>
-         <h3 className="font-bold text-base tracking-wide">
-            {/* @ts-ignore */}
-            {t.nav_scan} QR
-         </h3>
-         <div className="w-9"></div>
+      <div className="bg-rose-600 px-4 pt-[calc(env(safe-area-inset-top)+1rem)] pb-4 text-white sticky top-0 z-20 shadow-md flex justify-between items-center">
+        <div className="flex items-center gap-3">
+          <button onClick={() => setCurrentScreen(AppScreen.HOME)} className="p-1 hover:bg-white/20 rounded-full transition-colors">
+            <ArrowLeft className="w-6 h-6" />
+          </button>
+          <h1 className="text-lg font-bold">Pay Bill</h1>
+        </div>
+        <div className="w-8 h-8 rounded-full bg-white/20 backdrop-blur-sm p-1">
+             <img src="https://c.beoo.net/Files/1.jpg" alt="Logo" className="w-full h-full rounded-full object-cover" />
+        </div>
       </div>
-      {/* Camera View */}
-      <div className="flex-1 relative overflow-hidden flex items-center justify-center bg-gray-900">
-         <video 
-            ref={videoRef}
-            autoPlay 
-            playsInline
-            muted 
-            className="absolute inset-0 w-full h-full object-cover"
-         />
-         {/* Scan Frame */}
-         <div 
-            onClick={simulateScan}
-            className="relative z-10 w-60 h-60 border-2 border-rose-500 rounded-3xl shadow-[0_0_0_9999px_rgba(0,0,0,0.7)] flex items-center justify-center cursor-pointer active:scale-95 transition-transform group"
-         >
-             <div className="absolute top-0 left-0 w-8 h-8 border-t-4 border-l-4 border-rose-500 -mt-1 -ml-1 rounded-tl-2xl"></div>
-             <div className="absolute top-0 right-0 w-8 h-8 border-t-4 border-r-4 border-rose-500 -mt-1 -mr-1 rounded-tr-2xl"></div>
-             <div className="absolute bottom-0 left-0 w-8 h-8 border-b-4 border-l-4 border-rose-500 -mb-1 -ml-1 rounded-bl-2xl"></div>
-             <div className="absolute bottom-0 right-0 w-8 h-8 border-b-4 border-r-4 border-rose-500 -mb-1 -mr-1 rounded-br-2xl"></div>
-             <div className="absolute top-0 left-0 w-full h-0.5 bg-rose-500 shadow-[0_0_15px_#f43f5e] animate-pulse top-1/2"></div>
-             <div className="absolute -bottom-14 text-center">
-                 <p className="text-xs font-medium text-white/90 bg-black/40 px-3 py-1.5 rounded-full backdrop-blur-md border border-white/10 group-hover:bg-rose-600/80 transition-colors">
-                     পেমেন্ট করতে ট্যাপ করুন
-                 </p>
-             </div>
-         </div>
+
+      <div className="p-4 space-y-4 pb-[calc(2rem+env(safe-area-inset-bottom))]">
+        {/* Search */}
+        <div className="bg-white rounded-lg p-3 shadow-sm border border-gray-100">
+            <p className="text-xs text-gray-500 mb-2 font-medium">Search Organization</p>
+            <div className="flex justify-between items-center text-gray-400">
+                 <span className="text-sm">Enter Organization name or type</span>
+                 <ArrowLeft className="w-4 h-4 rotate-180" />
+            </div>
+        </div>
+
+        {/* Quick Links */}
+        <div className="grid grid-cols-2 gap-3">
+            <div className="bg-white p-3 rounded-lg shadow-sm border border-gray-100 flex items-center gap-3 active:scale-95 transition-transform cursor-pointer">
+                <div className="w-10 h-10 rounded-full bg-rose-50 flex items-center justify-center text-rose-600">
+                    <ScrollText size={20} />
+                </div>
+                <span className="text-xs font-bold text-gray-700 leading-tight">Receipts &<br/>Tokens</span>
+            </div>
+            <div className="bg-white p-3 rounded-lg shadow-sm border border-gray-100 flex items-center gap-3 active:scale-95 transition-transform cursor-pointer">
+                <div className="w-10 h-10 rounded-full bg-rose-50 flex items-center justify-center text-rose-600">
+                    <BarChart3 size={20} />
+                </div>
+                <span className="text-xs font-bold text-gray-700 leading-tight">Pay Bill<br/>History</span>
+            </div>
+        </div>
+
+        {/* Categories */}
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
+            <h3 className="text-xs font-bold text-gray-500 mb-4 uppercase tracking-wider">All Organization</h3>
+            <div className="grid grid-cols-4 gap-y-6 gap-x-2">
+                {[
+                    { icon: Zap, label: 'Electricity' },
+                    { icon: Flame, label: 'Gas' },
+                    { icon: Droplet, label: 'Water' },
+                    { icon: Globe, label: 'Internet' },
+                    { icon: Phone, label: 'Telephone' },
+                    { icon: Tv, label: 'TV' },
+                    { icon: CreditCard, label: 'Credit Card' },
+                    { icon: Landmark, label: 'Govt. Fees' },
+                    { icon: ShieldCheck, label: 'Insurance' },
+                    { icon: Car, label: 'Tracker' },
+                    { icon: MoreHorizontal, label: 'Others' },
+                ].map((item, idx) => (
+                    <div key={idx} className="flex flex-col items-center gap-2 cursor-pointer group active:scale-95 transition-transform" onClick={() => setTransactionStep(1)}>
+                        <div className="w-12 h-12 rounded-[16px] border border-gray-100 flex items-center justify-center text-rose-600 group-hover:bg-rose-50 transition-colors shadow-sm">
+                            <item.icon size={22} strokeWidth={1.5} />
+                        </div>
+                        <span className="text-[10px] text-gray-600 text-center font-medium leading-none">{item.label}</span>
+                    </div>
+                ))}
+            </div>
+        </div>
+
+        {/* Saved/List */}
+        <div className="space-y-2">
+            {[
+                { name: 'D-Toll Top Up', type: 'Govt. Fees', img: 'bridge' },
+                { name: 'Jatrabari Gulistan Flyover Top Up', type: 'Govt. Fees', img: 'flyover' },
+                { name: 'NID Service', type: 'Govt. Fees', img: 'nid' },
+                { name: 'City Bank AMEX Credit Card Bill', type: 'Credit Card', img: 'bank' },
+                { name: 'Visa Credit Card Bill', type: 'Credit Card', img: 'visa' },
+            ].map((item, i) => (
+                <div key={i} className="bg-white p-3 rounded-xl shadow-sm border border-gray-100 flex items-center gap-3 active:scale-[0.99] transition-transform cursor-pointer" onClick={() => setTransactionStep(1)}>
+                    <div className="w-10 h-10 rounded-full bg-gray-100 overflow-hidden flex items-center justify-center shrink-0">
+                         {item.name.includes('AMEX') ? <CreditCard size={20} className="text-blue-600"/> : 
+                          item.name.includes('Visa') ? <span className="font-black text-blue-800 text-xs">VISA</span> :
+                          item.name.includes('NID') ? <span className="font-bold text-green-600 text-[10px]">NID</span> :
+                          <Landmark size={20} className="text-gray-500" />}
+                    </div>
+                    <div className="overflow-hidden">
+                        <p className="text-sm font-bold text-gray-800 truncate">{item.name}</p>
+                        <p className="text-xs text-gray-400">{item.type}</p>
+                    </div>
+                </div>
+            ))}
+        </div>
       </div>
     </div>
   );
@@ -1183,268 +1243,221 @@ const App: React.FC = () => {
     </div>
   );
 
-  const renderSettings = () => (
-      <div className="flex flex-col min-h-screen bg-gray-50 animate-in slide-in-from-right duration-300">
-        {/* Header */}
-        <div className="bg-white px-4 pb-3 pt-[calc(env(safe-area-inset-top)+1rem)] flex items-center shadow-sm sticky top-0 z-20">
-            <button onClick={() => setCurrentScreen(AppScreen.HOME)} className="p-2 hover:bg-gray-100 rounded-full mr-2 -ml-2 transition-colors">
-            <ArrowLeft className="text-gray-700 w-5 h-5" />
-            </button>
-            <h1 className="font-bold text-lg text-gray-800">
-                {/* @ts-ignore */}
-                {t.settings_title}
-            </h1>
-        </div>
-
-        <div className="p-4 pb-[calc(1.25rem+env(safe-area-inset-bottom))] space-y-4">
-            {/* User Profile & QR Card */}
-            <div className="bg-white rounded-3xl border border-gray-100 shadow-[0_10px_30px_-10px_rgba(0,0,0,0.05)] overflow-hidden">
-                <div className="bg-gradient-to-br from-rose-600 to-pink-700 p-6 flex flex-col items-center text-white relative overflow-hidden">
-                     <div className="absolute top-0 right-0 w-24 h-24 bg-white opacity-10 rounded-full -mr-8 -mt-8 blur-2xl"></div>
-                     <div className="absolute bottom-0 left-0 w-20 h-20 bg-rose-900 opacity-20 rounded-full -ml-8 -mb-8 blur-xl"></div>
-                     <div className="relative z-10 flex flex-col items-center">
-                        <div className="w-20 h-20 rounded-full p-1 bg-white/20 backdrop-blur-md mb-3 shadow-lg">
-                            <img src={user.avatarUrl} alt="User" className="w-full h-full rounded-full object-cover border-2 border-white" />
-                        </div>
-                        <h2 className="font-bold text-xl tracking-tight">{user.name}</h2>
-                        <p className="text-rose-100 font-medium opacity-90 font-mono mt-0.5 text-sm">{user.phone}</p>
-                        <span className="mt-2.5 bg-white/20 backdrop-blur-md px-2.5 py-0.5 rounded-full text-[9px] font-bold border border-white/20 shadow-sm">
-                            {/* @ts-ignore */}
-                            {t.gold_member}
-                        </span>
-                     </div>
-                </div>
-                
-                <div className="p-6 flex flex-col items-center bg-white relative">
-                    <div className="absolute -top-5 bg-white p-1.5 rounded-xl shadow-sm border border-gray-50">
-                        <div className="bg-rose-50 p-1.5 rounded-lg">
-                            <QrCodeIcon size={20} className="text-rose-600" />
-                        </div>
-                    </div>
-                    
-                    <div className="mt-3 p-3 bg-white border-2 border-dashed border-gray-200 rounded-xl shadow-sm group hover:border-rose-300 transition-colors">
-                         <img 
-                            src={`https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${user.phone}&color=1f2937&bgcolor=ffffff`} 
-                            alt="User QR" 
-                            className="w-40 h-40 mix-blend-multiply opacity-90 group-hover:opacity-100 transition-opacity"
-                        />
-                    </div>
-                    <p className="text-center text-xs font-semibold text-gray-600 mt-4">
-                        {/* @ts-ignore */}
-                        {t.my_qr}
-                    </p>
-                    <p className="text-center text-[10px] text-gray-400 mt-1.5 max-w-[200px] leading-relaxed">
-                        {/* @ts-ignore */}
-                        {t.qr_desc}
-                    </p>
-                </div>
-            </div>
-
-            <div className="bg-white p-4 rounded-xl border border-gray-100 shadow-sm">
-                <h2 className="text-gray-800 font-bold mb-3 flex items-center gap-1.5 text-sm">
-                    <SettingsIcon size={18} className="text-rose-600" />
-                    {/* @ts-ignore */}
-                    {t.settings_title}
-                </h2>
-
-                {/* Language Toggle */}
-                <div 
-                  className="flex items-center justify-between py-2.5 border-b border-gray-50 cursor-pointer active:bg-gray-50 transition-colors rounded-lg px-2 -mx-2"
-                  onClick={() => setLanguage(l => l === 'bn' ? 'en' : 'bn')}
-                >
-                    <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center text-blue-600">
-                            <Globe size={16} />
-                        </div>
-                        <div>
-                            <p className="font-medium text-gray-800 text-sm">
-                                {/* @ts-ignore */}
-                                {t.language_label}
-                            </p>
-                            <p className="text-[10px] text-gray-400">
-                                {/* @ts-ignore */}
-                                {t.language_name}
-                            </p>
-                        </div>
-                    </div>
-                    <div className="flex items-center bg-gray-100 rounded-lg p-1 border border-gray-200">
-                        <span className={`px-2 py-1 rounded text-[10px] font-bold transition-all ${language === 'bn' ? 'bg-white shadow-sm text-rose-600' : 'text-gray-400'}`}>বাংলা</span>
-                        <span className={`px-2 py-1 rounded text-[10px] font-bold transition-all ${language === 'en' ? 'bg-white shadow-sm text-rose-600' : 'text-gray-400'}`}>ENG</span>
-                    </div>
-                </div>
-
-                <div className="my-2 border-b border-dashed border-gray-100"></div>
-                <h2 className="text-gray-800 font-bold mb-3 mt-3 flex items-center gap-1.5 text-sm">
-                    <Bell size={18} className="text-rose-600" />
-                    {/* @ts-ignore */}
-                    {t.notif_title}
-                </h2>
-
-                {/* Transaction Alert Toggle */}
-                <div 
-                  className="flex items-center justify-between py-2.5 border-b border-gray-50 last:border-0 cursor-pointer active:bg-gray-50 transition-colors rounded-lg px-2 -mx-2"
-                  onClick={() => setNotificationPrefs(p => ({...p, transactions: !p.transactions}))}
-                >
-                    <div>
-                        <p className="font-medium text-gray-800 text-sm">
-                            {/* @ts-ignore */}
-                            {t.notif_txn}
-                        </p>
-                        <p className="text-[10px] text-gray-400">
-                            {/* @ts-ignore */}
-                            {t.notif_txn_desc}
-                        </p>
-                    </div>
-                    <div
-                        className={`w-10 h-5 rounded-full transition-colors duration-300 relative ${notificationPrefs.transactions ? 'bg-rose-500' : 'bg-gray-300'}`}
-                    >
-                        <div className={`w-3.5 h-3.5 bg-white rounded-full shadow-md absolute top-0.5 left-0.5 transition-transform duration-300 ${notificationPrefs.transactions ? 'translate-x-5' : 'translate-x-0'}`}></div>
-                    </div>
-                </div>
-
-                 {/* Offers Toggle */}
-                <div 
-                  className="flex items-center justify-between py-2.5 border-b border-gray-50 last:border-0 cursor-pointer active:bg-gray-50 transition-colors rounded-lg px-2 -mx-2"
-                  onClick={() => setNotificationPrefs(p => ({...p, offers: !p.offers}))}
-                >
-                    <div>
-                        <p className="font-medium text-gray-800 text-sm">
-                            {/* @ts-ignore */}
-                            {t.notif_offer}
-                        </p>
-                        <p className="text-[10px] text-gray-400">
-                            {/* @ts-ignore */}
-                            {t.notif_offer_desc}
-                        </p>
-                    </div>
-                    <div
-                        className={`w-10 h-5 rounded-full transition-colors duration-300 relative ${notificationPrefs.offers ? 'bg-rose-500' : 'bg-gray-300'}`}
-                    >
-                        <div className={`w-3.5 h-3.5 bg-white rounded-full shadow-md absolute top-0.5 left-0.5 transition-transform duration-300 ${notificationPrefs.offers ? 'translate-x-5' : 'translate-x-0'}`}></div>
-                    </div>
-                </div>
-
-                {/* Security Toggle */}
-                <div 
-                  className="flex items-center justify-between py-2.5 cursor-pointer active:bg-gray-50 transition-colors rounded-lg px-2 -mx-2"
-                  onClick={() => setNotificationPrefs(p => ({...p, securityAlerts: !p.securityAlerts}))}
-                >
-                    <div>
-                        <p className="font-medium text-gray-800 text-sm">
-                            {/* @ts-ignore */}
-                            {t.notif_sec}
-                        </p>
-                        <p className="text-[10px] text-gray-400">
-                            {/* @ts-ignore */}
-                            {t.notif_sec_desc}
-                        </p>
-                    </div>
-                    <div
-                        className={`w-10 h-5 rounded-full transition-colors duration-300 relative ${notificationPrefs.securityAlerts ? 'bg-rose-500' : 'bg-gray-300'}`}
-                    >
-                        <div className={`w-3.5 h-3.5 bg-white rounded-full shadow-md absolute top-0.5 left-0.5 transition-transform duration-300 ${notificationPrefs.securityAlerts ? 'translate-x-5' : 'translate-x-0'}`}></div>
-                    </div>
-                </div>
-            </div>
-
-            {/* Logout Button */}
-            <div className="bg-white p-4 rounded-xl border border-gray-100 shadow-sm">
-                <button 
-                  onClick={handleLogout}
-                  className="w-full flex items-center justify-center gap-1.5 text-rose-600 font-bold py-1.5 rounded-lg bg-rose-50 hover:bg-rose-100 transition-colors text-sm"
-                >
-                   <LogOut size={18} /> 
-                   {/* @ts-ignore */}
-                   {t.logout}
-                </button>
-            </div>
-
-             {/* Version Info */}
-            <div className="text-center mt-2">
-                <p className="text-gray-400 text-[10px]">
-                    {/* @ts-ignore */}
-                    {t.version}
-                </p>
-            </div>
-        </div>
+  const renderScan = () => (
+    <div className="flex flex-col h-screen bg-black text-white relative animate-in fade-in">
+      {/* Header */}
+      <div className="absolute top-0 left-0 right-0 pt-[calc(env(safe-area-inset-top)+1rem)] px-4 pb-4 z-20 flex justify-between items-center bg-gradient-to-b from-black/80 to-transparent">
+         <button onClick={() => setCurrentScreen(AppScreen.HOME)} className="p-2 bg-white/20 rounded-full backdrop-blur-md active:scale-95 transition-transform">
+            <X className="w-5 h-5 text-white" />
+         </button>
+         <h1 className="font-bold text-lg">QR স্ক্যানার</h1>
+         <div className="w-9"></div>
       </div>
-  );
 
-  // Helper component for arrow right in login button
-  const ArrowRightIcon = ({ className }: { className?: string }) => (
-    <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
-    </svg>
-  );
-
-  // --- MAIN RENDER ---
-  return (
-    <div className="min-h-screen flex justify-center bg-gray-100 font-sans selection:bg-rose-100">
-      <div className={`w-full ${currentScreen === AppScreen.ADMIN_DASHBOARD ? 'max-w-none' : 'sm:max-w-md'} bg-[#FAFAFA] min-h-screen shadow-2xl shadow-gray-300 relative overflow-hidden flex flex-col sm:border-x border-white`}>
+      {/* Camera View */}
+      <div className="flex-1 relative overflow-hidden">
+        <video 
+           ref={videoRef}
+           autoPlay 
+           playsInline
+           muted
+           className="absolute inset-0 w-full h-full object-cover"
+        />
         
-        {/* Screen Content */}
-        <div className="flex-1 overflow-y-auto scroll-smooth no-scrollbar">
-          {currentScreen === AppScreen.LOGIN && renderLogin()}
-          {currentScreen === AppScreen.REGISTER && renderRegister()}
-          {currentScreen === AppScreen.HOME && renderHome()}
-          {[
-            AppScreen.SEND_MONEY, 
-            AppScreen.CASH_OUT, 
-            AppScreen.MOBILE_RECHARGE, 
-            AppScreen.PAYMENT, 
-            AppScreen.ADD_MONEY, 
-            AppScreen.MFS_TRANSFER, 
-            AppScreen.PAY_BILL, 
-            AppScreen.TRANSFER_TO_BANK
-          ].includes(currentScreen) && renderTransactionFlow()}
-          {currentScreen === AppScreen.TRANSACTIONS && renderTransactions()}
-          {currentScreen === AppScreen.SUCCESS && renderSuccess()}
-          {currentScreen === AppScreen.SETTINGS && renderSettings()}
-          {currentScreen === AppScreen.SCAN && renderScan()}
-          {currentScreen === AppScreen.OFFERS && renderOffers()}
-          
-          {/* Admin Dashboard */}
-          {currentScreen === AppScreen.ADMIN_DASHBOARD && (
-            <AdminDashboard transactions={transactions} onLogout={() => setCurrentScreen(AppScreen.LOGIN)} />
-          )}
+        {/* Overlay */}
+        <div className="absolute inset-0 bg-black/50 flex flex-col items-center justify-center">
+             <div className="relative w-64 h-64">
+                 {/* Corners */}
+                 <div className="absolute top-0 left-0 w-8 h-8 border-t-4 border-l-4 border-rose-500 rounded-tl-xl"></div>
+                 <div className="absolute top-0 right-0 w-8 h-8 border-t-4 border-r-4 border-rose-500 rounded-tr-xl"></div>
+                 <div className="absolute bottom-0 left-0 w-8 h-8 border-b-4 border-l-4 border-rose-500 rounded-bl-xl"></div>
+                 <div className="absolute bottom-0 right-0 w-8 h-8 border-b-4 border-r-4 border-rose-500 rounded-br-xl"></div>
+                 
+                 {/* Scan Line */}
+                 <div className="absolute top-0 left-0 w-full h-1 bg-rose-500/50 shadow-[0_0_20px_rgba(225,29,72,0.8)] animate-scan-y"></div>
+             </div>
+             <p className="text-white/80 text-sm mt-8 font-medium bg-black/40 px-4 py-2 rounded-full backdrop-blur-md">QR কোডটি ফ্রেমের মধ্যে রাখুন</p>
         </div>
-
-        {/* Navigation */}
-        {(currentScreen === AppScreen.HOME || currentScreen === AppScreen.TRANSACTIONS || currentScreen === AppScreen.OFFERS) && (
-          <BottomNav currentScreen={currentScreen} onNavigate={setCurrentScreen} language={language} />
-        )}
-
-        {/* Custom Numeric Keypad Overlay (Only for non-admin screens) */}
-        {activeInput && !isAdminMode && (
-            <>
-                <div className="fixed inset-0 bg-black/10 z-50 backdrop-blur-[1px]" onClick={() => setActiveInput(null)}></div>
-                <NumericKeypad 
-                    onPress={handleKeypadPress} 
-                    onDelete={handleKeypadDelete} 
-                    onDone={handleKeypadDone} 
-                />
-            </>
-        )}
-
-        {/* Transaction Details Modal */}
-        {selectedTransaction && (
-           <TransactionDetails 
-              transaction={selectedTransaction} 
-              onClose={() => setSelectedTransaction(null)} 
-              language={language}
-           />
-        )}
-
-        {/* AI Assistant Modal */}
-        {currentScreen === AppScreen.AI_CHAT && (
-          <AIAssistant 
-            user={user} 
-            transactions={transactions} 
-            onClose={() => setCurrentScreen(AppScreen.HOME)} 
-          />
-        )}
-
       </div>
+
+      {/* Bottom Actions */}
+      <div className="absolute bottom-0 left-0 right-0 p-8 pb-[calc(2rem+env(safe-area-inset-bottom))] flex justify-center items-center gap-8 bg-gradient-to-t from-black via-black/80 to-transparent">
+          <button 
+             onClick={simulateScan}
+             className="w-16 h-16 rounded-full border-4 border-white/30 flex items-center justify-center bg-white/10 backdrop-blur-md active:scale-95 transition-all active:bg-rose-500/50"
+          >
+             <div className="w-10 h-10 bg-white rounded-full"></div>
+          </button>
+      </div>
+    </div>
+  );
+
+  const renderSettings = () => (
+     <div className="flex flex-col min-h-screen bg-gray-50 animate-in slide-in-from-right duration-300">
+        <div className="bg-white px-4 pb-3 pt-[calc(env(safe-area-inset-top)+1rem)] flex items-center shadow-sm sticky top-0 z-20">
+          <button onClick={() => setCurrentScreen(AppScreen.HOME)} className="p-2 hover:bg-gray-100 rounded-full mr-2 -ml-2 transition-colors">
+            <ArrowLeft className="text-gray-700 w-5 h-5" />
+          </button>
+          <h1 className="font-bold text-lg text-gray-800">
+            {/* @ts-ignore */}
+            {t.settings_title}
+          </h1>
+       </div>
+       
+       <div className="p-4 space-y-6">
+           {/* Profile Card */}
+           <div className="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex items-center gap-4">
+                <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-gray-100">
+                    <img src={user.avatarUrl} alt={user.name} className="w-full h-full object-cover" />
+                </div>
+                <div>
+                    <h2 className="font-bold text-lg text-gray-800">{user.name}</h2>
+                    <p className="text-gray-500 text-sm font-mono">{user.phone}</p>
+                    <span className="text-[10px] bg-rose-50 text-rose-600 px-2 py-0.5 rounded-full font-bold mt-1 inline-block">Gold Member</span>
+                </div>
+           </div>
+
+           {/* Language */}
+           <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+               <div className="p-4 flex items-center justify-between">
+                   <div className="flex items-center gap-3">
+                       <div className="w-8 h-8 rounded-full bg-violet-50 text-violet-600 flex items-center justify-center">
+                           <Globe size={18} />
+                       </div>
+                       <span className="font-medium text-gray-700 text-sm">
+                           {/* @ts-ignore */}
+                           {t.language_label}
+                       </span>
+                   </div>
+                   <button 
+                     onClick={() => setLanguage(l => l === 'bn' ? 'en' : 'bn')}
+                     className="px-3 py-1.5 bg-gray-100 rounded-lg text-xs font-bold text-gray-600 border border-gray-200"
+                   >
+                       {language === 'bn' ? 'English' : 'বাংলা'}
+                   </button>
+               </div>
+           </div>
+
+           {/* Notifications */}
+           <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+               <div className="p-4 border-b border-gray-50">
+                   <h3 className="font-bold text-gray-800 text-sm">
+                       {/* @ts-ignore */}
+                       {t.notif_title}
+                   </h3>
+               </div>
+               <div className="divide-y divide-gray-50">
+                   {/* Txn Alerts */}
+                   <div className="p-4 flex items-center justify-between">
+                       <div className="flex items-center gap-3">
+                           <Bell size={18} className="text-gray-400" />
+                           <div>
+                               <p className="text-sm font-medium text-gray-700">
+                                   {/* @ts-ignore */}
+                                   {t.notif_txn}
+                               </p>
+                               <p className="text-[10px] text-gray-400">
+                                   {/* @ts-ignore */}
+                                   {t.notif_txn_desc}
+                               </p>
+                           </div>
+                       </div>
+                       <div className={`w-11 h-6 rounded-full p-1 transition-colors cursor-pointer ${notificationPrefs.transactions ? 'bg-emerald-500' : 'bg-gray-200'}`} onClick={() => setNotificationPrefs(p => ({...p, transactions: !p.transactions}))}>
+                           <div className={`w-4 h-4 rounded-full bg-white shadow-sm transition-transform ${notificationPrefs.transactions ? 'translate-x-5' : 'translate-x-0'}`}></div>
+                       </div>
+                   </div>
+                   {/* Offers */}
+                   <div className="p-4 flex items-center justify-between">
+                       <div className="flex items-center gap-3">
+                           <ShoppingBag size={18} className="text-gray-400" />
+                           <div>
+                               <p className="text-sm font-medium text-gray-700">
+                                   {/* @ts-ignore */}
+                                   {t.notif_offer}
+                               </p>
+                               <p className="text-[10px] text-gray-400">
+                                   {/* @ts-ignore */}
+                                   {t.notif_offer_desc}
+                               </p>
+                           </div>
+                       </div>
+                       <div className={`w-11 h-6 rounded-full p-1 transition-colors cursor-pointer ${notificationPrefs.offers ? 'bg-emerald-500' : 'bg-gray-200'}`} onClick={() => setNotificationPrefs(p => ({...p, offers: !p.offers}))}>
+                           <div className={`w-4 h-4 rounded-full bg-white shadow-sm transition-transform ${notificationPrefs.offers ? 'translate-x-5' : 'translate-x-0'}`}></div>
+                       </div>
+                   </div>
+               </div>
+           </div>
+
+           <button onClick={handleLogout} className="w-full bg-rose-50 text-rose-600 font-bold py-3.5 rounded-xl border border-rose-100 flex items-center justify-center gap-2 text-sm">
+               <LogOut size={18} />
+               {/* @ts-ignore */}
+               {t.logout}
+           </button>
+           
+           <p className="text-center text-[10px] text-gray-400">
+               {/* @ts-ignore */}
+               {t.version}
+           </p>
+       </div>
+     </div>
+  );
+
+  return (
+    <div className="mx-auto max-w-md bg-white min-h-screen shadow-2xl overflow-hidden relative font-sans">
+      {currentScreen === AppScreen.LOGIN && renderLogin()}
+      {currentScreen === AppScreen.REGISTER && renderRegister()}
+      {currentScreen === AppScreen.HOME && renderHome()}
+      {currentScreen === AppScreen.TRANSACTIONS && renderTransactions()}
+      {currentScreen === AppScreen.OFFERS && renderOffers()}
+      {currentScreen === AppScreen.ADMIN_DASHBOARD && <AdminDashboard transactions={transactions} onLogout={handleLogout} />}
+      {currentScreen === AppScreen.SCAN && renderScan()}
+      {currentScreen === AppScreen.SETTINGS && renderSettings()}
+      
+      {/* Transaction Flows */}
+      {(currentScreen === AppScreen.SEND_MONEY || 
+        currentScreen === AppScreen.CASH_OUT || 
+        currentScreen === AppScreen.MOBILE_RECHARGE || 
+        currentScreen === AppScreen.PAYMENT || 
+        currentScreen === AppScreen.ADD_MONEY || 
+        currentScreen === AppScreen.PAY_BILL || 
+        currentScreen === AppScreen.TRANSFER_TO_BANK ||
+        currentScreen === AppScreen.MFS_TRANSFER ||
+        currentScreen === AppScreen.SUCCESS) && (
+          // Logic for step 0 vs step 1
+          currentScreen === AppScreen.PAY_BILL && transactionStep === 0 
+             ? renderPayBillDashboard() 
+             : currentScreen === AppScreen.SUCCESS 
+                ? renderSuccess() 
+                : renderTransactionFlow()
+      )}
+
+      {/* Numeric Keypad Overlay */}
+      {activeInput && (
+        <NumericKeypad 
+           onPress={handleKeypadPress} 
+           onDelete={handleKeypadDelete} 
+           onDone={handleKeypadDone} 
+        />
+      )}
+      
+      {/* Transaction Details Modal */}
+      {selectedTransaction && (
+          <TransactionDetails 
+              transaction={selectedTransaction} 
+              onClose={() => setSelectedTransaction(null)}
+              language={language}
+          />
+      )}
+
+      {/* Bottom Nav only on specific screens */}
+      {[AppScreen.HOME, AppScreen.TRANSACTIONS, AppScreen.OFFERS, AppScreen.SCAN, AppScreen.AI_CHAT].includes(currentScreen) && (
+        <BottomNav currentScreen={currentScreen} onNavigate={handleNavigation} language={language} />
+      )}
+      
+      {/* AI Assistant Modal */}
+      {currentScreen === AppScreen.AI_CHAT && (
+         <AIAssistant user={user} transactions={transactions} onClose={() => setCurrentScreen(AppScreen.HOME)} />
+      )}
     </div>
   );
 };
