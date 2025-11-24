@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { ArrowLeft, ChevronRight, ArrowUpRight, CreditCard, Wallet, X, Bell, Shield, Settings as SettingsIcon, FileText, Landmark, ShoppingBag, Utensils, LogOut, Lock, User as UserIcon, Phone, Eye, EyeOff, QrCode as QrCodeIcon, Signal, Globe, UserCog, Contact as ContactIcon, ArrowRightLeft, Zap, Flame, Droplet, Tv, ShieldCheck, Car, MoreHorizontal, ScrollText, BarChart3, ScanLine, ArrowRight, Loader2, CheckCircle, Share2, Check, User, Send, Smartphone, Download } from 'lucide-react';
 import BalanceHeader from './components/BalanceHeader';
@@ -700,7 +699,7 @@ const App: React.FC = () => {
 
   const renderRegister = () => (
     <div className="flex flex-col min-h-full bg-white animate-in slide-in-from-right duration-300">
-        <div className="bg-rose-600 px-5 pt-10 pb-6 rounded-b-[30px] shadow-lg relative z-10 shrink-0">
+        <div className="bg-rose-600 px-5 pt-10 pb-6 rounded-b-[30px] shadow-lg relative z-10 shrink-0 text-center">
             <button onClick={() => setCurrentScreen(AppScreen.LOGIN)} className="absolute top-10 left-4 p-2 bg-white/20 rounded-full text-white backdrop-blur-md">
                 <ArrowLeft size={18} />
             </button>
@@ -1114,122 +1113,126 @@ const App: React.FC = () => {
                       <div className="absolute bottom-0 right-0 w-10 h-10 border-b-4 border-r-4 border-rose-500 rounded-br-3xl -mb-1 -mr-1"></div>
                       
                       <div className="absolute inset-0 flex items-center justify-center">
-                          <div className="w-full h-0.5 bg-rose-500 shadow-[0_0_15px_rgba(225,29,72,0.8)] animate-scan-line"></div>
+                          <div className="w-full h-0.5 bg-rose-500 shadow-[0_0_15px_rgba(225,29,72,0.8)] animate-scan"></div>
                       </div>
                   </div>
               </div>
-
-              <div className="p-8 text-center pb-24 pointer-events-auto">
-                   <p className="text-white/80 text-sm mb-2">মার্চেন্ট বা পার্সোনাল QR কোড স্ক্যান করুন</p>
-                   <p className="text-rose-400 font-bold text-xs animate-pulse mb-6">(স্ক্যান করতে স্ক্রিনে ট্যাপ করুন)</p>
-                   <button 
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        simulateScan();
-                      }}
-                      className="bg-white text-black px-6 py-3 rounded-full font-bold text-sm shadow-lg active:scale-95 transition-transform"
-                   >
-                      গ্যালারি থেকে নিন
-                   </button>
+              
+              <div className="p-8 text-center">
+                  <p className="text-white/80 text-sm bg-black/40 backdrop-blur-md py-2 px-4 rounded-full inline-block">
+                      QR কোড স্ক্যান করতে ক্যামেরা ধরুন
+                  </p>
               </div>
           </div>
       </div>
   );
 
   return (
-    <div className="h-full w-full bg-slate-50 relative overflow-hidden flex flex-col font-sans">
-      {/* Screen Routing */}
-      {currentScreen === AppScreen.LOGIN && renderLogin()}
-      {currentScreen === AppScreen.REGISTER && renderRegister()}
-      
-      {currentScreen === AppScreen.HOME && renderHome()}
-      {currentScreen === AppScreen.SCAN && renderScan()}
-      {currentScreen === AppScreen.SUCCESS && renderSuccess()}
-      
-      {/* Transaction Screens */}
-      {[AppScreen.SEND_MONEY, AppScreen.CASH_OUT, AppScreen.MOBILE_RECHARGE, AppScreen.PAYMENT, AppScreen.ADD_MONEY, AppScreen.PAY_BILL, AppScreen.MFS_TRANSFER, AppScreen.TRANSFER_TO_BANK].includes(currentScreen) && renderTransactionFlow()}
-
-      {currentScreen === AppScreen.TRANSACTIONS && (
-          <div className="h-full flex flex-col bg-white animate-in slide-in-from-right">
-              <div className="bg-white border-b border-gray-100 p-4 pt-[calc(env(safe-area-inset-top)+1rem)] sticky top-0 z-10 flex items-center gap-3">
-                  <button onClick={() => setCurrentScreen(AppScreen.HOME)}><ArrowLeft size={20} className="text-gray-600" /></button>
-                  <h1 className="font-bold text-lg">লেনদেনসমূহ</h1>
+    <div className="h-full w-full max-w-md mx-auto bg-gray-50 shadow-2xl relative overflow-hidden flex flex-col font-sans">
+       {/* Screens */}
+       {currentScreen === AppScreen.LOGIN && renderLogin()}
+       {currentScreen === AppScreen.REGISTER && renderRegister()}
+       {currentScreen === AppScreen.HOME && renderHome()}
+       
+       {[AppScreen.SEND_MONEY, AppScreen.CASH_OUT, AppScreen.MOBILE_RECHARGE, AppScreen.PAYMENT, AppScreen.ADD_MONEY, AppScreen.PAY_BILL, AppScreen.TRANSFER_TO_BANK, AppScreen.MFS_TRANSFER].includes(currentScreen) && renderTransactionFlow()}
+       
+       {currentScreen === AppScreen.SUCCESS && renderSuccess()}
+       {currentScreen === AppScreen.SCAN && renderScan()}
+       
+       {currentScreen === AppScreen.OFFERS && (
+          <div className="h-full bg-white animate-in slide-in-from-right flex flex-col">
+              <div className="bg-white px-4 pt-[calc(env(safe-area-inset-top)+1rem)] pb-4 flex items-center gap-4 sticky top-0 z-20 border-b border-gray-100">
+                <button onClick={() => setCurrentScreen(AppScreen.HOME)} className="p-2 hover:bg-gray-100 rounded-full -ml-2">
+                    <ArrowLeft className="text-gray-600 w-5 h-5" />
+                </button>
+                <h1 className="font-bold text-gray-800 text-lg">অফারসমূহ</h1>
               </div>
-              <div className="flex-1 overflow-y-auto p-4 pb-20">
-                  {transactions.map((txn) => (
-                      <div key={txn.id} onClick={() => setSelectedTransaction(txn)} className="flex items-center justify-between p-4 border-b border-gray-50 active:bg-gray-50">
-                          <div className="flex items-center gap-3">
-                              <div className={`w-10 h-10 rounded-full flex items-center justify-center ${['RECEIVED_MONEY', 'ADD_MONEY'].includes(txn.type) ? 'bg-emerald-100 text-emerald-600' : 'bg-rose-100 text-rose-600'}`}>
-                                  <FileText size={18} />
-                              </div>
-                              <div>
-                                  <p className="font-bold text-sm text-gray-800">{txn.recipientName || txn.type}</p>
-                                  <p className="text-xs text-gray-400">{txn.date}</p>
-                              </div>
-                          </div>
-                          <span className={`font-bold text-sm ${['RECEIVED_MONEY', 'ADD_MONEY'].includes(txn.type) ? 'text-emerald-600' : 'text-gray-800'}`}>
+              <div className="p-4 space-y-4 overflow-y-auto flex-1">
+                 <OfferCarousel onNavigate={handleNavigation} />
+                 {/* Dummy offers list */}
+                 <div className="space-y-3">
+                    {[1,2,3].map(i => (
+                        <div key={i} className="flex gap-3 p-3 border border-gray-100 rounded-xl bg-white shadow-sm">
+                            <div className="w-16 h-16 bg-gray-100 rounded-lg shrink-0">
+                                <img src={`https://picsum.photos/seed/${i}/100/100`} className="w-full h-full object-cover rounded-lg" alt="" />
+                            </div>
+                            <div>
+                                <h4 className="font-bold text-sm text-gray-800">ঈদ স্পেশাল অফার</h4>
+                                <p className="text-xs text-gray-500 mt-1">নির্দিষ্ট আউটলেটে পেমেন্ট করলেই ২০% ইনস্ট্যান্ট ক্যাশব্যাক।</p>
+                                <button className="text-[10px] font-bold text-rose-600 mt-2 bg-rose-50 px-2 py-1 rounded">বিস্তারিত</button>
+                            </div>
+                        </div>
+                    ))}
+                 </div>
+              </div>
+          </div>
+       )}
+       
+       {currentScreen === AppScreen.TRANSACTIONS && (
+          <div className="h-full bg-white animate-in slide-in-from-right flex flex-col">
+              <div className="bg-white px-4 pt-[calc(env(safe-area-inset-top)+1rem)] pb-4 flex items-center gap-4 sticky top-0 z-20 border-b border-gray-100">
+                <button onClick={() => setCurrentScreen(AppScreen.HOME)} className="p-2 hover:bg-gray-100 rounded-full -ml-2">
+                    <ArrowLeft className="text-gray-600 w-5 h-5" />
+                </button>
+                <h1 className="font-bold text-gray-800 text-lg">লেনদেন ইতিহাস</h1>
+              </div>
+              <div className="flex-1 overflow-y-auto">
+                 {transactions.map((txn) => (
+                     <div 
+                        key={txn.id} 
+                        onClick={() => setSelectedTransaction(txn)}
+                        className="p-4 flex items-center justify-between active:bg-gray-50 border-b border-gray-50 cursor-pointer"
+                     >
+                         <div className="flex items-center gap-3">
+                             <div className={`w-10 h-10 rounded-full flex items-center justify-center ${['RECEIVED_MONEY', 'ADD_MONEY'].includes(txn.type) ? 'bg-emerald-100 text-emerald-600' : 'bg-rose-100 text-rose-600'}`}>
+                                 {['RECEIVED_MONEY', 'ADD_MONEY'].includes(txn.type) ? <ArrowUpRight className="rotate-180" size={18} /> : <ArrowUpRight size={18} />}
+                             </div>
+                             <div>
+                                 <h4 className="font-bold text-gray-800 text-sm">{txn.recipientName || txn.type}</h4>
+                                 <p className="text-xs text-gray-500 mt-0.5">{txn.date}</p>
+                             </div>
+                         </div>
+                         <span className={`font-bold text-sm ${['RECEIVED_MONEY', 'ADD_MONEY'].includes(txn.type) ? 'text-emerald-600' : 'text-gray-800'}`}>
                              {['RECEIVED_MONEY', 'ADD_MONEY'].includes(txn.type) ? '+' : '-'}৳{txn.amount}
-                          </span>
-                      </div>
-                  ))}
+                         </span>
+                     </div>
+                 ))}
               </div>
           </div>
-      )}
+       )}
 
-      {currentScreen === AppScreen.OFFERS && (
-          <div className="h-full bg-gray-50 flex flex-col">
-               <div className="bg-white p-4 pt-[calc(env(safe-area-inset-top)+1rem)] flex items-center gap-3 shadow-sm">
-                  <button onClick={() => setCurrentScreen(AppScreen.HOME)}><ArrowLeft size={20} className="text-gray-600" /></button>
-                  <h1 className="font-bold text-lg">অফারসমূহ</h1>
-              </div>
-              <div className="p-4 space-y-4 overflow-y-auto pb-24">
-                  <OfferCarousel onNavigate={handleNavigation} />
-                  {/* More offers mock */}
-                  <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex gap-4">
-                      <div className="w-16 h-16 bg-orange-100 rounded-lg flex items-center justify-center text-orange-600">
-                          <ShoppingBag size={24} />
-                      </div>
-                      <div>
-                          <h3 className="font-bold text-gray-800">দারাজ পেমেন্টে ২০% ছাড়</h3>
-                          <p className="text-xs text-gray-500 mt-1">মিনিমাম ৫০০ টাকার কেনাকাটায়</p>
-                          <button className="mt-2 text-xs font-bold text-rose-600 border border-rose-200 px-3 py-1 rounded-full">বিস্তারিত</button>
-                      </div>
-                  </div>
-              </div>
-          </div>
-      )}
+       {currentScreen === AppScreen.AI_CHAT && (
+           <AIAssistant user={user} transactions={transactions} onClose={() => setCurrentScreen(AppScreen.HOME)} />
+       )}
 
-      {currentScreen === AppScreen.ADMIN_DASHBOARD && (
-        <AdminDashboard transactions={transactions} onLogout={handleLogout} />
-      )}
+       {currentScreen === AppScreen.ADMIN_DASHBOARD && (
+           <AdminDashboard transactions={transactions} onLogout={handleLogout} />
+       )}
+       
+       {/* Overlays */}
+       {selectedTransaction && (
+           <TransactionDetails 
+              transaction={selectedTransaction} 
+              onClose={() => setSelectedTransaction(null)} 
+              language={language}
+           />
+       )}
+       
+       {showQrModal && renderMyQr()}
 
-      {/* Global Overlays */}
-      {currentScreen === AppScreen.AI_CHAT && (
-          <AIAssistant user={user} transactions={transactions} onClose={() => setCurrentScreen(AppScreen.HOME)} />
-      )}
-      
-      {showQrModal && renderMyQr()}
+       {/* Bottom Navigation */}
+       {[AppScreen.HOME, AppScreen.OFFERS, AppScreen.TRANSACTIONS, AppScreen.SCAN].includes(currentScreen) && (
+           <BottomNav currentScreen={currentScreen} onNavigate={handleNavigation} language={language} />
+       )}
 
-      {selectedTransaction && (
-          <TransactionDetails 
-            transaction={selectedTransaction} 
-            onClose={() => setSelectedTransaction(null)} 
-            language={language}
-          />
-      )}
-
-      {activeInput && (
-          <NumericKeypad 
-             onPress={handleKeypadPress} 
-             onDelete={handleKeypadDelete} 
-             onDone={handleKeypadDone} 
-          />
-      )}
-
-      {/* Bottom Navigation (Only on Home & Sub-pages) */}
-      {[AppScreen.HOME, AppScreen.TRANSACTIONS, AppScreen.OFFERS].includes(currentScreen) && (
-          <BottomNav currentScreen={currentScreen} onNavigate={handleNavigation} language={language} />
-      )}
+       {/* Numeric Keypad Overlay */}
+       {activeInput && (
+           <NumericKeypad 
+               onPress={handleKeypadPress}
+               onDelete={handleKeypadDelete}
+               onDone={handleKeypadDone}
+           />
+       )}
     </div>
   );
 };
