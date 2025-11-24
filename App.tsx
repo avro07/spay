@@ -650,7 +650,7 @@ const App: React.FC = () => {
   );
 
   const renderHome = () => (
-    <div className="pb-[calc(7rem+env(safe-area-inset-bottom))] animate-in fade-in duration-500 relative min-h-full">
+    <div className="pb-[calc(5.5rem+env(safe-area-inset-bottom))] animate-in fade-in duration-500 relative min-h-full">
       {/* Background Ambient Blobs for Glass Effect */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
           <div className="absolute top-[20%] left-[-10%] w-72 h-72 bg-purple-200/40 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob"></div>
@@ -737,7 +737,7 @@ const App: React.FC = () => {
           </h1>
        </div>
        {/* Offers Content */}
-       <div className="flex-1 overflow-y-auto p-4 pb-[calc(7rem+env(safe-area-inset-bottom))] space-y-4">
+       <div className="flex-1 overflow-y-auto p-4 pb-[calc(5.5rem+env(safe-area-inset-bottom))] space-y-4">
           <div 
              onClick={() => { setCurrentScreen(AppScreen.MOBILE_RECHARGE); setTransactionStep(1); }}
              className="relative overflow-hidden bg-gradient-to-r from-violet-600 to-fuchsia-600 rounded-2xl p-4 shadow-lg shadow-violet-200 group cursor-pointer transition-transform active:scale-[0.98]"
@@ -776,7 +776,7 @@ const App: React.FC = () => {
         </div>
       </div>
 
-      <div className="p-4 space-y-4 pb-[calc(7rem+env(safe-area-inset-bottom))]">
+      <div className="p-4 space-y-4 pb-[calc(2rem+env(safe-area-inset-bottom))]">
         {/* Search */}
         <div className="bg-white rounded-lg p-3 shadow-sm border border-gray-100">
             <p className="text-xs text-gray-500 mb-2 font-medium">Search Organization</p>
@@ -1202,7 +1202,7 @@ const App: React.FC = () => {
         </h1>
       </div>
       
-      <div className="flex-1 overflow-y-auto p-4 pb-[calc(7rem+env(safe-area-inset-bottom))] space-y-3 relative z-10">
+      <div className="flex-1 overflow-y-auto p-4 pb-[calc(5.5rem+env(safe-area-inset-bottom))] space-y-3 relative z-10">
          {transactions.map((txn, index) => (
            <div 
                 key={txn.id} 
@@ -1431,11 +1431,6 @@ const App: React.FC = () => {
                  : currentScreen === AppScreen.SUCCESS 
                     ? renderSuccess() 
                     : renderTransactionFlow()
-          )}
-
-          {/* Spacer for Bottom Nav to prevent content being hidden behind it */}
-          {[AppScreen.HOME, AppScreen.TRANSACTIONS, AppScreen.OFFERS, AppScreen.SCAN, AppScreen.AI_CHAT].includes(currentScreen) && (
-              <div className="h-24"></div>
           )}
       </div>
 

@@ -25,7 +25,7 @@ const BottomNav: React.FC<BottomNavProps> = ({ currentScreen, onNavigate, langua
     <div className="absolute bottom-0 left-0 w-full z-50 pointer-events-none">
       {/* Background Container - Docked Bottom Style */}
       <div className="pointer-events-auto w-full bg-white border-t border-gray-100 shadow-[0_-10px_30px_rgba(0,0,0,0.05)] rounded-t-[30px] relative">
-        <div className="flex justify-between items-end px-6 h-[80px] pb-5">
+        <div className="flex justify-between items-end px-6 h-[68px] pb-2">
           {navItems.map((item) => {
             const isActive = currentScreen === item.id;
             
