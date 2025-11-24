@@ -7,14 +7,14 @@
     <!-- PWA Settings -->
     <title>SPay</title>
     <link rel="manifest" href="/manifest.json">
-    <link rel="icon" type="image/png" href="https://wsrv.nl/?url=c.beoo.net/Files/3.jpg&w=192&h=192&fit=contain&mask=circle&bg=white&output=png">
+    <link rel="icon" type="image/png" href="https://wsrv.nl/?url=c.beoo.net/Files/3.jpg&w=192&h=192&fit=contain&bg=white&output=png">
     <meta name="theme-color" content="#e11d48">
     
     <!-- iOS Specific Settings for Fullscreen -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="SPay">
-    <link rel="apple-touch-icon" href="https://wsrv.nl/?url=c.beoo.net/Files/3.jpg&w=180&h=180&fit=contain&mask=circle&bg=white&output=png">
+    <link rel="apple-touch-icon" href="https://wsrv.nl/?url=c.beoo.net/Files/3.jpg&w=180&h=180&fit=contain&bg=white&output=png">
 
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@300;400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
@@ -24,17 +24,16 @@
         margin: 0;
         padding: 0;
         overscroll-behavior-y: none; /* Prevent bounce effect showing background */
+        background-color: #000000; /* Dark background to hide any gaps */
       }
       body {
         font-family: 'Noto Sans Bengali', 'Inter', sans-serif;
-        background-color: #f3f4f6;
         -webkit-tap-highlight-color: transparent;
         padding-bottom: 0 !important; /* Force no padding for edge-to-edge */
       }
       #root {
         height: 100%;
-        display: flex;
-        flex-direction: column;
+        width: 100%;
       }
       /* Hide scrollbar for Chrome, Safari and Opera */
       .no-scrollbar::-webkit-scrollbar {

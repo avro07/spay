@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { ArrowLeft, ChevronRight, ArrowUpRight, CreditCard, Wallet, X, Bell, Shield, Settings as SettingsIcon, FileText, Landmark, ShoppingBag, Utensils, LogOut, Lock, User as UserIcon, Phone, Eye, EyeOff, QrCode as QrCodeIcon, Signal, Globe, UserCog, Contact as ContactIcon, ArrowRightLeft, Zap, Flame, Droplet, Tv, ShieldCheck, Car, MoreHorizontal, ScrollText, BarChart3, ScanLine, ArrowRight } from 'lucide-react';
+import { ArrowLeft, ChevronRight, ArrowUpRight, CreditCard, Wallet, X, Bell, Shield, Settings as SettingsIcon, FileText, Landmark, ShoppingBag, Utensils, LogOut, Lock, User as UserIcon, Phone, Eye, EyeOff, QrCode as QrCodeIcon, Signal, Globe, UserCog, Contact as ContactIcon, ArrowRightLeft, Zap, Flame, Droplet, Tv, ShieldCheck, Car, MoreHorizontal, ScrollText, BarChart3, ScanLine, ArrowRight, Loader2 } from 'lucide-react';
 import BalanceHeader from './components/BalanceHeader';
 import ActionGrid from './components/ActionGrid';
 import BottomNav from './components/BottomNav';
@@ -358,7 +358,7 @@ const App: React.FC = () => {
   
   // Handle Next Step with Validation
   const handleNextStep1 = () => {
-    if (formData.recipient.length !== 11) return;
+    if (formData.recipient.length !== 11 && currentScreen !== AppScreen.ADD_MONEY && currentScreen !== AppScreen.PAY_BILL) return;
 
     // RULE: Cannot Send Money to Agent
     if (currentScreen === AppScreen.SEND_MONEY) {
@@ -655,812 +655,443 @@ const App: React.FC = () => {
       <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
           <div className="absolute top-[20%] left-[-10%] w-72 h-72 bg-purple-200/40 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob"></div>
           <div className="absolute top-[40%] right-[-10%] w-72 h-72 bg-yellow-200/40 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob animation-delay-2000"></div>
-          <div className="absolute bottom-[20%] left-[20%] w-72 h-72 bg-pink-200/40 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob animation-delay-4000"></div>
+          <div className="absolute bottom-[20%] left-[20%] w-72 h-72 bg-rose-200/40 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob animation-delay-4000"></div>
       </div>
 
-      <div className="relative z-10">
-        <BalanceHeader 
-            user={user} 
-            onProfileClick={() => setCurrentScreen(AppScreen.SETTINGS)} 
-            onNotificationClick={handleNotificationClick}
-            language={language}
-        />
-        <ActionGrid onNavigate={handleNavigation} language={language} />
-        
-        {/* Promotions Carousel */}
-        <div className="px-4 mt-4">
-            <OfferCarousel onNavigate={handleNavigation} />
-        </div>
+      <BalanceHeader 
+        user={user} 
+        onProfileClick={() => alert('Profile Clicked')} 
+        onNotificationClick={handleNotificationClick} 
+        language={language}
+      />
+      
+      <ActionGrid onNavigate={handleNavigation} language={language} />
 
-        {/* Recent Transactions Preview */}
-        <div className="px-4 mt-5">
-            <div className="flex justify-between items-center mb-3">
-            <h3 className="text-gray-800 font-bold text-base">
-              {/* @ts-ignore */}
-              {t.recent_transactions}
-            </h3>
-            <button 
-                onClick={() => setCurrentScreen(AppScreen.TRANSACTIONS)}
-                className="text-rose-600 text-xs font-semibold flex items-center hover:gap-1 transition-all"
-            >
-                {/* @ts-ignore */}
-                {t.see_all} <ChevronRight size={14} />
-            </button>
-            </div>
-            <div className="flex flex-col gap-2.5">
-            {transactions.slice(0, 3).map((txn) => (
-                <div key={txn.id} onClick={() => setSelectedTransaction(txn)} className="bg-white/40 backdrop-blur-xl p-3 rounded-xl shadow-[0_4px_20px_-10px_rgba(0,0,0,0.1)] border border-white/50 flex items-center justify-between active:scale-[0.99] transition-transform hover:bg-white/50 group cursor-pointer">
-                <div className="flex items-center space-x-3">
-                    <div className={`
-                        w-10 h-10 rounded-xl flex items-center justify-center text-lg font-bold shadow-inner backdrop-blur-sm
-                        ${txn.type === 'RECEIVED_MONEY' || txn.type === 'ADD_MONEY' 
-                            ? 'bg-emerald-100/40 text-emerald-600' 
-                            : 'bg-rose-100/40 text-rose-600'}
-                    `}>
-                        {txn.type === 'SEND_MONEY' && <ArrowUpRight size={20} />}
-                        {txn.type === 'CASH_OUT' && <ArrowUpRight size={20} />}
-                        {txn.type === 'MOBILE_RECHARGE' && <Wallet size={20} />}
-                        {(txn.type === 'RECEIVED_MONEY' || txn.type === 'ADD_MONEY') && <ArrowUpRight size={20} className="rotate-180" />}
-                        {txn.type === 'PAYMENT' && <CreditCard size={20} />}
-                        {txn.type === 'PAY_BILL' && <FileText size={20} />}
-                        {txn.type === 'TRANSFER_TO_BANK' && <Landmark size={20} />}
-                        {txn.type === 'MFS_TRANSFER' && <ArrowRightLeft size={20} className="text-pink-600" />}
-                    </div>
-                    <div>
-                        <p className="text-xs font-bold text-gray-800 line-clamp-1 group-hover:text-rose-600 transition-colors">{txn.recipientName}</p>
-                        <p className="text-[10px] text-gray-500 font-medium mt-0.5">{txn.description} • {txn.date}</p>
-                    </div>
-                </div>
-                <div className="text-right">
-                    <p className={`text-sm font-bold font-mono tracking-tight ${['RECEIVED_MONEY', 'ADD_MONEY'].includes(txn.type) ? 'text-emerald-600' : 'text-gray-900'}`}>
-                    {['RECEIVED_MONEY', 'ADD_MONEY'].includes(txn.type) ? '+' : '-'}৳{txn.amount.toLocaleString(language === 'bn' ? 'bn-BD' : 'en-US')}
-                    </p>
-                </div>
-                </div>
-            ))}
-            </div>
-        </div>
-      </div>
-    </div>
-  );
-
-  const renderOffers = () => (
-    <div className="flex flex-col min-h-full bg-gray-50 animate-in fade-in slide-in-from-right duration-300">
-       {/* Header */}
-       <div className="bg-white px-4 pb-3 pt-[calc(env(safe-area-inset-top)+1rem)] flex items-center shadow-sm sticky top-0 z-20">
-          <button onClick={() => setCurrentScreen(AppScreen.HOME)} className="p-2 hover:bg-gray-100 rounded-full mr-2 -ml-2 transition-colors">
-            <ArrowLeft className="text-gray-700 w-5 h-5" />
-          </button>
-          <h1 className="font-bold text-lg text-gray-800">
-            {/* @ts-ignore */}
-            {t.nav_offers}
-          </h1>
-       </div>
-       {/* Offers Content */}
-       <div className="flex-1 overflow-y-auto p-4 pb-[calc(5.5rem+env(safe-area-inset-bottom))] space-y-4">
-          <div 
-             onClick={() => { setCurrentScreen(AppScreen.MOBILE_RECHARGE); setTransactionStep(1); }}
-             className="relative overflow-hidden bg-gradient-to-r from-violet-600 to-fuchsia-600 rounded-2xl p-4 shadow-lg shadow-violet-200 group cursor-pointer transition-transform active:scale-[0.98]"
-          >
-               <div className="absolute top-0 right-0 w-32 h-32 bg-white opacity-10 rounded-full -mr-10 -mt-10 blur-2xl"></div>
-              <div className="absolute bottom-0 left-0 w-24 h-24 bg-yellow-400 opacity-20 rounded-full -ml-10 -mb-10 blur-xl"></div>
-              
-              <div className="relative z-10">
-                  <span className="bg-white/20 backdrop-blur-sm px-2 py-0.5 rounded text-[10px] font-bold text-white border border-white/20 inline-block mb-1.5">
-                      মোবাইল রিচার্জ
-                  </span>
-                  <h3 className="font-bold text-white text-lg mb-0.5">২০ টাকা ক্যাশব্যাক</h3>
-                  <p className="text-violet-100 text-xs mb-2">৫০ টাকা বা তার বেশি রিচার্জে</p>
-                  <div className="flex justify-between items-end">
-                      <span className="text-[10px] text-white/80">মেয়াদ: ৩০ জুন পর্যন্ত</span>
-                      <button className="bg-white text-violet-600 px-3 py-1 rounded-full text-[10px] font-bold shadow-sm">নিন</button>
-                  </div>
-              </div>
-          </div>
-       </div>
-    </div>
-  );
-
-  const renderPayBillDashboard = () => (
-    <div className="flex flex-col min-h-full bg-gray-50 animate-in slide-in-from-right duration-300">
-      {/* Header */}
-      <div className="bg-rose-600 px-4 pt-[calc(env(safe-area-inset-top)+1rem)] pb-4 text-white sticky top-0 z-20 shadow-md flex justify-between items-center">
-        <div className="flex items-center gap-3">
-          <button onClick={() => setCurrentScreen(AppScreen.HOME)} className="p-1 hover:bg-white/20 rounded-full transition-colors">
-            <ArrowLeft className="w-6 h-6" />
-          </button>
-          <h1 className="text-lg font-bold">Pay Bill</h1>
-        </div>
-        <div className="w-9 h-9 rounded-full bg-white p-0.5 border border-rose-400 overflow-hidden">
-             <img src="https://c.beoo.net/Files/3.jpg" alt="Logo" className="w-full h-full object-contain rounded-full" />
-        </div>
+      <div className="mt-6 px-4 relative z-10">
+         <div className="flex justify-between items-center mb-3 px-1">
+             <h3 className="font-bold text-gray-800 text-sm">{t.nav_offers}</h3>
+             <button onClick={() => setCurrentScreen(AppScreen.OFFERS)} className="text-rose-600 text-xs font-bold hover:underline">{t.see_all}</button>
+         </div>
+         <OfferCarousel onNavigate={handleNavigation} />
       </div>
 
-      <div className="p-4 space-y-4 pb-[calc(2rem+env(safe-area-inset-bottom))]">
-        {/* Search */}
-        <div className="bg-white rounded-lg p-3 shadow-sm border border-gray-100">
-            <p className="text-xs text-gray-500 mb-2 font-medium">Search Organization</p>
-            <div className="flex justify-between items-center text-gray-400">
-                 <span className="text-sm">Enter Organization name or type</span>
-                 <ArrowLeft className="w-4 h-4 rotate-180" />
-            </div>
-        </div>
-
-        {/* Quick Links */}
-        <div className="grid grid-cols-2 gap-3">
-            <div className="bg-white p-3 rounded-lg shadow-sm border border-gray-100 flex items-center gap-3 active:scale-95 transition-transform cursor-pointer">
-                <div className="w-10 h-10 rounded-full bg-rose-50 flex items-center justify-center text-rose-600">
-                    <ScrollText size={20} />
-                </div>
-                <span className="text-xs font-bold text-gray-700 leading-tight">Receipts &<br/>Tokens</span>
-            </div>
-            <div className="bg-white p-3 rounded-lg shadow-sm border border-gray-100 flex items-center gap-3 active:scale-95 transition-transform cursor-pointer">
-                <div className="w-10 h-10 rounded-full bg-rose-50 flex items-center justify-center text-rose-600">
-                    <BarChart3 size={20} />
-                </div>
-                <span className="text-xs font-bold text-gray-700 leading-tight">Pay Bill<br/>History</span>
-            </div>
-        </div>
-
-        {/* Categories */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
-            <h3 className="text-xs font-bold text-gray-500 mb-4 uppercase tracking-wider">All Organization</h3>
-            <div className="grid grid-cols-4 gap-y-6 gap-x-2">
-                {[
-                    { icon: Zap, label: 'Electricity' },
-                    { icon: Flame, label: 'Gas' },
-                    { icon: Droplet, label: 'Water' },
-                    { icon: Globe, label: 'Internet' },
-                    { icon: Phone, label: 'Telephone' },
-                    { icon: Tv, label: 'TV' },
-                    { icon: CreditCard, label: 'Credit Card' },
-                    { icon: Landmark, label: 'Govt. Fees' },
-                    { icon: ShieldCheck, label: 'Insurance' },
-                    { icon: Car, label: 'Tracker' },
-                    { icon: MoreHorizontal, label: 'Others' },
-                ].map((item, idx) => (
-                    <div key={idx} className="flex flex-col items-center gap-2 cursor-pointer group active:scale-95 transition-transform" onClick={() => setTransactionStep(1)}>
-                        <div className="w-12 h-12 rounded-[16px] border border-gray-100 flex items-center justify-center text-rose-600 group-hover:bg-rose-50 transition-colors shadow-sm">
-                            <item.icon size={22} strokeWidth={1.5} />
-                        </div>
-                        <span className="text-[10px] text-gray-600 text-center font-medium leading-none">{item.label}</span>
-                    </div>
-                ))}
-            </div>
-        </div>
-
-        {/* Saved/List */}
-        <div className="space-y-2">
-            {[
-                { name: 'D-Toll Top Up', type: 'Govt. Fees', img: 'bridge' },
-                { name: 'Jatrabari Gulistan Flyover Top Up', type: 'Govt. Fees', img: 'flyover' },
-                { name: 'NID Service', type: 'Govt. Fees', img: 'nid' },
-                { name: 'City Bank AMEX Credit Card Bill', type: 'Credit Card', img: 'bank' },
-                { name: 'Visa Credit Card Bill', type: 'Credit Card', img: 'visa' },
-            ].map((item, i) => (
-                <div key={i} className="bg-white p-3 rounded-xl shadow-sm border border-gray-100 flex items-center gap-3 active:scale-[0.99] transition-transform cursor-pointer" onClick={() => setTransactionStep(1)}>
-                    <div className="w-10 h-10 rounded-full bg-gray-100 overflow-hidden flex items-center justify-center shrink-0">
-                         {item.name.includes('AMEX') ? <CreditCard size={20} className="text-blue-600"/> : 
-                          item.name.includes('Visa') ? <span className="font-black text-blue-800 text-xs">VISA</span> :
-                          item.name.includes('NID') ? <span className="font-bold text-green-600 text-[10px]">NID</span> :
-                          <Landmark size={20} className="text-gray-500" />}
-                    </div>
-                    <div className="overflow-hidden">
-                        <p className="text-sm font-bold text-gray-800 truncate">{item.name}</p>
-                        <p className="text-xs text-gray-400">{item.type}</p>
-                    </div>
-                </div>
-            ))}
-        </div>
+      <div className="mt-8 px-4 relative z-10">
+         <div className="flex justify-between items-center mb-3 px-1">
+             <h3 className="font-bold text-gray-800 text-sm">{t.recent_transactions}</h3>
+             <button onClick={() => setCurrentScreen(AppScreen.TRANSACTIONS)} className="text-rose-600 text-xs font-bold hover:underline">{t.see_all}</button>
+         </div>
+         
+         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+             {transactions.slice(0, 5).map((txn, idx) => (
+                 <div 
+                    key={txn.id} 
+                    onClick={() => setSelectedTransaction(txn)}
+                    className={`p-4 flex items-center justify-between active:bg-gray-50 transition-colors cursor-pointer ${idx !== transactions.length - 1 ? 'border-b border-gray-50' : ''}`}
+                 >
+                     <div className="flex items-center gap-3">
+                         <div className={`w-10 h-10 rounded-full flex items-center justify-center ${['RECEIVED_MONEY', 'ADD_MONEY'].includes(txn.type) ? 'bg-emerald-100 text-emerald-600' : 'bg-rose-100 text-rose-600'}`}>
+                             {['RECEIVED_MONEY', 'ADD_MONEY'].includes(txn.type) ? <ArrowUpRight className="rotate-180" size={18} /> : <ArrowUpRight size={18} />}
+                         </div>
+                         <div>
+                             <h4 className="font-bold text-gray-800 text-sm">{txn.recipientName || txn.type}</h4>
+                             <p className="text-xs text-gray-500 mt-0.5">{txn.type.replace('_', ' ')} • {txn.date}</p>
+                         </div>
+                     </div>
+                     <span className={`font-bold text-sm ${['RECEIVED_MONEY', 'ADD_MONEY'].includes(txn.type) ? 'text-emerald-600' : 'text-gray-800'}`}>
+                         {['RECEIVED_MONEY', 'ADD_MONEY'].includes(txn.type) ? '+' : '-'}৳{txn.amount}
+                     </span>
+                 </div>
+             ))}
+         </div>
       </div>
     </div>
   );
 
   const renderTransactionFlow = () => {
-    // Flow logic remains same
     const config = getScreenConfig();
+
     return (
-    <div className="flex flex-col min-h-full bg-gray-50 animate-in slide-in-from-right duration-300">
-      <div className="bg-white px-4 pb-3 pt-[calc(env(safe-area-inset-top)+1rem)] flex items-center justify-between shadow-sm sticky top-0 z-20">
-        <div className="flex items-center">
-            <button onClick={handleBack} className="p-2 hover:bg-gray-100 rounded-full mr-2 -ml-2 transition-colors">
-            <ArrowLeft className="text-gray-700 w-5 h-5" />
-            </button>
-            <h1 className="font-bold text-lg text-gray-800">{config.title}</h1>
+      <div className="flex flex-col h-full bg-white animate-in slide-in-from-right duration-300">
+        {/* Header */}
+        <div className="bg-white border-b border-gray-100 px-4 pt-[calc(env(safe-area-inset-top)+1rem)] pb-4 flex items-center gap-4 sticky top-0 z-20">
+          <button onClick={handleBack} className="p-2 hover:bg-gray-100 rounded-full -ml-2">
+            <ArrowLeft className="text-gray-600 w-5 h-5" />
+          </button>
+          <div>
+            <h1 className="font-bold text-gray-800 text-lg">{config.title}</h1>
+            {transactionStep > 1 && (
+               <p className="text-xs text-gray-400">স্টেপ {transactionStep} / 3</p>
+            )}
+          </div>
         </div>
-        <div className="w-7 h-7 rounded-full bg-rose-50 flex items-center justify-center text-rose-600 font-bold text-[10px]">
-            {transactionStep}/3
-        </div>
-      </div>
-      {/* Content */}
-      <div className="flex-1 p-4 pb-[calc(1.25rem+env(safe-area-inset-bottom))]">
-         {/* Step Indicator */}
-         <div className="w-full bg-gray-200 h-1 rounded-full mb-6 overflow-hidden">
-            <div 
-                className="h-full bg-rose-600 transition-all duration-500 ease-out rounded-full" 
-                style={{ width: `${(transactionStep / 3) * 100}%` }}
-            ></div>
-         </div>
-         <div className="bg-white p-5 rounded-3xl shadow-[0_10px_40px_-15px_rgba(0,0,0,0.05)] border border-gray-100">
-           {transactionStep === 1 && (
-             <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-               
-               {/* MFS Provider Selection */}
-               {config.type === 'MFS_TRANSFER' && (
-                 <div className="mb-6">
-                   <label className="block text-xs font-semibold text-gray-600 mb-2">সার্ভিস সিলেক্ট করুন</label>
-                   <div className="grid grid-cols-3 gap-3">
-                     {['Bkash', 'Nagad', 'Rocket'].map(provider => (
-                        <button 
-                          key={provider}
-                          onClick={() => setFormData({...formData, mfsProvider: provider})}
-                          className={`p-3 rounded-xl border flex flex-col items-center gap-2 transition-all ${formData.mfsProvider === provider ? 'border-rose-600 bg-rose-50 text-rose-600 ring-1 ring-rose-600' : 'border-gray-200 bg-white text-gray-500 hover:bg-gray-50'}`}
-                        >
-                           <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-[10px] text-white shadow-sm
-                             ${provider === 'Bkash' ? 'bg-[#e2136e]' : provider === 'Nagad' ? 'bg-[#f6921e]' : 'bg-[#8c3494]'}
-                           `}>
-                              {provider[0]}
-                           </div>
-                           <span className="text-xs font-bold">{provider}</span>
-                        </button>
-                     ))}
-                   </div>
-                 </div>
-               )}
 
-               <label className="block text-xs font-semibold text-gray-600 mb-2">{config.label}</label>
-               <div className="relative">
-                 <input 
-                    type="tel" 
-                    placeholder={config.operatorPrefix ? "01XXXXXXXXX" : ""}
-                    value={formData.recipient}
-                    maxLength={11}
-                    onChange={e => {
-                        const val = e.target.value.replace(/\D/g, ''); // Only digits
-                        if (val.length <= 11) {
-                            setFormData({...formData, recipient: val});
-                        }
-                    }}
-                    onFocus={() => setActiveInput(null)}
-                    className="w-full text-lg font-semibold border-b-2 border-gray-200 focus:border-rose-500 outline-none py-2 px-1 placeholder-gray-300 bg-transparent text-gray-800 transition-colors"
-                    autoFocus
-                 />
-                 {formData.recipient && (
-                     <button onClick={() => setFormData({...formData, recipient: ''})} className="absolute right-0 top-1/2 -translate-y-1/2 p-1 text-gray-400 hover:text-gray-600">
-                         <X size={16} />
-                     </button>
-                 )}
-               </div>
-               
-               {/* Recipient Name Lookup Display */}
-               {recipientNameDisplay && (
-                   <div className="mt-2 text-emerald-600 text-xs font-bold flex items-center gap-1 animate-in fade-in">
-                       <Shield size={12} /> {recipientNameDisplay}
-                   </div>
-               )}
-
-               {/* Operator Detection */}
-               {config.type === 'MOBILE_RECHARGE' && formData.recipient.length >= 3 && (
-                 (() => {
-                    const op = getOperatorInfo(formData.recipient);
-                    if (op) {
-                        return (
-                             <div className={`mt-4 p-3 rounded-xl flex items-center gap-3 shadow-lg shadow-gray-200/50 ${op.bg} ${op.text} animate-in slide-in-from-top-2 fade-in duration-300 ring-4 ring-white`}>
-                                <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center shadow-inner">
-                                    <span className={`font-black text-xs ${op.bg.replace('bg-', 'text-')}`}>{op.short}</span>
-                                </div>
-                                <div>
-                                    <p className="text-[10px] opacity-80 font-medium tracking-wide">অপারেটর</p>
-                                    <p className="font-bold text-base leading-none tracking-tight">{op.name}</p>
-                                </div>
-                            </div>
-                        )
-                    }
-                    return null;
-                 })()
-               )}
-
-                {/* Contacts Section */}
-                {['SEND_MONEY', 'CASH_OUT', 'PAYMENT', 'MFS_TRANSFER'].includes(config.type) && (
-                   <div className="mt-6">
-                       <h3 className="text-xs font-bold text-gray-400 mb-3 uppercase tracking-wider">Recent Contacts</h3>
-                       <div className="flex gap-4 overflow-x-auto pb-4 no-scrollbar -mx-1 px-1">
-                           {transactions.slice(0, 5).map(t => (
-                               <div 
-                                 key={t.id} 
-                                 className="flex flex-col items-center gap-1 min-w-[60px] cursor-pointer"
-                                 onClick={() => setFormData({...formData, recipient: MOCK_USERS_DB.find(u => u.name === t.recipientName)?.phone || '01711234567'})} 
-                               >
-                                   <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center text-xs font-bold text-gray-600 border border-gray-200">
-                                       {t.recipientName?.substring(0, 2)}
-                                   </div>
-                                   <span className="text-[10px] text-gray-600 font-medium text-center line-clamp-1 w-full">{t.recipientName}</span>
-                               </div>
-                           ))}
-                       </div>
-
-                       {/* All Contacts List */}
-                       <h3 className="text-xs font-bold text-gray-400 mb-2 mt-2 uppercase tracking-wider">All Contacts</h3>
-                       
-                       {!contactsPermission ? (
-                           <div className="bg-gray-50 rounded-xl p-4 text-center border border-gray-100 mt-2">
-                               <ContactIcon className="w-8 h-8 text-gray-400 mx-auto mb-2" />
-                               <p className="text-xs text-gray-500 mb-3">সব কন্টাক্ট দেখতে ফোনের পারমিশন প্রয়োজন</p>
-                               <button 
-                                   onClick={() => setContactsPermission(true)}
-                                   className="text-rose-600 text-xs font-bold border border-rose-200 bg-rose-50 px-3 py-1.5 rounded-full hover:bg-rose-100 transition-colors"
-                               >
-                                   কন্টাক্ট পারমিশন দিন
-                               </button>
-                           </div>
-                       ) : (
-                           <div className="space-y-2 max-h-48 overflow-y-auto pr-1 custom-scrollbar animate-in fade-in">
-                               {MOCK_CONTACTS.map(contact => (
-                                   <div 
-                                     key={contact.id}
-                                     className="flex items-center gap-3 p-2 hover:bg-gray-50 rounded-lg cursor-pointer transition-colors"
-                                     onClick={() => setFormData({...formData, recipient: contact.phone})}
-                                   >
-                                       <div className="w-10 h-10 rounded-full bg-gray-200 overflow-hidden">
-                                           <img src={contact.avatar} alt={contact.name} className="w-full h-full object-cover" />
-                                       </div>
-                                       <div>
-                                           <p className="text-sm font-bold text-gray-800">{contact.name}</p>
-                                           <p className="text-xs text-gray-500 font-mono">{contact.phone}</p>
-                                       </div>
-                                   </div>
-                               ))}
-                           </div>
-                       )}
-                   </div>
+        {/* Content */}
+        <div className="flex-1 overflow-y-auto p-5 pb-[env(safe-area-inset-bottom)]">
+          {transactionStep === 1 && (
+            <div className="space-y-6">
+                
+                {config.type === 'MFS_TRANSFER' && (
+                     <div>
+                        <label className="block text-xs font-bold text-gray-600 mb-2">সার্ভিস সিলেক্ট করুন</label>
+                        <div className="flex gap-3">
+                            {['Bkash', 'Nagad', 'Rocket', 'Upay'].map(provider => (
+                                <button
+                                    key={provider}
+                                    onClick={() => setFormData({...formData, mfsProvider: provider})}
+                                    className={`flex-1 py-3 rounded-xl border font-bold text-xs transition-all ${formData.mfsProvider === provider ? 'border-rose-600 bg-rose-50 text-rose-600' : 'border-gray-200 bg-white text-gray-500'}`}
+                                >
+                                    {provider}
+                                </button>
+                            ))}
+                        </div>
+                     </div>
                 )}
 
-               <div className="mt-6">
-                <button 
-                    onClick={handleNextStep1}
-                    disabled={formData.recipient.length !== 11}
-                    className="w-full bg-rose-600 text-white py-3.5 rounded-xl font-bold shadow-lg shadow-rose-200 hover:shadow-xl hover:bg-rose-700 active:scale-[0.98] transition-all disabled:opacity-50 disabled:shadow-none text-sm"
-                >
-                    পরবর্তী ধাপ
-                </button>
-               </div>
-             </div>
-           )}
-           {transactionStep === 2 && (
-             <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-               <div className="flex items-center justify-between mb-6 bg-rose-50 p-3 rounded-xl border border-rose-100">
-                 <div className="flex items-center space-x-2.5">
-                    <div className="w-9 h-9 bg-rose-100 rounded-full flex items-center justify-center text-rose-600 font-bold text-sm overflow-hidden">
-                         {/* Show Image if available (from mock db or contacts) */}
-                         <span className="text-xs">{recipientNameDisplay ? recipientNameDisplay.substring(0,2) : formData.recipient.substring(0,2)}</span>
+                <div>
+                    <label className="block text-xs font-bold text-gray-600 mb-2">{config.label}</label>
+                    <div className="relative">
+                        <input
+                            type="tel"
+                            value={formData.recipient}
+                            onChange={(e) => setFormData({...formData, recipient: e.target.value})}
+                            onFocus={() => setActiveInput(null)}
+                            className="w-full text-lg font-bold p-4 bg-gray-50 border border-gray-200 rounded-xl focus:border-rose-500 focus:ring-1 focus:ring-rose-500 outline-none"
+                            placeholder={config.operatorPrefix ? "01XXXXXXXXX" : "Account Number"}
+                        />
+                        {/* Recipient Lookup Result */}
+                        {recipientNameDisplay && (
+                            <div className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-2">
+                                <span className="text-xs font-bold text-rose-600 bg-rose-50 px-2 py-1 rounded">{recipientNameDisplay}</span>
+                                <CheckCircle size={16} className="text-emerald-500" />
+                            </div>
+                        )}
                     </div>
-                    <div>
-                        <div className="text-[10px] text-gray-500 font-medium">{config.label === 'প্রাপক নম্বর' ? 'প্রাপক' : config.label}</div>
-                        <div className="font-bold text-gray-800 text-sm line-clamp-1 break-all">
-                             {recipientNameDisplay ? `${recipientNameDisplay} (${formData.recipient})` : formData.recipient}
+                </div>
+
+                {/* Contacts List Mockup */}
+                {!contactsPermission ? (
+                    <div className="bg-rose-50 rounded-xl p-4 flex items-center justify-between border border-rose-100" onClick={() => setContactsPermission(true)}>
+                        <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center text-rose-600 shadow-sm">
+                                <ContactIcon size={20} />
+                            </div>
+                            <div>
+                                <h3 className="font-bold text-rose-700 text-sm">কন্টাক্টস থেকে নিন</h3>
+                                <p className="text-rose-400 text-[10px]">সহজেই নম্বর সিলেক্ট করতে ট্যাপ করুন</p>
+                            </div>
+                        </div>
+                        <ChevronRight className="text-rose-400" size={18} />
+                    </div>
+                ) : (
+                    <div className="space-y-2">
+                        <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">Saved Contacts</p>
+                        {MOCK_CONTACTS.map(contact => (
+                            <div 
+                                key={contact.id} 
+                                onClick={() => setFormData({...formData, recipient: contact.phone})}
+                                className="flex items-center gap-3 p-3 bg-white border border-gray-100 rounded-xl active:bg-gray-50"
+                            >
+                                <img src={contact.avatar} className="w-10 h-10 rounded-full" alt="" />
+                                <div className="flex-1">
+                                    <h4 className="font-bold text-sm text-gray-800">{contact.name}</h4>
+                                    <p className="text-xs text-gray-400">{contact.phone}</p>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                )}
+            </div>
+          )}
+
+          {transactionStep === 2 && (
+            <div className="flex flex-col items-center pt-8">
+                 <div className="w-16 h-16 bg-rose-100 text-rose-600 rounded-full flex items-center justify-center mb-4">
+                     {config.type === 'MOBILE_RECHARGE' ? <Smartphone size={32} /> : 
+                      config.type === 'SEND_MONEY' ? <Send size={32} /> :
+                      config.type === 'CASH_OUT' ? <Download size={32} /> : <CreditCard size={32} />}
+                 </div>
+                 
+                 <p className="text-sm text-gray-500 font-medium mb-1">{recipientNameDisplay || config.label}</p>
+                 <p className="text-lg font-bold text-gray-800 mb-8">{formData.recipient}</p>
+
+                 <div className="w-full max-w-xs relative mb-8">
+                     <div className="absolute left-0 top-1/2 -translate-y-1/2 text-2xl font-bold text-gray-400">৳</div>
+                     <input
+                        type="text"
+                        value={formData.amount}
+                        readOnly
+                        onClick={() => setActiveInput('AMOUNT')}
+                        className={`w-full text-center text-4xl font-bold py-4 bg-transparent border-b-2 outline-none ${activeInput === 'AMOUNT' ? 'border-rose-500 text-rose-600' : 'border-gray-200 text-gray-800'}`}
+                        placeholder="0"
+                     />
+                     <p className="text-center text-xs text-gray-400 mt-2">বর্তমান ব্যালেন্স: ৳{user.balance}</p>
+                 </div>
+
+                 <div className="w-full space-y-3">
+                     {[50, 100, 500, 1000].map(amt => (
+                         <button 
+                            key={amt}
+                            onClick={() => setFormData({...formData, amount: amt.toString()})}
+                            className="mr-2 mb-2 px-4 py-2 rounded-full bg-gray-100 text-xs font-bold text-gray-600 hover:bg-gray-200"
+                         >
+                            ৳{amt}
+                         </button>
+                     ))}
+                 </div>
+            </div>
+          )}
+
+           {transactionStep === 3 && (
+            <div className="space-y-6">
+                <div className="bg-white border border-gray-200 rounded-2xl p-4 shadow-sm relative overflow-hidden">
+                    <div className="absolute top-0 right-0 w-20 h-20 bg-rose-50 rounded-bl-full -mr-4 -mt-4 z-0"></div>
+                    <div className="relative z-10">
+                        <div className="flex justify-between mb-4 pb-4 border-b border-gray-100">
+                             <div>
+                                 <p className="text-xs text-gray-500 mb-0.5">প্রাপক</p>
+                                 <p className="font-bold text-gray-800">{recipientNameDisplay || 'Unknown'}</p>
+                                 <p className="text-xs text-gray-400">{formData.recipient}</p>
+                             </div>
+                             <div className="text-right">
+                                 <p className="text-xs text-gray-500 mb-0.5">পরিমাণ</p>
+                                 <p className="font-bold text-rose-600 text-lg">৳{formData.amount}</p>
+                             </div>
+                        </div>
+                        <div className="flex justify-between text-sm">
+                             <span className="text-gray-500">চার্জ</span>
+                             <span className="font-bold text-gray-800">
+                                {config.type === 'CASH_OUT' ? `৳${(parseFloat(formData.amount) * 0.01).toFixed(2)}` : 
+                                 config.type === 'MFS_TRANSFER' ? `৳${(parseFloat(formData.amount) * 0.0085).toFixed(2)}` : '৳0.00'}
+                             </span>
+                        </div>
+                        <div className="flex justify-between text-sm mt-2 pt-2 border-t border-gray-100">
+                             <span className="text-gray-500 font-bold">সর্বমোট</span>
+                             <span className="font-bold text-rose-600">
+                                ৳{(parseFloat(formData.amount) + (config.type === 'CASH_OUT' ? parseFloat(formData.amount) * 0.01 : config.type === 'MFS_TRANSFER' ? parseFloat(formData.amount) * 0.0085 : 0)).toFixed(2)}
+                             </span>
                         </div>
                     </div>
-                 </div>
-                 <button onClick={() => setTransactionStep(1)} className="text-rose-600 text-[10px] font-bold px-2.5 py-1 bg-white rounded-full shadow-sm shrink-0">পরিবর্তন</button>
-               </div>
-               
-               <label className="block text-center text-xs font-medium text-gray-500 mb-2">টাকার পরিমাণ দিন</label>
-               <div className="relative mb-3 flex justify-center items-center">
-                 <span className="text-3xl font-bold text-gray-800 mr-1">৳</span>
-                 <input 
-                   type="text" 
-                   inputMode="numeric"
-                   placeholder="0"
-                   value={formData.amount}
-                   readOnly
-                   onClick={() => setActiveInput('AMOUNT')}
-                   className={`w-36 text-center text-4xl font-bold border-b-2 outline-none py-1.5 placeholder-gray-200 bg-transparent text-rose-600 cursor-pointer transition-colors ${activeInput === 'AMOUNT' ? 'border-rose-500' : 'border-transparent'}`}
-                 />
-               </div>
-               <p className="text-center text-gray-500 text-xs mb-6 bg-gray-100 inline-block mx-auto px-3 py-1 rounded-full">বর্তমান ব্যালেন্স: ৳ {user.balance.toLocaleString(language === 'bn' ? 'bn-BD' : 'en-US')}</p>
-               
-               {/* Quick Amount Chips */}
-               <div className="flex justify-center gap-2 mb-6">
-                   {[500, 1000, 2000].map(amt => (
-                       <button 
-                        key={amt}
-                        onClick={() => setFormData({...formData, amount: amt.toString()})}
-                        className="px-3 py-1.5 rounded-full border border-gray-200 text-xs font-medium text-gray-600 hover:border-rose-500 hover:text-rose-600 transition-colors"
-                       >
-                           ৳{amt}
-                       </button>
-                   ))}
-               </div>
-
-               <button 
-                 onClick={() => Number(formData.amount) > 0 && setTransactionStep(3)}
-                 disabled={!formData.amount || Number(formData.amount) <= 0}
-                 className="w-full bg-rose-600 text-white py-3.5 rounded-xl font-bold shadow-lg shadow-rose-200 hover:shadow-xl hover:bg-rose-700 active:scale-[0.98] transition-all disabled:opacity-50 disabled:shadow-none text-sm"
-               >
-                 পরবর্তী ধাপ
-               </button>
-             </div>
-           )}
-           {transactionStep === 3 && (
-             <div className="text-center animate-in fade-in slide-in-from-bottom-4 duration-500">
-               <div className="mb-5 text-left bg-gray-50 p-4 rounded-xl space-y-2.5 border border-gray-100 relative overflow-hidden">
-                 <div className="absolute top-0 right-0 w-16 h-16 bg-rose-100 rounded-full -mr-8 -mt-8 opacity-50"></div>
-                 {config.type === 'MFS_TRANSFER' && (
-                     <div className="flex justify-between text-xs text-gray-600 relative z-10">
-                         <span>সার্ভিস</span> 
-                         <span className="font-bold text-gray-800 text-right">{formData.mfsProvider}</span>
+                </div>
+                
+                <div className="pt-4">
+                     <label className="block text-center text-xs font-bold text-gray-500 mb-3">পিন নম্বর দিয়ে নিশ্চিত করুন</label>
+                     <div className="flex justify-center mb-8">
+                        <input
+                            type="password"
+                            value={formData.pin}
+                            readOnly
+                            onClick={() => setActiveInput('TXN_PIN')}
+                            className={`w-40 text-center text-3xl font-bold py-2 border-b-2 outline-none tracking-[0.5em] ${activeInput === 'TXN_PIN' ? 'border-rose-600 text-rose-600' : 'border-gray-300 text-gray-400'}`}
+                            placeholder="****"
+                        />
                      </div>
-                 )}
-                 <div className="flex justify-between text-xs text-gray-600 relative z-10">
-                     <span>প্রাপক/হিসাব</span> 
-                     <span className="font-bold text-gray-800 font-mono break-all pl-2 text-right">
-                         {recipientNameDisplay}<br/>{formData.recipient}
-                     </span>
-                 </div>
-                 <div className="flex justify-between text-xs text-gray-600 relative z-10"><span>পরিমাণ</span> <span className="font-bold text-gray-800 font-mono">৳ {formData.amount}</span></div>
-                 <div className="flex justify-between text-xs text-gray-600 relative z-10">
-                     <span>চার্জ</span> 
-                     <span className={`font-bold ${config.type === 'CASH_OUT' || config.type === 'MFS_TRANSFER' ? 'text-rose-600' : 'text-emerald-600'}`}>
-                         {config.type === 'CASH_OUT' 
-                            ? `৳ ${(parseFloat(formData.amount) * 0.01).toFixed(2)}` 
-                            : config.type === 'MFS_TRANSFER' 
-                                ? `৳ ${(parseFloat(formData.amount) * 0.0085).toFixed(2)}`
-                                : 'ফ্রি'}
-                     </span>
-                 </div>
-                 <div className="my-1.5 border-t border-gray-200 border-dashed"></div>
-                 <div className="flex justify-between text-base pt-0.5 text-rose-600 font-black relative z-10">
-                     <span>সর্বমোট</span> 
-                     <span className="font-mono">
-                         ৳ {config.type === 'CASH_OUT' 
-                            ? (parseFloat(formData.amount) * 1.01).toFixed(2) 
-                            : config.type === 'MFS_TRANSFER'
-                                ? (parseFloat(formData.amount) * 1.0085).toFixed(2)
-                                : formData.amount}
-                     </span>
-                 </div>
-               </div>
-               <div className="mb-6">
-                  <label className="block text-left text-xs font-medium text-gray-500 mb-1.5 ml-1">পিন নম্বর</label>
-                  <input 
-                    type="password" 
-                    placeholder="****"
-                    maxLength={4}
-                    value={formData.pin}
-                    readOnly
-                    onClick={() => setActiveInput('TXN_PIN')}
-                    className={`w-full text-center text-2xl tracking-[0.5em] border-b-2 outline-none py-2 placeholder-gray-200 bg-transparent text-gray-800 font-bold cursor-pointer transition-colors ${activeInput === 'TXN_PIN' ? 'border-rose-500' : 'border-gray-200'}`}
-                  />
-               </div>
-               {formData.pin.length === 4 ? (
-                  <HoldToConfirm onConfirm={executeTransaction} label="নিশ্চিত করতে ধরে রাখুন" />
-               ) : (
-                 <div className="h-20 flex items-center justify-center">
-                     <p className="text-gray-400 text-xs bg-gray-100 px-3 py-1.5 rounded-full">লেনদেন নিশ্চিত করতে পিন দিন</p>
-                 </div>
-               )}
-             </div>
-           )}
-         </div>
-      </div>
-    </div>
-  )};
-
-  const renderSuccess = () => {
-     const config = getScreenConfig();
-     return (
-     <div className="flex flex-col items-center justify-center min-h-full bg-white p-6 pb-[calc(2rem+env(safe-area-inset-bottom))] animate-in zoom-in duration-500">
-        <div className="relative mb-6">
-            <div className="absolute inset-0 bg-emerald-200 rounded-full blur-xl opacity-50 animate-pulse"></div>
-            <div className="w-24 h-24 bg-gradient-to-br from-emerald-400 to-emerald-600 rounded-full flex items-center justify-center shadow-2xl shadow-emerald-200 relative z-10">
-                <svg className="w-10 h-10 text-white drop-shadow-md" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7"></path></svg>
+                     
+                     {formData.pin.length === 4 && (
+                         <div className="animate-in fade-in slide-in-from-bottom duration-500">
+                            <HoldToConfirm onConfirm={executeTransaction} />
+                         </div>
+                     )}
+                </div>
             </div>
-            {/* Confetti dots */}
-            <div className="absolute -top-2 -left-2 w-2.5 h-2.5 bg-yellow-400 rounded-full animate-bounce delay-100"></div>
-            <div className="absolute top-8 -right-3 w-1.5 h-1.5 bg-rose-400 rounded-full animate-bounce delay-300"></div>
-        </div>
-        
-        <h2 className="text-2xl font-black text-gray-800 mb-1.5">সফল হয়েছে!</h2>
-        <p className="text-gray-500 mb-8 text-center max-w-[240px] leading-relaxed text-sm">
-            আপনার <span className="font-bold text-gray-800">৳{formData.amount}</span> {config.title} সফলভাবে সম্পন্ন হয়েছে।
-        </p>
-        
-        <div className="w-full bg-gray-50 rounded-2xl p-5 mb-6 border border-gray-100 relative overflow-hidden">
-           <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-emerald-400 to-teal-500"></div>
-           <div className="flex justify-between mb-2.5"><span className="text-gray-500 text-xs">প্রাপক/হিসাব</span> <span className="font-bold text-gray-800 text-sm">{recipientNameDisplay || formData.recipient}</span></div>
-           <div className="flex justify-between mb-2.5"><span className="text-gray-500 text-xs">ট্রানজেকশন আইডি</span> <span className="font-mono font-bold text-gray-800 text-[10px] bg-white px-1.5 py-0.5 rounded border border-gray-200">{transactions[0].id}</span></div>
-           <div className="flex justify-between"><span className="text-gray-500 text-xs">সময়</span> <span className="font-bold text-gray-800 text-xs">{transactions[0].date}</span></div>
+          )}
         </div>
 
-        <button 
-          onClick={() => {
-            setTransactionStep(1);
-            setFormData({ recipient: '', amount: '', reference: '', pin: '', mfsProvider: 'Bkash' });
-            setRecipientNameDisplay('');
-            setCurrentScreen(AppScreen.HOME);
-          }}
-          className="w-full bg-gray-900 text-white py-3.5 rounded-xl font-bold shadow-xl hover:bg-black transition-all text-sm"
-        >
-          হোম এ ফিরে যান
-        </button>
-     </div>
-  )};
-
-  const renderTransactions = () => (
-    <div className="flex flex-col min-h-full bg-[#f8f9fa] animate-in fade-in relative overflow-hidden">
-      {/* Decorative Background Elements */}
-      <div className="absolute top-[-10%] right-[-10%] w-[50%] h-[30%] bg-purple-200/30 rounded-full blur-[80px] pointer-events-none"></div>
-      <div className="absolute bottom-[10%] left-[-10%] w-[50%] h-[30%] bg-rose-200/30 rounded-full blur-[80px] pointer-events-none"></div>
-
-      <div className="bg-white/70 backdrop-blur-lg px-4 pb-3 pt-[calc(env(safe-area-inset-top)+1rem)] flex items-center shadow-sm sticky top-0 z-20 border-b border-white/30">
-        <button onClick={() => setCurrentScreen(AppScreen.HOME)} className="p-2 hover:bg-black/5 rounded-full mr-2 -ml-2 transition-colors">
-          <ArrowLeft className="text-gray-700 w-5 h-5" />
-        </button>
-        <h1 className="font-bold text-lg text-gray-800">
-            {/* @ts-ignore */}
-            {t.nav_history}
-        </h1>
+        {/* Footer Actions */}
+        {transactionStep < 3 && (
+            <div className="p-4 bg-white border-t border-gray-100 pb-[env(safe-area-inset-bottom)]">
+                <button
+                    onClick={transactionStep === 1 ? handleNextStep1 : () => setTransactionStep(3)}
+                    disabled={
+                        (transactionStep === 1 && formData.recipient.length < 3) || 
+                        (transactionStep === 2 && (!formData.amount || parseFloat(formData.amount) < 10))
+                    }
+                    className="w-full bg-rose-600 disabled:bg-gray-300 text-white font-bold py-3.5 rounded-xl shadow-lg shadow-rose-200 disabled:shadow-none transition-all flex items-center justify-center gap-2"
+                >
+                    পরবর্তী <ArrowRight size={18} />
+                </button>
+            </div>
+        )}
       </div>
-      
-      <div className="flex-1 overflow-y-auto p-4 pb-[calc(5.5rem+env(safe-area-inset-bottom))] space-y-3 relative z-10">
-         {transactions.map((txn, index) => (
-           <div 
-                key={txn.id} 
-                onClick={() => setSelectedTransaction(txn)}
-                className="bg-white/60 backdrop-blur-xl p-4 rounded-xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/50 flex justify-between items-center hover:bg-white/70 active:scale-[0.99] transition-all duration-300 cursor-pointer"
-                style={{ animationDelay: `${index * 50}ms` }}
-            >
-              <div className="flex items-center space-x-3.5">
-                 <div className={`
-                    w-10 h-10 rounded-full flex items-center justify-center border shadow-sm
-                    ${['RECEIVED_MONEY', 'ADD_MONEY'].includes(txn.type) ? 'bg-emerald-50/80 border-emerald-100 text-emerald-600' : 'bg-gray-50/80 border-gray-200 text-gray-500'}
-                 `}>
-                    <span className="font-bold text-xs">{txn.recipientName?.substring(0,2) || 'Tx'}</span>
-                 </div>
-                 <div>
-                    <h4 className="font-bold text-gray-800 text-sm">{txn.recipientName || txn.type}</h4>
-                    <div className="flex items-center text-[10px] text-gray-500 mt-1 gap-1.5">
-                        <span className="bg-white/50 px-1.5 py-0.5 rounded text-gray-500 font-medium border border-gray-100">{txn.type.split('_')[0]}</span>
-                        <span>•</span>
-                        <span>{txn.date}</span>
-                    </div>
-                 </div>
-              </div>
-              <div className="text-right">
-                 <p className={`font-bold text-base font-mono ${['RECEIVED_MONEY', 'ADD_MONEY'].includes(txn.type) ? 'text-emerald-600' : 'text-gray-800'}`}>
-                    {['RECEIVED_MONEY', 'ADD_MONEY'].includes(txn.type) ? '+' : '-'}৳{txn.amount.toLocaleString(language === 'bn' ? 'bn-BD' : 'en-US')}
-                 </p>
-                 {txn.fee && txn.fee > 0 && (
-                     <p className="text-[9px] text-rose-500 mt-0.5">ফি: ৳{txn.fee.toFixed(2)}</p>
-                 )}
-              </div>
-           </div>
-         ))}
+    );
+  };
+
+  const renderSuccess = () => (
+      <div className="h-full flex flex-col items-center justify-center bg-white p-6 animate-in zoom-in duration-300 pb-[env(safe-area-inset-bottom)]">
+          <div className="w-24 h-24 bg-emerald-100 rounded-full flex items-center justify-center mb-6 animate-bounce">
+              <CheckCircle className="text-emerald-500 w-12 h-12" />
+          </div>
+          <h2 className="text-2xl font-bold text-gray-800 mb-2">লেনদেন সফল হয়েছে!</h2>
+          <p className="text-gray-500 text-center mb-8 max-w-xs">
+              আপনার <span className="font-bold text-gray-700">৳{formData.amount}</span> টাকার লেনদেনটি সম্পন্ন হয়েছে।
+          </p>
+          
+          <div className="w-full bg-gray-50 rounded-2xl p-6 border border-gray-100 mb-8 max-w-sm">
+               <div className="flex justify-between mb-2">
+                   <span className="text-gray-500 text-xs">নতুন ব্যালেন্স</span>
+                   <span className="font-bold text-gray-800">৳{user.balance.toFixed(2)}</span>
+               </div>
+               <div className="flex justify-between">
+                   <span className="text-gray-500 text-xs">ট্রানজেকশন আইডি</span>
+                   <span className="font-mono text-xs text-gray-800">{transactions[0]?.id}</span>
+               </div>
+          </div>
+
+          <button 
+             onClick={() => {
+                 setCurrentScreen(AppScreen.HOME);
+                 setTransactionStep(1);
+             }}
+             className="bg-rose-600 text-white px-8 py-3 rounded-full font-bold shadow-lg shadow-rose-200 hover:bg-rose-700 transition-all"
+          >
+              হোম-এ ফিরে যান
+          </button>
       </div>
-    </div>
   );
 
   const renderScan = () => (
-    <div className="flex flex-col h-full bg-black text-white relative animate-in fade-in">
-      {/* Header */}
-      <div className="absolute top-0 left-0 right-0 pt-[calc(env(safe-area-inset-top)+1rem)] px-4 pb-4 z-20 flex justify-between items-center bg-gradient-to-b from-black/80 to-transparent">
-         <button onClick={() => setCurrentScreen(AppScreen.HOME)} className="p-2 bg-white/20 rounded-full backdrop-blur-md active:scale-95 transition-transform">
-            <X className="w-5 h-5 text-white" />
-         </button>
-         <h1 className="font-bold text-lg">QR স্ক্যানার</h1>
-         <div className="w-9"></div>
-      </div>
+      <div className="h-full bg-black flex flex-col relative overflow-hidden">
+          <video 
+             ref={videoRef} 
+             autoPlay 
+             playsInline 
+             muted 
+             className="absolute inset-0 w-full h-full object-cover opacity-60"
+          />
+          
+          <div className="relative z-10 flex-1 flex flex-col">
+              <div className="p-4 flex justify-between items-center">
+                  <button onClick={() => setCurrentScreen(AppScreen.HOME)} className="p-2 bg-white/20 backdrop-blur rounded-full text-white">
+                      <X size={20} />
+                  </button>
+                  <h1 className="text-white font-bold">QR স্ক্যান করুন</h1>
+                  <button className="p-2 bg-white/20 backdrop-blur rounded-full text-white">
+                      <Zap size={20} />
+                  </button>
+              </div>
 
-      {/* Camera View */}
-      <div className="flex-1 relative overflow-hidden">
-        <video 
-           ref={videoRef}
-           autoPlay 
-           playsInline
-           muted
-           className="absolute inset-0 w-full h-full object-cover"
-        />
-        
-        {/* Overlay */}
-        <div className="absolute inset-0 bg-black/50 flex flex-col items-center justify-center">
-             <div className="relative w-64 h-64">
-                 {/* Corners */}
-                 <div className="absolute top-0 left-0 w-8 h-8 border-t-4 border-l-4 border-rose-500 rounded-tl-xl"></div>
-                 <div className="absolute top-0 right-0 w-8 h-8 border-t-4 border-r-4 border-rose-500 rounded-tr-xl"></div>
-                 <div className="absolute bottom-0 left-0 w-8 h-8 border-b-4 border-l-4 border-rose-500 rounded-bl-xl"></div>
-                 <div className="absolute bottom-0 right-0 w-8 h-8 border-b-4 border-r-4 border-rose-500 rounded-br-xl"></div>
-                 
-                 {/* Scan Line */}
-                 <div className="absolute top-0 left-0 w-full h-1 bg-rose-500/50 shadow-[0_0_20px_rgba(225,29,72,0.8)] animate-scan-y"></div>
-             </div>
-             <p className="text-white/80 text-sm mt-8 font-medium bg-black/40 px-4 py-2 rounded-full backdrop-blur-md">QR কোডটি ফ্রেমের মধ্যে রাখুন</p>
-        </div>
-      </div>
+              <div className="flex-1 flex items-center justify-center">
+                  <div className="w-64 h-64 border-2 border-white/50 rounded-3xl relative">
+                      <div className="absolute top-0 left-0 w-10 h-10 border-t-4 border-l-4 border-rose-500 rounded-tl-3xl -mt-1 -ml-1"></div>
+                      <div className="absolute top-0 right-0 w-10 h-10 border-t-4 border-r-4 border-rose-500 rounded-tr-3xl -mt-1 -mr-1"></div>
+                      <div className="absolute bottom-0 left-0 w-10 h-10 border-b-4 border-l-4 border-rose-500 rounded-bl-3xl -mb-1 -ml-1"></div>
+                      <div className="absolute bottom-0 right-0 w-10 h-10 border-b-4 border-r-4 border-rose-500 rounded-br-3xl -mb-1 -mr-1"></div>
+                      
+                      <div className="absolute inset-0 flex items-center justify-center">
+                          <div className="w-full h-0.5 bg-rose-500 shadow-[0_0_15px_rgba(225,29,72,0.8)] animate-scan-line"></div>
+                      </div>
+                  </div>
+              </div>
 
-      {/* Bottom Actions */}
-      <div className="absolute bottom-0 left-0 right-0 p-8 pb-[calc(2rem+env(safe-area-inset-bottom))] flex justify-center items-center gap-8 bg-gradient-to-t from-black via-black/80 to-transparent">
-          <button 
-             onClick={simulateScan}
-             className="w-16 h-16 rounded-full border-4 border-white/30 flex items-center justify-center bg-white/10 backdrop-blur-md active:scale-95 transition-all active:bg-rose-500/50"
-          >
-             <div className="w-10 h-10 bg-white rounded-full"></div>
-          </button>
-      </div>
-    </div>
-  );
-
-  const renderSettings = () => (
-     <div className="flex flex-col min-h-full bg-gray-50 animate-in slide-in-from-right duration-300">
-        <div className="bg-white px-4 pb-3 pt-[calc(env(safe-area-inset-top)+1rem)] flex items-center shadow-sm sticky top-0 z-20">
-          <button onClick={() => setCurrentScreen(AppScreen.HOME)} className="p-2 hover:bg-gray-100 rounded-full mr-2 -ml-2 transition-colors">
-            <ArrowLeft className="text-gray-700 w-5 h-5" />
-          </button>
-          <h1 className="font-bold text-lg text-gray-800">
-            {/* @ts-ignore */}
-            {t.settings_title}
-          </h1>
-       </div>
-       
-       <div className="p-4 space-y-6">
-           {/* Profile Card */}
-           <div className="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex items-center gap-4">
-                <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-gray-100">
-                    <img src={user.avatarUrl} alt={user.name} className="w-full h-full object-cover" />
-                </div>
-                <div>
-                    <h2 className="font-bold text-lg text-gray-800">{user.name}</h2>
-                    <p className="text-gray-500 text-sm font-mono">{user.phone}</p>
-                    <span className="text-[10px] bg-rose-50 text-rose-600 px-2 py-0.5 rounded-full font-bold mt-1 inline-block">Gold Member</span>
-                </div>
-           </div>
-
-           {/* Language */}
-           <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-               <div className="p-4 flex items-center justify-between">
-                   <div className="flex items-center gap-3">
-                       <div className="w-8 h-8 rounded-full bg-violet-50 text-violet-600 flex items-center justify-center">
-                           <Globe size={18} />
-                       </div>
-                       <span className="font-medium text-gray-700 text-sm">
-                           {/* @ts-ignore */}
-                           {t.language_label}
-                       </span>
-                   </div>
+              <div className="p-8 text-center pb-24">
+                   <p className="text-white/80 text-sm mb-6">মার্চেন্ট বা পার্সোনাল QR কোড স্ক্যান করুন</p>
                    <button 
-                     onClick={() => setLanguage(l => l === 'bn' ? 'en' : 'bn')}
-                     className="px-3 py-1.5 bg-gray-100 rounded-lg text-xs font-bold text-gray-600 border border-gray-200"
+                      onClick={simulateScan}
+                      className="bg-white text-black px-6 py-3 rounded-full font-bold text-sm shadow-lg active:scale-95 transition-transform"
                    >
-                       {language === 'bn' ? 'English' : 'বাংলা'}
+                      গ্যালারি থেকে নিন
                    </button>
-               </div>
-           </div>
-
-           {/* Notifications */}
-           <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-               <div className="p-4 border-b border-gray-50">
-                   <h3 className="font-bold text-gray-800 text-sm">
-                       {/* @ts-ignore */}
-                       {t.notif_title}
-                   </h3>
-               </div>
-               <div className="divide-y divide-gray-50">
-                   {/* Txn Alerts */}
-                   <div className="p-4 flex items-center justify-between">
-                       <div className="flex items-center gap-3">
-                           <Bell size={18} className="text-gray-400" />
-                           <div>
-                               <p className="text-sm font-medium text-gray-700">
-                                   {/* @ts-ignore */}
-                                   {t.notif_txn}
-                               </p>
-                               <p className="text-[10px] text-gray-400">
-                                   {/* @ts-ignore */}
-                                   {t.notif_txn_desc}
-                               </p>
-                           </div>
-                       </div>
-                       <div className={`w-11 h-6 rounded-full p-1 transition-colors cursor-pointer ${notificationPrefs.transactions ? 'bg-emerald-500' : 'bg-gray-200'}`} onClick={() => setNotificationPrefs(p => ({...p, transactions: !p.transactions}))}>
-                           <div className={`w-4 h-4 rounded-full bg-white shadow-sm transition-transform ${notificationPrefs.transactions ? 'translate-x-5' : 'translate-x-0'}`}></div>
-                       </div>
-                   </div>
-                   {/* Offers */}
-                   <div className="p-4 flex items-center justify-between">
-                       <div className="flex items-center gap-3">
-                           <ShoppingBag size={18} className="text-gray-400" />
-                           <div>
-                               <p className="text-sm font-medium text-gray-700">
-                                   {/* @ts-ignore */}
-                                   {t.notif_offer}
-                               </p>
-                               <p className="text-[10px] text-gray-400">
-                                   {/* @ts-ignore */}
-                                   {t.notif_offer_desc}
-                               </p>
-                           </div>
-                       </div>
-                       <div className={`w-11 h-6 rounded-full p-1 transition-colors cursor-pointer ${notificationPrefs.offers ? 'bg-emerald-500' : 'bg-gray-200'}`} onClick={() => setNotificationPrefs(p => ({...p, offers: !p.offers}))}>
-                           <div className={`w-4 h-4 rounded-full bg-white shadow-sm transition-transform ${notificationPrefs.offers ? 'translate-x-5' : 'translate-x-0'}`}></div>
-                       </div>
-                   </div>
-               </div>
-           </div>
-
-           <button onClick={handleLogout} className="w-full bg-rose-50 text-rose-600 font-bold py-3.5 rounded-xl border border-rose-100 flex items-center justify-center gap-2 text-sm">
-               <LogOut size={18} />
-               {/* @ts-ignore */}
-               {t.logout}
-           </button>
-           
-           <p className="text-center text-[10px] text-gray-400">
-               {/* @ts-ignore */}
-               {t.version}
-           </p>
-       </div>
-     </div>
+              </div>
+          </div>
+      </div>
   );
-
-  const isFullScreen = currentScreen === AppScreen.ADMIN_DASHBOARD;
 
   return (
-    <div className={`mx-auto bg-white h-full shadow-2xl overflow-hidden relative font-sans flex flex-col ${isFullScreen ? 'w-full max-w-none' : 'w-full sm:max-w-md'}`}>
-      {/* Scrollable Content Area */}
-      <div className={`flex-1 relative w-full ${isFullScreen ? 'overflow-hidden flex flex-col' : 'overflow-y-auto overflow-x-hidden scrollbar-hide'}`}>
-          {currentScreen === AppScreen.LOGIN && renderLogin()}
-          {currentScreen === AppScreen.REGISTER && renderRegister()}
-          {currentScreen === AppScreen.HOME && renderHome()}
-          {currentScreen === AppScreen.TRANSACTIONS && renderTransactions()}
-          {currentScreen === AppScreen.OFFERS && renderOffers()}
-          
-          {/* Admin Dashboard is rendered here, occupying full height/width of this container */}
-          {currentScreen === AppScreen.ADMIN_DASHBOARD && <AdminDashboard transactions={transactions} onLogout={handleLogout} />}
-          
-          {currentScreen === AppScreen.SCAN && renderScan()}
-          {currentScreen === AppScreen.SETTINGS && renderSettings()}
-          
-          {(currentScreen === AppScreen.SEND_MONEY || 
-            currentScreen === AppScreen.CASH_OUT || 
-            currentScreen === AppScreen.MOBILE_RECHARGE || 
-            currentScreen === AppScreen.PAYMENT || 
-            currentScreen === AppScreen.ADD_MONEY || 
-            currentScreen === AppScreen.PAY_BILL || 
-            currentScreen === AppScreen.TRANSFER_TO_BANK ||
-            currentScreen === AppScreen.MFS_TRANSFER ||
-            currentScreen === AppScreen.SUCCESS) && (
-              currentScreen === AppScreen.PAY_BILL && transactionStep === 0 
-                 ? renderPayBillDashboard() 
-                 : currentScreen === AppScreen.SUCCESS 
-                    ? renderSuccess() 
-                    : renderTransactionFlow()
-          )}
-      </div>
-
-      {/* Fixed Overlays (Keypad, Modals) */}
-      {activeInput && (
-        <NumericKeypad 
-           onPress={handleKeypadPress} 
-           onDelete={handleKeypadDelete} 
-           onDone={handleKeypadDone} 
-        />
-      )}
+    <div className="h-full w-full bg-slate-50 relative overflow-hidden flex flex-col font-sans">
+      {/* Screen Routing */}
+      {currentScreen === AppScreen.LOGIN && renderLogin()}
+      {currentScreen === AppScreen.REGISTER && renderRegister()}
       
+      {currentScreen === AppScreen.HOME && renderHome()}
+      {currentScreen === AppScreen.SCAN && renderScan()}
+      {currentScreen === AppScreen.SUCCESS && renderSuccess()}
+      
+      {/* Transaction Screens */}
+      {[AppScreen.SEND_MONEY, AppScreen.CASH_OUT, AppScreen.MOBILE_RECHARGE, AppScreen.PAYMENT, AppScreen.ADD_MONEY, AppScreen.PAY_BILL, AppScreen.MFS_TRANSFER, AppScreen.TRANSFER_TO_BANK].includes(currentScreen) && renderTransactionFlow()}
+
+      {currentScreen === AppScreen.TRANSACTIONS && (
+          <div className="h-full flex flex-col bg-white animate-in slide-in-from-right">
+              <div className="bg-white border-b border-gray-100 p-4 pt-[calc(env(safe-area-inset-top)+1rem)] sticky top-0 z-10 flex items-center gap-3">
+                  <button onClick={() => setCurrentScreen(AppScreen.HOME)}><ArrowLeft size={20} className="text-gray-600" /></button>
+                  <h1 className="font-bold text-lg">লেনদেনসমূহ</h1>
+              </div>
+              <div className="flex-1 overflow-y-auto p-4 pb-[5.5rem]">
+                  {transactions.map((txn) => (
+                      <div key={txn.id} onClick={() => setSelectedTransaction(txn)} className="flex items-center justify-between p-4 border-b border-gray-50 active:bg-gray-50">
+                          <div className="flex items-center gap-3">
+                              <div className={`w-10 h-10 rounded-full flex items-center justify-center ${['RECEIVED_MONEY', 'ADD_MONEY'].includes(txn.type) ? 'bg-emerald-100 text-emerald-600' : 'bg-rose-100 text-rose-600'}`}>
+                                  <FileText size={18} />
+                              </div>
+                              <div>
+                                  <p className="font-bold text-sm text-gray-800">{txn.recipientName || txn.type}</p>
+                                  <p className="text-xs text-gray-400">{txn.date}</p>
+                              </div>
+                          </div>
+                          <span className={`font-bold text-sm ${['RECEIVED_MONEY', 'ADD_MONEY'].includes(txn.type) ? 'text-emerald-600' : 'text-gray-800'}`}>
+                             {['RECEIVED_MONEY', 'ADD_MONEY'].includes(txn.type) ? '+' : '-'}৳{txn.amount}
+                          </span>
+                      </div>
+                  ))}
+              </div>
+          </div>
+      )}
+
+      {currentScreen === AppScreen.OFFERS && (
+          <div className="h-full bg-gray-50 flex flex-col">
+               <div className="bg-white p-4 pt-[calc(env(safe-area-inset-top)+1rem)] flex items-center gap-3 shadow-sm">
+                  <button onClick={() => setCurrentScreen(AppScreen.HOME)}><ArrowLeft size={20} className="text-gray-600" /></button>
+                  <h1 className="font-bold text-lg">অফারসমূহ</h1>
+              </div>
+              <div className="p-4 space-y-4 overflow-y-auto pb-24">
+                  <OfferCarousel onNavigate={handleNavigation} />
+                  {/* More offers mock */}
+                  <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex gap-4">
+                      <div className="w-16 h-16 bg-orange-100 rounded-lg flex items-center justify-center text-orange-600">
+                          <ShoppingBag size={24} />
+                      </div>
+                      <div>
+                          <h3 className="font-bold text-gray-800">দারাজ পেমেন্টে ২০% ছাড়</h3>
+                          <p className="text-xs text-gray-500 mt-1">মিনিমাম ৫০০ টাকার কেনাকাটায়</p>
+                          <button className="mt-2 text-xs font-bold text-rose-600 border border-rose-200 px-3 py-1 rounded-full">বিস্তারিত</button>
+                      </div>
+                  </div>
+              </div>
+          </div>
+      )}
+
+      {currentScreen === AppScreen.ADMIN_DASHBOARD && (
+        <AdminDashboard transactions={transactions} onLogout={handleLogout} />
+      )}
+
+      {/* Global Overlays */}
+      {currentScreen === AppScreen.AI_CHAT && (
+          <AIAssistant user={user} transactions={transactions} onClose={() => setCurrentScreen(AppScreen.HOME)} />
+      )}
+
       {selectedTransaction && (
           <TransactionDetails 
-              transaction={selectedTransaction} 
-              onClose={() => setSelectedTransaction(null)}
-              language={language}
+            transaction={selectedTransaction} 
+            onClose={() => setSelectedTransaction(null)} 
+            language={language}
           />
       )}
 
-      {/* Bottom Navigation - Fixed outside scroll view */}
-      {[AppScreen.HOME, AppScreen.TRANSACTIONS, AppScreen.OFFERS, AppScreen.SCAN, AppScreen.AI_CHAT].includes(currentScreen) && (
-        <BottomNav currentScreen={currentScreen} onNavigate={handleNavigation} language={language} />
+      {activeInput && (
+          <NumericKeypad 
+             onPress={handleKeypadPress} 
+             onDelete={handleKeypadDelete} 
+             onDone={handleKeypadDone} 
+          />
       )}
-      
-      {currentScreen === AppScreen.AI_CHAT && (
-         <AIAssistant user={user} transactions={transactions} onClose={() => setCurrentScreen(AppScreen.HOME)} />
+
+      {/* Bottom Navigation (Only on Home & Sub-pages) */}
+      {[AppScreen.HOME, AppScreen.TRANSACTIONS, AppScreen.OFFERS].includes(currentScreen) && (
+          <BottomNav currentScreen={currentScreen} onNavigate={handleNavigation} language={language} />
       )}
     </div>
   );
 };
+
+// Check, User, Send, Smartphone, Download, CreditCard are imported from lucide-react
+import { Check, User, Send, Smartphone, Download } from 'lucide-react';
 
 export default App;
