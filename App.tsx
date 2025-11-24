@@ -335,6 +335,22 @@ const App: React.FC = () => {
       setRecipientNameDisplay('');
     }
   };
+  
+  // Handle Next Step with Validation
+  const handleNextStep1 = () => {
+    if (formData.recipient.length !== 11) return;
+
+    // RULE: Cannot Send Money to Agent
+    if (currentScreen === AppScreen.SEND_MONEY) {
+        const foundUser = MOCK_USERS_DB.find(u => u.phone === formData.recipient);
+        if (foundUser && foundUser.role === 'AGENT') {
+            alert('এজেন্ট নম্বরে সেন্ড মানি করা সম্ভব নয়। ক্যাশ আউট অপশন ব্যবহার করুন।');
+            return;
+        }
+    }
+
+    setTransactionStep(2);
+  };
 
   // Logic to execute transaction
   const executeTransaction = () => {
@@ -862,55 +878,53 @@ const App: React.FC = () => {
                 {/* Contacts Section */}
                 {['SEND_MONEY', 'CASH_OUT', 'PAYMENT', 'REQUEST_MONEY'].includes(config.type) && (
                    <div className="mt-6">
+                       <h3 className="text-xs font-bold text-gray-400 mb-3 uppercase tracking-wider">Recent Contacts</h3>
+                       <div className="flex gap-4 overflow-x-auto pb-4 no-scrollbar -mx-1 px-1">
+                           {transactions.slice(0, 5).map(t => (
+                               <div 
+                                 key={t.id} 
+                                 className="flex flex-col items-center gap-1 min-w-[60px] cursor-pointer"
+                                 onClick={() => setFormData({...formData, recipient: MOCK_USERS_DB.find(u => u.name === t.recipientName)?.phone || '01711234567'})} 
+                               >
+                                   <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center text-xs font-bold text-gray-600 border border-gray-200">
+                                       {t.recipientName?.substring(0, 2)}
+                                   </div>
+                                   <span className="text-[10px] text-gray-600 font-medium text-center line-clamp-1 w-full">{t.recipientName}</span>
+                               </div>
+                           ))}
+                       </div>
+
+                       {/* All Contacts List */}
+                       <h3 className="text-xs font-bold text-gray-400 mb-2 mt-2 uppercase tracking-wider">All Contacts</h3>
+                       
                        {!contactsPermission ? (
-                           <div className="bg-gray-50 rounded-xl p-4 text-center border border-gray-100">
+                           <div className="bg-gray-50 rounded-xl p-4 text-center border border-gray-100 mt-2">
                                <ContactIcon className="w-8 h-8 text-gray-400 mx-auto mb-2" />
-                               <p className="text-xs text-gray-500 mb-3">সহজেই নাম্বার সিলেক্ট করতে কন্টাক্ট পারমিশন দিন</p>
+                               <p className="text-xs text-gray-500 mb-3">সব কন্টাক্ট দেখতে ফোনের পারমিশন প্রয়োজন</p>
                                <button 
                                    onClick={() => setContactsPermission(true)}
                                    className="text-rose-600 text-xs font-bold border border-rose-200 bg-rose-50 px-3 py-1.5 rounded-full hover:bg-rose-100 transition-colors"
                                >
-                                   পারমিশন দিন
+                                   কন্টাক্ট পারমিশন দিন
                                </button>
                            </div>
                        ) : (
-                           <div className="animate-in fade-in">
-                               {/* Recent Contacts from Transactions */}
-                               <h3 className="text-xs font-bold text-gray-400 mb-3 uppercase tracking-wider">Recent Contacts</h3>
-                               <div className="flex gap-4 overflow-x-auto pb-4 no-scrollbar -mx-1 px-1">
-                                   {transactions.slice(0, 5).map(t => (
-                                       <div 
-                                         key={t.id} 
-                                         className="flex flex-col items-center gap-1 min-w-[60px] cursor-pointer"
-                                         onClick={() => setFormData({...formData, recipient: MOCK_USERS_DB.find(u => u.name === t.recipientName)?.phone || '01711234567'})} 
-                                       >
-                                           <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center text-xs font-bold text-gray-600 border border-gray-200">
-                                               {t.recipientName?.substring(0, 2)}
-                                           </div>
-                                           <span className="text-[10px] text-gray-600 font-medium text-center line-clamp-1 w-full">{t.recipientName}</span>
+                           <div className="space-y-2 max-h-48 overflow-y-auto pr-1 custom-scrollbar animate-in fade-in">
+                               {MOCK_CONTACTS.map(contact => (
+                                   <div 
+                                     key={contact.id}
+                                     className="flex items-center gap-3 p-2 hover:bg-gray-50 rounded-lg cursor-pointer transition-colors"
+                                     onClick={() => setFormData({...formData, recipient: contact.phone})}
+                                   >
+                                       <div className="w-10 h-10 rounded-full bg-gray-200 overflow-hidden">
+                                           <img src={contact.avatar} alt={contact.name} className="w-full h-full object-cover" />
                                        </div>
-                                   ))}
-                               </div>
-
-                               {/* All Contacts List */}
-                               <h3 className="text-xs font-bold text-gray-400 mb-2 mt-2 uppercase tracking-wider">All Contacts</h3>
-                               <div className="space-y-2 max-h-48 overflow-y-auto pr-1 custom-scrollbar">
-                                   {MOCK_CONTACTS.map(contact => (
-                                       <div 
-                                         key={contact.id}
-                                         className="flex items-center gap-3 p-2 hover:bg-gray-50 rounded-lg cursor-pointer transition-colors"
-                                         onClick={() => setFormData({...formData, recipient: contact.phone})}
-                                       >
-                                           <div className="w-10 h-10 rounded-full bg-gray-200 overflow-hidden">
-                                               <img src={contact.avatar} alt={contact.name} className="w-full h-full object-cover" />
-                                           </div>
-                                           <div>
-                                               <p className="text-sm font-bold text-gray-800">{contact.name}</p>
-                                               <p className="text-xs text-gray-500 font-mono">{contact.phone}</p>
-                                           </div>
+                                       <div>
+                                           <p className="text-sm font-bold text-gray-800">{contact.name}</p>
+                                           <p className="text-xs text-gray-500 font-mono">{contact.phone}</p>
                                        </div>
-                                   ))}
-                               </div>
+                                   </div>
+                               ))}
                            </div>
                        )}
                    </div>
@@ -918,7 +932,7 @@ const App: React.FC = () => {
 
                <div className="mt-6">
                 <button 
-                    onClick={() => formData.recipient.length === 11 && setTransactionStep(2)}
+                    onClick={handleNextStep1}
                     disabled={formData.recipient.length !== 11}
                     className="w-full bg-rose-600 text-white py-3.5 rounded-xl font-bold shadow-lg shadow-rose-200 hover:shadow-xl hover:bg-rose-700 active:scale-[0.98] transition-all disabled:opacity-50 disabled:shadow-none text-sm"
                 >

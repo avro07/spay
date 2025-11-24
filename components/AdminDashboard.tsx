@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { Users, CreditCard, Activity, Search, Shield, LogOut, Lock, Unlock, TrendingUp, AlertCircle, Signal } from 'lucide-react';
-import { User, Transaction } from '../types';
+import { User, Transaction, UserRole } from '../types';
 import { MOCK_USERS_DB } from '../constants';
 
 interface AdminDashboardProps {
@@ -13,6 +13,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ transactions, onLogout 
   const [activeTab, setActiveTab] = useState<'overview' | 'users' | 'transactions' | 'api'>('overview');
   const [users, setUsers] = useState<User[]>(MOCK_USERS_DB);
   const [searchTerm, setSearchTerm] = useState('');
+  const [filterRole, setFilterRole] = useState<UserRole | 'ALL'>('ALL');
 
   const toggleUserStatus = (id: string) => {
     setUsers(users.map(u => {
@@ -27,8 +28,8 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ transactions, onLogout 
   const totalTransactions = transactions.reduce((acc, curr) => acc + curr.amount, 0);
 
   const filteredUsers = users.filter(u => 
-    u.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
-    u.phone.includes(searchTerm)
+    (filterRole === 'ALL' || u.role === filterRole) &&
+    (u.name.toLowerCase().includes(searchTerm.toLowerCase()) || u.phone.includes(searchTerm))
   );
 
   return (
@@ -189,6 +190,23 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ transactions, onLogout 
                 </div>
               </div>
 
+              {/* Role Filters */}
+              <div className="flex flex-wrap gap-2">
+                 {(['ALL', 'CUSTOMER', 'AGENT', 'MERCHANT', 'DISTRIBUTOR'] as const).map((role) => (
+                    <button
+                        key={role}
+                        onClick={() => setFilterRole(role)}
+                        className={`px-4 py-2 rounded-full text-xs font-bold border transition-colors ${
+                            filterRole === role 
+                            ? 'bg-rose-600 text-white border-rose-600' 
+                            : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'
+                        }`}
+                    >
+                        {role === 'ALL' ? 'All Users' : role}
+                    </button>
+                 ))}
+              </div>
+
               <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
                 <div className="overflow-x-auto">
                   <table className="w-full text-sm text-left">
@@ -203,47 +221,55 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ transactions, onLogout 
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100">
-                      {filteredUsers.map(user => (
-                        <tr key={user.id} className="hover:bg-slate-50">
-                          <td className="px-6 py-4">
-                            <div className="flex items-center gap-3">
-                              <img src={user.avatarUrl} alt="" className="w-8 h-8 rounded-full bg-slate-200" />
-                              <span className="font-bold text-slate-700">{user.name}</span>
-                            </div>
-                          </td>
-                          <td className="px-6 py-4 text-slate-600 font-mono">{user.phone}</td>
-                          <td className="px-6 py-4 font-bold text-slate-800">৳{user.balance.toLocaleString()}</td>
-                          <td className="px-6 py-4">
-                            <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase border 
-                                ${user.role === 'AGENT' ? 'bg-purple-50 text-purple-600 border-purple-100' : 
-                                  user.role === 'MERCHANT' ? 'bg-orange-50 text-orange-600 border-orange-100' :
-                                  user.role === 'DISTRIBUTOR' ? 'bg-cyan-50 text-cyan-600 border-cyan-100' :
-                                  'bg-blue-50 text-blue-600 border-blue-100'}`}>
-                              {user.role}
-                            </span>
-                          </td>
-                          <td className="px-6 py-4">
-                            {user.status === 'active' ? (
-                              <span className="flex items-center gap-1 text-emerald-600 text-xs font-bold">
-                                <span className="w-2 h-2 rounded-full bg-emerald-500"></span> Active
-                              </span>
-                            ) : (
-                              <span className="flex items-center gap-1 text-red-600 text-xs font-bold">
-                                <span className="w-2 h-2 rounded-full bg-red-500"></span> Blocked
-                              </span>
-                            )}
-                          </td>
-                          <td className="px-6 py-4 text-right">
-                            <button 
-                              onClick={() => toggleUserStatus(user.id!)}
-                              className={`p-2 rounded-lg transition-colors ${user.status === 'active' ? 'bg-rose-50 text-rose-600 hover:bg-rose-100' : 'bg-emerald-50 text-emerald-600 hover:bg-emerald-100'}`}
-                              title={user.status === 'active' ? "Block User" : "Unblock User"}
-                            >
-                              {user.status === 'active' ? <Lock size={16} /> : <Unlock size={16} />}
-                            </button>
-                          </td>
-                        </tr>
-                      ))}
+                      {filteredUsers.length > 0 ? (
+                          filteredUsers.map(user => (
+                            <tr key={user.id} className="hover:bg-slate-50">
+                            <td className="px-6 py-4">
+                                <div className="flex items-center gap-3">
+                                <img src={user.avatarUrl} alt="" className="w-8 h-8 rounded-full bg-slate-200" />
+                                <span className="font-bold text-slate-700">{user.name}</span>
+                                </div>
+                            </td>
+                            <td className="px-6 py-4 text-slate-600 font-mono">{user.phone}</td>
+                            <td className="px-6 py-4 font-bold text-slate-800">৳{user.balance.toLocaleString()}</td>
+                            <td className="px-6 py-4">
+                                <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase border 
+                                    ${user.role === 'AGENT' ? 'bg-purple-50 text-purple-600 border-purple-100' : 
+                                    user.role === 'MERCHANT' ? 'bg-orange-50 text-orange-600 border-orange-100' :
+                                    user.role === 'DISTRIBUTOR' ? 'bg-cyan-50 text-cyan-600 border-cyan-100' :
+                                    'bg-blue-50 text-blue-600 border-blue-100'}`}>
+                                {user.role}
+                                </span>
+                            </td>
+                            <td className="px-6 py-4">
+                                {user.status === 'active' ? (
+                                <span className="flex items-center gap-1 text-emerald-600 text-xs font-bold">
+                                    <span className="w-2 h-2 rounded-full bg-emerald-500"></span> Active
+                                </span>
+                                ) : (
+                                <span className="flex items-center gap-1 text-red-600 text-xs font-bold">
+                                    <span className="w-2 h-2 rounded-full bg-red-500"></span> Blocked
+                                </span>
+                                )}
+                            </td>
+                            <td className="px-6 py-4 text-right">
+                                <button 
+                                onClick={() => toggleUserStatus(user.id!)}
+                                className={`p-2 rounded-lg transition-colors ${user.status === 'active' ? 'bg-rose-50 text-rose-600 hover:bg-rose-100' : 'bg-emerald-50 text-emerald-600 hover:bg-emerald-100'}`}
+                                title={user.status === 'active' ? "Block User" : "Unblock User"}
+                                >
+                                {user.status === 'active' ? <Lock size={16} /> : <Unlock size={16} />}
+                                </button>
+                            </td>
+                            </tr>
+                        ))
+                      ) : (
+                          <tr>
+                              <td colSpan={6} className="px-6 py-8 text-center text-gray-400">
+                                  কোন ব্যবহারকারী পাওয়া যায়নি
+                              </td>
+                          </tr>
+                      )}
                     </tbody>
                   </table>
                 </div>
