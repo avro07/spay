@@ -24,6 +24,7 @@ export interface User {
   status?: 'active' | 'blocked';
   role?: UserRole;
   type?: 'user' | 'agent';
+  qrCode?: string;
 }
 
 export interface Contact {

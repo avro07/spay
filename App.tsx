@@ -1,5 +1,7 @@
+
+
 import React, { useState, useEffect, useRef } from 'react';
-import { ArrowLeft, ChevronRight, ArrowUpRight, CreditCard, Wallet, X, Bell, Shield, Settings as SettingsIcon, FileText, Landmark, ShoppingBag, Utensils, LogOut, Lock, User as UserIcon, Phone, Eye, EyeOff, QrCode as QrCodeIcon, Signal, Globe, UserCog, Contact as ContactIcon, ArrowRightLeft, Zap, Flame, Droplet, Tv, ShieldCheck, Car, MoreHorizontal, ScrollText, BarChart3, ScanLine, ArrowRight, Loader2 } from 'lucide-react';
+import { ArrowLeft, ChevronRight, ArrowUpRight, CreditCard, Wallet, X, Bell, Shield, Settings as SettingsIcon, FileText, Landmark, ShoppingBag, Utensils, LogOut, Lock, User as UserIcon, Phone, Eye, EyeOff, QrCode as QrCodeIcon, Signal, Globe, UserCog, Contact as ContactIcon, ArrowRightLeft, Zap, Flame, Droplet, Tv, ShieldCheck, Car, MoreHorizontal, ScrollText, BarChart3, ScanLine, ArrowRight, Loader2, CheckCircle, Share2, Check, User, Send, Smartphone, Download } from 'lucide-react';
 import BalanceHeader from './components/BalanceHeader';
 import ActionGrid from './components/ActionGrid';
 import BottomNav from './components/BottomNav';
@@ -9,13 +11,13 @@ import OfferCarousel from './components/OfferCarousel';
 import NumericKeypad from './components/NumericKeypad';
 import AdminDashboard from './components/AdminDashboard';
 import TransactionDetails from './components/TransactionDetails';
-import { AppScreen, User, Transaction, SendMoneyFormData, NotificationPreferences, Language, Contact } from './types';
+import { AppScreen, User as UserType, Transaction, SendMoneyFormData, NotificationPreferences, Language, Contact } from './types';
 import { INITIAL_USER, MOCK_TRANSACTIONS, TRANSLATIONS, MOCK_USERS_DB, MOCK_CONTACTS } from './constants';
 
 const App: React.FC = () => {
   // Start at LOGIN screen
   const [currentScreen, setCurrentScreen] = useState<AppScreen>(AppScreen.LOGIN);
-  const [user, setUser] = useState<User>(INITIAL_USER);
+  const [user, setUser] = useState<UserType>(INITIAL_USER);
   const [transactions, setTransactions] = useState<Transaction[]>(MOCK_TRANSACTIONS);
   const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -47,6 +49,9 @@ const App: React.FC = () => {
     offers: true,
     securityAlerts: true
   });
+  
+  // My QR Modal State
+  const [showQrModal, setShowQrModal] = useState(false);
 
   // Transaction Flow State
   const [transactionStep, setTransactionStep] = useState(1);
@@ -230,12 +235,17 @@ const App: React.FC = () => {
         alert("পিন নম্বর মিলছে না");
         return;
       }
+      
+      // Generate Unique QR Code for the user
+      const generatedQrCode = `SPAY:${registerData.phone}`;
+
       // Create new user context
       setUser({
         ...user,
         name: registerData.name,
         phone: registerData.phone,
-        balance: 50 // Signup bonus
+        balance: 50, // Signup bonus
+        qrCode: generatedQrCode
       });
       // Add welcome notification/transaction
       setTransactions([
@@ -422,12 +432,54 @@ const App: React.FC = () => {
   };
 
   // --- RENDER HELPERS ---
+  
+  const renderMyQr = () => (
+    <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in fade-in duration-300">
+      <div className="bg-white w-full max-w-sm rounded-3xl p-6 relative shadow-2xl overflow-hidden">
+          <button 
+            onClick={() => setShowQrModal(false)}
+            className="absolute top-4 right-4 p-2 bg-gray-100 rounded-full text-gray-600 hover:bg-gray-200"
+          >
+              <X size={20} />
+          </button>
+          
+          <div className="flex flex-col items-center pt-4">
+              <h3 className="text-xl font-bold text-gray-800 mb-1">{t.my_qr}</h3>
+              <p className="text-gray-500 text-xs mb-8 text-center px-4">{t.my_qr_desc}</p>
+              
+              <div className="p-4 border-2 border-dashed border-rose-200 rounded-2xl bg-rose-50/50 mb-6 relative group">
+                  {/* QR Code Image */}
+                  <img 
+                     src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(user.qrCode || user.phone)}&color=e11d48&bgcolor=fff`} 
+                     alt="My QR Code" 
+                     className="w-48 h-48 mix-blend-multiply"
+                  />
+                  <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-white/50 backdrop-blur-sm">
+                     <span className="text-rose-600 font-bold text-sm">SPay QR</span>
+                  </div>
+              </div>
+
+              <h2 className="text-lg font-bold text-gray-800">{user.name}</h2>
+              <p className="text-gray-500 font-mono text-sm tracking-wider mb-8">{user.phone}</p>
+
+              <div className="flex gap-3 w-full">
+                  <button className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl bg-gray-100 text-gray-700 font-bold text-sm hover:bg-gray-200 transition-colors">
+                      <Share2 size={18} /> শেয়ার
+                  </button>
+                  <button className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl bg-rose-600 text-white font-bold text-sm shadow-lg shadow-rose-200 hover:bg-rose-700 transition-colors">
+                      <Download size={18} /> সেভ করুন
+                  </button>
+              </div>
+          </div>
+      </div>
+    </div>
+  );
 
   const renderLogin = () => (
     <div className="flex flex-col min-h-full bg-gradient-to-br from-rose-600 to-pink-700 animate-in fade-in overflow-hidden relative">
         <div className="h-[35vh] flex flex-col items-center justify-end pb-8 text-white shrink-0">
             <div className="w-24 h-24 bg-white rounded-3xl flex items-center justify-center mb-6 shadow-2xl shadow-rose-900/30 border border-white/50 p-1">
-                 <img src="https://c.beoo.net/Files/3.jpg" alt="Logo" className="w-full h-full object-contain rounded-2xl" />
+                 <img src="https://wsrv.nl/?url=c.beoo.net/Files/3.jpg&w=192&h=192&fit=contain&bg=white&output=png" alt="Logo" className="w-full h-full object-contain rounded-2xl" />
             </div>
             <h1 className="text-2xl font-bold mb-1">{isAdminMode ? 'অ্যাডমিন প্যানেল' : 'স্বাগতম!'}</h1>
             <p className="text-rose-100 text-xs">{isAdminMode ? 'সিস্টেম কন্ট্রোল সেন্টার' : 'আপনার নিরাপদ লেনদেনের সাথী'}</p>
@@ -660,7 +712,7 @@ const App: React.FC = () => {
 
       <BalanceHeader 
         user={user} 
-        onProfileClick={() => alert('Profile Clicked')} 
+        onProfileClick={() => setShowQrModal(true)} 
         onNotificationClick={handleNotificationClick} 
         language={language}
       />
@@ -1066,6 +1118,8 @@ const App: React.FC = () => {
       {currentScreen === AppScreen.AI_CHAT && (
           <AIAssistant user={user} transactions={transactions} onClose={() => setCurrentScreen(AppScreen.HOME)} />
       )}
+      
+      {showQrModal && renderMyQr()}
 
       {selectedTransaction && (
           <TransactionDetails 
@@ -1090,8 +1144,5 @@ const App: React.FC = () => {
     </div>
   );
 };
-
-// Check, User, Send, Smartphone, Download, CreditCard are imported from lucide-react
-import { Check, User, Send, Smartphone, Download } from 'lucide-react';
 
 export default App;
