@@ -1,5 +1,6 @@
+
 import React, { useState, useEffect, useRef } from 'react';
-import { ArrowLeft, ChevronRight, ArrowUpRight, CreditCard, Wallet, X, Bell, Shield, Settings as SettingsIcon, FileText, Landmark, ShoppingBag, Utensils, LogOut, Lock, User as UserIcon, Phone, Eye, EyeOff, QrCode as QrCodeIcon, Signal, Globe, UserCog, Contact as ContactIcon, ArrowRightLeft, Zap, Flame, Droplet, Tv, ShieldCheck, Car, MoreHorizontal, ScrollText, BarChart3, ScanLine, ArrowRight, Loader2, CheckCircle, Share2, Check, User, Send, Smartphone, Download } from 'lucide-react';
+import { ArrowLeft, ChevronRight, ArrowUpRight, CreditCard, Wallet, X, Bell, Shield, Settings as SettingsIcon, FileText, Landmark, ShoppingBag, Utensils, LogOut, Lock, User as UserIcon, Phone, Eye, EyeOff, QrCode as QrCodeIcon, Signal, Globe, UserCog, Contact as ContactIcon, ArrowRightLeft, Zap, Flame, Droplet, Tv, ShieldCheck, Car, MoreHorizontal, ScrollText, BarChart3, ScanLine, ArrowRight, Loader2, CheckCircle, Share2, Check, User, Send, Smartphone, Download, Wifi, GraduationCap, Plus, Search } from 'lucide-react';
 import BalanceHeader from './components/BalanceHeader';
 import ActionGrid from './components/ActionGrid';
 import BottomNav from './components/BottomNav';
@@ -235,7 +236,7 @@ const App: React.FC = () => {
       }
       
       // Generate Unique QR Code for the user
-      const generatedQrCode = `SPAY:${registerData.phone}`;
+      const generatedQrCode = `SPay:${registerData.phone}`;
 
       // Create new user context
       setUser({
@@ -845,16 +846,17 @@ const App: React.FC = () => {
 
   const renderTransactionFlow = () => {
     const config = getScreenConfig();
+    const isPayBillDashboard = config.type === 'PAY_BILL' && transactionStep === 0;
 
     return (
       <div className="flex flex-col h-full bg-white animate-in slide-in-from-right duration-300">
         {/* Header */}
-        <div className="bg-white border-b border-gray-100 px-4 pt-[calc(env(safe-area-inset-top)+1rem)] pb-4 flex items-center gap-4 sticky top-0 z-20">
-          <button onClick={handleBack} className="p-2 hover:bg-gray-100 rounded-full -ml-2">
-            <ArrowLeft className="text-gray-600 w-5 h-5" />
+        <div className={`${isPayBillDashboard ? 'bg-rose-600 text-white border-none' : 'bg-white border-b border-gray-100'} px-4 pt-[calc(env(safe-area-inset-top)+1rem)] pb-4 flex items-center gap-4 sticky top-0 z-20 transition-colors`}>
+          <button onClick={handleBack} className={`p-2 rounded-full -ml-2 ${isPayBillDashboard ? 'hover:bg-white/20 text-white' : 'hover:bg-gray-100 text-gray-600'}`}>
+            <ArrowLeft className="w-5 h-5" />
           </button>
           <div>
-            <h1 className="font-bold text-gray-800 text-lg">{config.title}</h1>
+            <h1 className={`font-bold text-lg ${isPayBillDashboard ? 'text-white' : 'text-gray-800'}`}>{config.title}</h1>
             {transactionStep > 1 && (
                <p className="text-xs text-gray-400">স্টেপ {transactionStep} / 3</p>
             )}
@@ -862,9 +864,86 @@ const App: React.FC = () => {
         </div>
 
         {/* Content */}
-        <div className="flex-1 overflow-y-auto p-5 pb-6">
+        <div className="flex-1 overflow-y-auto p-0 pb-6">
+          {transactionStep === 0 && config.type === 'PAY_BILL' && (
+            <div className="animate-in slide-in-from-right duration-300">
+                {/* Search Bar - Floating effect under red header */}
+                <div className="bg-rose-600 px-4 pb-6 rounded-b-[30px] shadow-lg shadow-rose-200/50 mb-6">
+                    <div className="relative">
+                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+                        <input 
+                            type="text" 
+                            placeholder="প্রতিষ্ঠান বা বিলার খুঁজুন" 
+                            className="w-full bg-white text-gray-800 placeholder:text-gray-400 rounded-full py-3.5 pl-11 pr-4 text-sm font-medium shadow-sm outline-none" 
+                        />
+                    </div>
+                </div>
+
+                {/* Saved Bills */}
+                <div className="px-5 mb-8">
+                    <div className="flex justify-between items-center mb-3">
+                         <h3 className="text-xs font-bold text-gray-500 uppercase tracking-wider">সংরক্ষিত বিল</h3>
+                         <button className="text-[10px] text-rose-600 font-bold hover:underline">সব দেখুন</button>
+                    </div>
+                    <div className="flex gap-4 overflow-x-auto pb-4 -mx-5 px-5 no-scrollbar">
+                        {/* Add New */}
+                        <div className="flex flex-col items-center gap-2 min-w-[72px] cursor-pointer group">
+                            <div className="w-14 h-14 rounded-2xl bg-white border-2 border-dashed border-gray-300 flex items-center justify-center text-gray-400 group-hover:border-rose-400 group-hover:text-rose-500 transition-colors">
+                                <Plus size={24} />
+                            </div>
+                            <span className="text-[10px] font-bold text-gray-500 text-center">নতুন যোগ</span>
+                        </div>
+                        {/* Mock Item */}
+                        <div className="flex flex-col items-center gap-2 min-w-[72px] cursor-pointer" onClick={() => handleNextStep1()}>
+                             <div className="w-14 h-14 rounded-2xl bg-yellow-50 border border-yellow-100 flex items-center justify-center text-yellow-600 shadow-sm relative">
+                                 <Zap size={24} fill="currentColor" />
+                                 <div className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full border-2 border-white"></div>
+                             </div>
+                             <span className="text-[10px] font-bold text-gray-700 text-center">বাসার বিদ্যুৎ</span>
+                        </div>
+                        <div className="flex flex-col items-center gap-2 min-w-[72px] cursor-pointer" onClick={() => handleNextStep1()}>
+                             <div className="w-14 h-14 rounded-2xl bg-cyan-50 border border-cyan-100 flex items-center justify-center text-cyan-600 shadow-sm">
+                                 <Wifi size={24} />
+                             </div>
+                             <span className="text-[10px] font-bold text-gray-700 text-center">Link3 Net</span>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Categories Grid */}
+                <div className="px-5 pb-8">
+                    <h3 className="text-xs font-bold text-gray-500 mb-4 uppercase tracking-wider">সকল প্রতিষ্ঠান</h3>
+                    <div className="grid grid-cols-4 gap-x-2 gap-y-6">
+                        {[
+                            { icon: Zap, label: 'বিদ্যুৎ', color: 'text-yellow-600', bg: 'bg-yellow-100' },
+                            { icon: Flame, label: 'গ্যাস', color: 'text-red-600', bg: 'bg-red-100' },
+                            { icon: Droplet, label: 'পানি', color: 'text-blue-600', bg: 'bg-blue-100' },
+                            { icon: Wifi, label: 'ইন্টারনেট', color: 'text-cyan-600', bg: 'bg-cyan-100' },
+                            { icon: Tv, label: 'টিভি', color: 'text-orange-600', bg: 'bg-orange-100' },
+                            { icon: GraduationCap, label: 'শিক্ষা', color: 'text-indigo-600', bg: 'bg-indigo-100' },
+                            { icon: ShieldCheck, label: 'ইনস্যুরেন্স', color: 'text-emerald-600', bg: 'bg-emerald-100' },
+                            { icon: MoreHorizontal, label: 'অন্যান্য', color: 'text-gray-600', bg: 'bg-gray-100' },
+                        ].map((item, idx) => (
+                            <button 
+                                key={idx} 
+                                onClick={() => {
+                                    setTransactionStep(1);
+                                }}
+                                className="flex flex-col items-center gap-2 group"
+                            >
+                                <div className={`w-14 h-14 rounded-2xl ${item.bg} flex items-center justify-center ${item.color} shadow-sm group-active:scale-95 transition-transform`}>
+                                    <item.icon size={26} strokeWidth={2} />
+                                </div>
+                                <span className="text-[11px] font-bold text-gray-700">{item.label}</span>
+                            </button>
+                        ))}
+                    </div>
+                </div>
+            </div>
+          )}
+
           {transactionStep === 1 && (
-            <div className="space-y-6">
+            <div className="space-y-6 p-5">
                 
                 {config.type === 'MFS_TRANSFER' && (
                      <div>
@@ -940,7 +1019,7 @@ const App: React.FC = () => {
           )}
 
           {transactionStep === 2 && (
-            <div className="flex flex-col items-center pt-8">
+            <div className="flex flex-col items-center pt-8 p-5">
                  <div className="w-16 h-16 bg-rose-100 text-rose-600 rounded-full flex items-center justify-center mb-4">
                      {config.type === 'MOBILE_RECHARGE' ? <Smartphone size={32} /> : 
                       config.type === 'SEND_MONEY' ? <Send size={32} /> :
@@ -978,7 +1057,7 @@ const App: React.FC = () => {
           )}
 
            {transactionStep === 3 && (
-            <div className="space-y-6">
+            <div className="space-y-6 p-5">
                 <div className="bg-white border border-gray-200 rounded-2xl p-4 shadow-sm relative overflow-hidden">
                     <div className="absolute top-0 right-0 w-20 h-20 bg-rose-50 rounded-bl-full -mr-4 -mt-4 z-0"></div>
                     <div className="relative z-10">
@@ -1033,7 +1112,7 @@ const App: React.FC = () => {
         </div>
 
         {/* Footer Actions */}
-        {transactionStep < 3 && (
+        {transactionStep < 3 && transactionStep > 0 && (
             <div className="p-4 bg-white border-t border-gray-100 pb-6">
                 <button
                     onClick={transactionStep === 1 ? handleNextStep1 : () => setTransactionStep(3)}
@@ -1189,7 +1268,7 @@ const App: React.FC = () => {
                              </div>
                              <div>
                                  <h4 className="font-bold text-gray-800 text-sm">{txn.recipientName || txn.type}</h4>
-                                 <p className="text-xs text-gray-500 mt-0.5">{txn.date}</p>
+                                 <p className="text-xs text-gray-500 mt-0.5">{txn.type.replace('_', ' ')} • {txn.date}</p>
                              </div>
                          </div>
                          <span className={`font-bold text-sm ${['RECEIVED_MONEY', 'ADD_MONEY'].includes(txn.type) ? 'text-emerald-600' : 'text-gray-800'}`}>
