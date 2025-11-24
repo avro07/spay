@@ -286,42 +286,45 @@ const App: React.FC = () => {
   // Simulate scanning a QR code
   const simulateScan = () => {
     // Find a random user/merchant from DB to simulate a real scan
-    // Filter out current user
     const potentialTargets = MOCK_USERS_DB.filter(u => u.phone !== user.phone);
     
-    // For demo purposes, try to find a merchant to show Payment flow, or fallback to random
+    // Default to a merchant if possible, or fallback to any user
     const merchant = potentialTargets.find(u => u.role === 'MERCHANT');
-    const target = merchant || potentialTargets[Math.floor(Math.random() * potentialTargets.length)];
+    // Fallback to a hardcoded merchant if no DB match (failsafe)
+    const target = merchant || potentialTargets[0] || { 
+        name: 'স্বপ্ন সুপার শপ', 
+        phone: '01912345678', 
+        role: 'MERCHANT',
+        qrCode: 'SPAY:01912345678'
+    };
     
-    if (!target) return;
-
+    // Extract phone
     const scannedData = target.qrCode || `SPAY:${target.phone}`;
-    
-    // Check format SPAY:NUMBER
     let phone = scannedData;
     if (scannedData.startsWith('SPAY:')) {
       phone = scannedData.split(':')[1];
     }
 
-    // Update Form
-    setFormData(prev => ({
-      ...prev,
-      recipient: phone,
-      amount: ''
-    }));
+    // Update Form with artificial delay to feel like scanning
+    setTimeout(() => {
+        setFormData(prev => ({
+            ...prev,
+            recipient: phone,
+            amount: ''
+        }));
+        setRecipientNameDisplay(target.name);
     
-    setRecipientNameDisplay(target.name);
-
-    // Route based on role
-    let nextScreen = AppScreen.SEND_MONEY;
-    if (target.role === 'MERCHANT') {
-       nextScreen = AppScreen.PAYMENT;
-    } else if (target.role === 'AGENT') {
-       nextScreen = AppScreen.CASH_OUT;
-    }
-
-    setCurrentScreen(nextScreen);
-    setTransactionStep(2); // Skip to Amount input
+        // Route based on role
+        let nextScreen = AppScreen.SEND_MONEY;
+        if (target.role === 'MERCHANT') {
+           nextScreen = AppScreen.PAYMENT;
+        } else if (target.role === 'AGENT') {
+           nextScreen = AppScreen.CASH_OUT;
+        }
+    
+        setCurrentScreen(nextScreen);
+        setTransactionStep(2); // Skip to Amount input
+    }, 300);
   };
 
   // Share QR Function
@@ -340,10 +343,10 @@ const App: React.FC = () => {
             console.log('Share canceled');
         }
     } else {
-        // Fallback
+        // Fallback for desktop/unsupported browsers
         try {
-            await navigator.clipboard.writeText(user.phone);
-            alert('নম্বর ক্লিপবোর্ডে কপি করা হয়েছে: ' + user.phone);
+            await navigator.clipboard.writeText(`SPay: ${user.phone}`);
+            alert('নম্বর ক্লিপবোর্ডে কপি করা হয়েছে!');
         } catch (e) {
             alert('শেয়ার করা সম্ভব হচ্ছে না');
         }
@@ -352,29 +355,24 @@ const App: React.FC = () => {
 
   // Save QR Function
   const handleSaveQr = async () => {
+    const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=500x500&data=${encodeURIComponent(user.qrCode || user.phone)}&color=e11d48&bgcolor=fff&format=png`;
+    
     try {
-        const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=500x500&data=${encodeURIComponent(user.qrCode || user.phone)}&color=e11d48&bgcolor=fff&format=png`;
-        
-        // Fetch blob
+        // Try fetch approach first
         const response = await fetch(qrUrl);
         const blob = await response.blob();
-        
-        // Create object URL
         const blobUrl = window.URL.createObjectURL(blob);
         
-        // Create anchor
         const link = document.createElement('a');
         link.href = blobUrl;
         link.download = `SPay_${user.phone}.png`;
         document.body.appendChild(link);
         link.click();
-        
-        // Cleanup
         document.body.removeChild(link);
         window.URL.revokeObjectURL(blobUrl);
     } catch (error) {
-        console.error("Save QR failed", error);
-        alert("QR কোড সেভ করা যাচ্ছে না। ইন্টারনেট সংযোগ পরীক্ষা করুন।");
+        // Fallback: Open in new tab if CORS blocks fetch
+        window.open(qrUrl, '_blank');
     }
   };
 
@@ -570,11 +568,12 @@ const App: React.FC = () => {
             <p className="text-rose-100 text-xs">{isAdminMode ? 'সিস্টেম কন্ট্রোল সেন্টার' : 'আপনার নিরাপদ লেনদেনের সাথী'}</p>
         </div>
 
-        <div className="flex-1 bg-white rounded-t-[30px] p-6 pb-[calc(2rem+env(safe-area-inset-bottom))] shadow-[0_-10px_40px_-15px_rgba(0,0,0,0.3)] animate-in slide-in-from-bottom duration-500 flex flex-col">
+        <div className="flex-1 bg-white rounded-t-[30px] p-6 pb-6 shadow-[0_-10px_40px_-15px_rgba(0,0,0,0.3)] animate-in slide-in-from-bottom duration-500 flex flex-col">
              
              {isAdminMode ? (
                 // ADMIN LOGIN FORM
                 <div className="space-y-4 animate-in fade-in">
+                    {/* ... Admin Form Fields ... */}
                     <div>
                          <label className="block text-xs font-bold text-gray-700 mb-1.5 ml-1">ইউজারনেম</label>
                          <div className="relative">
@@ -648,7 +647,7 @@ const App: React.FC = () => {
                                 type="tel"
                                 value={loginPhone}
                                 onChange={(e) => setLoginPhone(e.target.value)}
-                                onFocus={() => setActiveInput(null)} // System keyboard for phone
+                                onFocus={() => setActiveInput(null)} 
                                 className="w-full bg-gray-50 border border-gray-200 rounded-xl py-3.5 pl-11 pr-4 font-semibold text-gray-800 focus:outline-none focus:border-rose-500 focus:ring-1 focus:ring-rose-500 transition-all text-sm"
                                 placeholder="01XXXXXXXXX"
                              />
@@ -709,7 +708,8 @@ const App: React.FC = () => {
             <p className="text-rose-100 text-xs">SPay-তে রেজিস্ট্রেশন করুন</p>
         </div>
 
-        <div className="flex-1 overflow-y-auto p-5 pb-[calc(1.5rem+env(safe-area-inset-bottom))] space-y-4">
+        <div className="flex-1 overflow-y-auto p-5 pb-6 space-y-4">
+             {/* ... Register fields ... */}
              <div>
                 <label className="block text-xs font-bold text-gray-700 mb-1.5 ml-1">আপনার নাম</label>
                 <div className="relative">
@@ -787,7 +787,7 @@ const App: React.FC = () => {
   );
 
   const renderHome = () => (
-    <div className="pb-[calc(5rem+env(safe-area-inset-bottom))] animate-in fade-in duration-500 relative min-h-full">
+    <div className="pb-24 animate-in fade-in duration-500 relative min-h-full">
       {/* Background Ambient Blobs for Glass Effect */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
           <div className="absolute top-[20%] left-[-10%] w-72 h-72 bg-purple-200/40 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob"></div>
@@ -863,7 +863,7 @@ const App: React.FC = () => {
         </div>
 
         {/* Content */}
-        <div className="flex-1 overflow-y-auto p-5 pb-[env(safe-area-inset-bottom)]">
+        <div className="flex-1 overflow-y-auto p-5 pb-6">
           {transactionStep === 1 && (
             <div className="space-y-6">
                 
@@ -1035,7 +1035,7 @@ const App: React.FC = () => {
 
         {/* Footer Actions */}
         {transactionStep < 3 && (
-            <div className="p-4 bg-white border-t border-gray-100 pb-[env(safe-area-inset-bottom)]">
+            <div className="p-4 bg-white border-t border-gray-100 pb-6">
                 <button
                     onClick={transactionStep === 1 ? handleNextStep1 : () => setTransactionStep(3)}
                     disabled={
@@ -1053,7 +1053,7 @@ const App: React.FC = () => {
   };
 
   const renderSuccess = () => (
-      <div className="h-full flex flex-col items-center justify-center bg-white p-6 animate-in zoom-in duration-300 pb-[env(safe-area-inset-bottom)]">
+      <div className="h-full flex flex-col items-center justify-center bg-white p-6 animate-in zoom-in duration-300 pb-6">
           <div className="w-24 h-24 bg-emerald-100 rounded-full flex items-center justify-center mb-6 animate-bounce">
               <CheckCircle className="text-emerald-500 w-12 h-12" />
           </div>
@@ -1155,7 +1155,7 @@ const App: React.FC = () => {
                   <button onClick={() => setCurrentScreen(AppScreen.HOME)}><ArrowLeft size={20} className="text-gray-600" /></button>
                   <h1 className="font-bold text-lg">লেনদেনসমূহ</h1>
               </div>
-              <div className="flex-1 overflow-y-auto p-4 pb-[5rem]">
+              <div className="flex-1 overflow-y-auto p-4 pb-20">
                   {transactions.map((txn) => (
                       <div key={txn.id} onClick={() => setSelectedTransaction(txn)} className="flex items-center justify-between p-4 border-b border-gray-50 active:bg-gray-50">
                           <div className="flex items-center gap-3">
