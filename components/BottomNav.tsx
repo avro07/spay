@@ -33,7 +33,7 @@ const BottomNav: React.FC<BottomNavProps> = ({ currentScreen, onNavigate, langua
             if (item.isSpecial) {
                return (
                  <div key={item.id} className="relative flex flex-col items-center justify-end w-[20%] h-full cursor-pointer group pb-1" onClick={() => onNavigate(AppScreen.SCAN)}>
-                    <div className="absolute -top-10 left-1/2 -translate-x-1/2 z-10 transition-transform duration-200 group-active:scale-90">
+                    <div className="absolute -top-4 left-1/2 -translate-x-1/2 z-10 transition-transform duration-200 group-active:scale-90">
                         {/* Glow Effect */}
                         <div className="absolute inset-0 bg-rose-500 blur-xl opacity-20 rounded-full translate-y-2 scale-110"></div>
                         
