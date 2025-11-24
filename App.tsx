@@ -285,17 +285,97 @@ const App: React.FC = () => {
 
   // Simulate scanning a QR code
   const simulateScan = () => {
-    // In a real app, this would be data parsed from the QR code
-    const mockMerchantNumber = "01912345678";
+    // Find a random user/merchant from DB to simulate a real scan
+    // Filter out current user
+    const potentialTargets = MOCK_USERS_DB.filter(u => u.phone !== user.phone);
     
+    // For demo purposes, try to find a merchant to show Payment flow, or fallback to random
+    const merchant = potentialTargets.find(u => u.role === 'MERCHANT');
+    const target = merchant || potentialTargets[Math.floor(Math.random() * potentialTargets.length)];
+    
+    if (!target) return;
+
+    const scannedData = target.qrCode || `SPAY:${target.phone}`;
+    
+    // Check format SPAY:NUMBER
+    let phone = scannedData;
+    if (scannedData.startsWith('SPAY:')) {
+      phone = scannedData.split(':')[1];
+    }
+
+    // Update Form
     setFormData(prev => ({
       ...prev,
-      recipient: mockMerchantNumber
+      recipient: phone,
+      amount: ''
     }));
     
-    // Navigate to Payment screen and skip to amount input
-    setCurrentScreen(AppScreen.PAYMENT);
-    setTransactionStep(2);
+    setRecipientNameDisplay(target.name);
+
+    // Route based on role
+    let nextScreen = AppScreen.SEND_MONEY;
+    if (target.role === 'MERCHANT') {
+       nextScreen = AppScreen.PAYMENT;
+    } else if (target.role === 'AGENT') {
+       nextScreen = AppScreen.CASH_OUT;
+    }
+
+    setCurrentScreen(nextScreen);
+    setTransactionStep(2); // Skip to Amount input
+  };
+
+  // Share QR Function
+  const handleShareQr = async () => {
+    const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=500x500&data=${encodeURIComponent(user.qrCode || user.phone)}`;
+    const shareData = {
+        title: 'SPay QR',
+        text: `আমার SPay নম্বর: ${user.phone}। টাকা পাঠাতে এই QR কোডটি ব্যবহার করুন।`,
+        url: qrUrl
+    };
+
+    if (navigator.share) {
+        try {
+            await navigator.share(shareData);
+        } catch (err) {
+            console.log('Share canceled');
+        }
+    } else {
+        // Fallback
+        try {
+            await navigator.clipboard.writeText(user.phone);
+            alert('নম্বর ক্লিপবোর্ডে কপি করা হয়েছে: ' + user.phone);
+        } catch (e) {
+            alert('শেয়ার করা সম্ভব হচ্ছে না');
+        }
+    }
+  };
+
+  // Save QR Function
+  const handleSaveQr = async () => {
+    try {
+        const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=500x500&data=${encodeURIComponent(user.qrCode || user.phone)}&color=e11d48&bgcolor=fff&format=png`;
+        
+        // Fetch blob
+        const response = await fetch(qrUrl);
+        const blob = await response.blob();
+        
+        // Create object URL
+        const blobUrl = window.URL.createObjectURL(blob);
+        
+        // Create anchor
+        const link = document.createElement('a');
+        link.href = blobUrl;
+        link.download = `SPay_${user.phone}.png`;
+        document.body.appendChild(link);
+        link.click();
+        
+        // Cleanup
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(blobUrl);
+    } catch (error) {
+        console.error("Save QR failed", error);
+        alert("QR কোড সেভ করা যাচ্ছে না। ইন্টারনেট সংযোগ পরীক্ষা করুন।");
+    }
   };
 
   // Helper for operator detection
@@ -462,10 +542,16 @@ const App: React.FC = () => {
               <p className="text-gray-500 font-mono text-sm tracking-wider mb-8">{user.phone}</p>
 
               <div className="flex gap-3 w-full">
-                  <button className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl bg-gray-100 text-gray-700 font-bold text-sm hover:bg-gray-200 transition-colors">
+                  <button 
+                    onClick={handleShareQr}
+                    className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl bg-gray-100 text-gray-700 font-bold text-sm hover:bg-gray-200 transition-colors"
+                  >
                       <Share2 size={18} /> শেয়ার
                   </button>
-                  <button className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl bg-rose-600 text-white font-bold text-sm shadow-lg shadow-rose-200 hover:bg-rose-700 transition-colors">
+                  <button 
+                    onClick={handleSaveQr}
+                    className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl bg-rose-600 text-white font-bold text-sm shadow-lg shadow-rose-200 hover:bg-rose-700 transition-colors"
+                  >
                       <Download size={18} /> সেভ করুন
                   </button>
               </div>
@@ -1000,7 +1086,7 @@ const App: React.FC = () => {
   );
 
   const renderScan = () => (
-      <div className="h-full bg-black flex flex-col relative overflow-hidden">
+      <div className="h-full bg-black flex flex-col relative overflow-hidden" onClick={simulateScan}>
           <video 
              ref={videoRef} 
              autoPlay 
@@ -1009,8 +1095,8 @@ const App: React.FC = () => {
              className="absolute inset-0 w-full h-full object-cover opacity-60"
           />
           
-          <div className="relative z-10 flex-1 flex flex-col">
-              <div className="p-4 flex justify-between items-center">
+          <div className="relative z-10 flex-1 flex flex-col pointer-events-none">
+              <div className="p-4 flex justify-between items-center pointer-events-auto">
                   <button onClick={() => setCurrentScreen(AppScreen.HOME)} className="p-2 bg-white/20 backdrop-blur rounded-full text-white">
                       <X size={20} />
                   </button>
@@ -1033,10 +1119,14 @@ const App: React.FC = () => {
                   </div>
               </div>
 
-              <div className="p-8 text-center pb-24">
-                   <p className="text-white/80 text-sm mb-6">মার্চেন্ট বা পার্সোনাল QR কোড স্ক্যান করুন</p>
+              <div className="p-8 text-center pb-24 pointer-events-auto">
+                   <p className="text-white/80 text-sm mb-2">মার্চেন্ট বা পার্সোনাল QR কোড স্ক্যান করুন</p>
+                   <p className="text-rose-400 font-bold text-xs animate-pulse mb-6">(স্ক্যান করতে স্ক্রিনে ট্যাপ করুন)</p>
                    <button 
-                      onClick={simulateScan}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        simulateScan();
+                      }}
                       className="bg-white text-black px-6 py-3 rounded-full font-bold text-sm shadow-lg active:scale-95 transition-transform"
                    >
                       গ্যালারি থেকে নিন
