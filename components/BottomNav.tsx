@@ -25,7 +25,7 @@ const BottomNav: React.FC<BottomNavProps> = ({ currentScreen, onNavigate, langua
     <div className="absolute bottom-0 left-0 w-full z-50 pointer-events-none">
       {/* Background Container - Docked Bottom Style with Safe Area Padding */}
       <div className="pointer-events-auto w-full bg-white border-t border-gray-100 shadow-[0_-10px_30px_rgba(0,0,0,0.05)] rounded-t-[30px] relative pb-[env(safe-area-inset-bottom)]">
-        <div className="flex justify-between items-end px-6 h-[68px] pb-2">
+        <div className="flex justify-between items-end px-6 h-[60px] pb-1">
           {navItems.map((item) => {
             const isActive = currentScreen === item.id;
             
@@ -33,7 +33,7 @@ const BottomNav: React.FC<BottomNavProps> = ({ currentScreen, onNavigate, langua
             if (item.isSpecial) {
                return (
                  <div key={item.id} className="relative flex flex-col items-center justify-end w-[20%] h-full cursor-pointer group pb-1" onClick={() => onNavigate(AppScreen.SCAN)}>
-                    <div className="absolute -top-4 left-1/2 -translate-x-1/2 z-10 transition-transform duration-200 group-active:scale-90">
+                    <div className="absolute -top-6 left-1/2 -translate-x-1/2 z-10 transition-transform duration-200 group-active:scale-90">
                         {/* Glow Effect */}
                         <div className="absolute inset-0 bg-rose-500 blur-xl opacity-20 rounded-full translate-y-2 scale-110"></div>
                         
@@ -44,7 +44,7 @@ const BottomNav: React.FC<BottomNavProps> = ({ currentScreen, onNavigate, langua
                              </div>
                         </div>
                     </div>
-                    <span className="text-[10px] font-bold text-gray-500 mt-9 leading-none group-hover:text-rose-600 transition-colors">
+                    <span className="text-[10px] font-bold text-gray-500 mt-7 leading-none group-hover:text-rose-600 transition-colors">
                       {item.label}
                     </span>
                  </div>

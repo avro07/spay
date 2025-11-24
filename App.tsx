@@ -1,5 +1,4 @@
 
-
 import React, { useState, useEffect, useRef } from 'react';
 import { ArrowLeft, ChevronRight, ArrowUpRight, CreditCard, Wallet, X, Bell, Shield, Settings as SettingsIcon, FileText, Landmark, ShoppingBag, Utensils, LogOut, Lock, User as UserIcon, Phone, Eye, EyeOff, QrCode as QrCodeIcon, Signal, Globe, UserCog, Contact as ContactIcon, ArrowRightLeft, Zap, Flame, Droplet, Tv, ShieldCheck, Car, MoreHorizontal, ScrollText, BarChart3, ScanLine, ArrowRight, Loader2, CheckCircle, Share2, Check, User, Send, Smartphone, Download } from 'lucide-react';
 import BalanceHeader from './components/BalanceHeader';
@@ -702,7 +701,7 @@ const App: React.FC = () => {
   );
 
   const renderHome = () => (
-    <div className="pb-[calc(5.5rem+env(safe-area-inset-bottom))] animate-in fade-in duration-500 relative min-h-full">
+    <div className="pb-[calc(5rem+env(safe-area-inset-bottom))] animate-in fade-in duration-500 relative min-h-full">
       {/* Background Ambient Blobs for Glass Effect */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
           <div className="absolute top-[20%] left-[-10%] w-72 h-72 bg-purple-200/40 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob"></div>
@@ -1066,7 +1065,7 @@ const App: React.FC = () => {
                   <button onClick={() => setCurrentScreen(AppScreen.HOME)}><ArrowLeft size={20} className="text-gray-600" /></button>
                   <h1 className="font-bold text-lg">লেনদেনসমূহ</h1>
               </div>
-              <div className="flex-1 overflow-y-auto p-4 pb-[5.5rem]">
+              <div className="flex-1 overflow-y-auto p-4 pb-[5rem]">
                   {transactions.map((txn) => (
                       <div key={txn.id} onClick={() => setSelectedTransaction(txn)} className="flex items-center justify-between p-4 border-b border-gray-50 active:bg-gray-50">
                           <div className="flex items-center gap-3">
