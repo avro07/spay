@@ -3,19 +3,21 @@
   "short_name": "SPay",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#f3f4f6",
+  "background_color": "#ffffff",
   "theme_color": "#e11d48",
   "orientation": "portrait",
   "icons": [
     {
       "src": "https://c.beoo.net/Files/3.jpg",
       "sizes": "192x192",
-      "type": "image/jpeg"
+      "type": "image/jpeg",
+      "purpose": "any"
     },
     {
       "src": "https://c.beoo.net/Files/3.jpg",
       "sizes": "512x512",
-      "type": "image/jpeg"
+      "type": "image/jpeg",
+      "purpose": "any"
     }
   ]
 }
