@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { ArrowLeft, ChevronRight, ArrowUpRight, CreditCard, Wallet, X, Bell, Shield, Settings as SettingsIcon, FileText, Landmark, ShoppingBag, Utensils, LogOut, Lock, User as UserIcon, Phone, Eye, EyeOff, QrCode as QrCodeIcon, Signal, Globe, UserCog, Contact as ContactIcon, ArrowRightLeft, Zap, Flame, Droplet, Tv, ShieldCheck, Car, MoreHorizontal, ScrollText, BarChart3, ScanLine, ArrowRight } from 'lucide-react';
 import BalanceHeader from './components/BalanceHeader';
@@ -427,8 +426,8 @@ const App: React.FC = () => {
   const renderLogin = () => (
     <div className="flex flex-col min-h-full bg-gradient-to-br from-rose-600 to-pink-700 animate-in fade-in overflow-hidden relative">
         <div className="h-[35vh] flex flex-col items-center justify-end pb-8 text-white shrink-0">
-            <div className="w-20 h-20 bg-white/20 backdrop-blur-xl rounded-3xl flex items-center justify-center mb-5 shadow-2xl shadow-rose-900/30 border border-white/30">
-                 <span className="text-3xl font-bold tracking-tighter italic">SPay</span>
+            <div className="w-24 h-24 bg-white rounded-3xl flex items-center justify-center mb-6 shadow-2xl shadow-rose-900/30 border border-white/50 p-1">
+                 <img src="https://c.beoo.net/Files/3.jpg" alt="Logo" className="w-full h-full object-contain rounded-2xl" />
             </div>
             <h1 className="text-2xl font-bold mb-1">{isAdminMode ? 'অ্যাডমিন প্যানেল' : 'স্বাগতম!'}</h1>
             <p className="text-rose-100 text-xs">{isAdminMode ? 'সিস্টেম কন্ট্রোল সেন্টার' : 'আপনার নিরাপদ লেনদেনের সাথী'}</p>
@@ -772,8 +771,8 @@ const App: React.FC = () => {
           </button>
           <h1 className="text-lg font-bold">Pay Bill</h1>
         </div>
-        <div className="w-8 h-8 rounded-full bg-white/20 backdrop-blur-sm p-1">
-             <img src="https://c.beoo.net/Files/1.jpg" alt="Logo" className="w-full h-full rounded-full object-cover" />
+        <div className="w-9 h-9 rounded-full bg-white p-0.5 border border-rose-400 overflow-hidden">
+             <img src="https://c.beoo.net/Files/3.jpg" alt="Logo" className="w-full h-full object-contain rounded-full" />
         </div>
       </div>
 
