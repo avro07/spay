@@ -425,8 +425,8 @@ const App: React.FC = () => {
   // --- RENDER HELPERS ---
 
   const renderLogin = () => (
-    <div className="flex flex-col h-screen bg-gradient-to-br from-rose-600 to-pink-700 animate-in fade-in overflow-hidden relative">
-        <div className="h-[35vh] flex flex-col items-center justify-end pb-8 text-white">
+    <div className="flex flex-col min-h-full bg-gradient-to-br from-rose-600 to-pink-700 animate-in fade-in overflow-hidden relative">
+        <div className="h-[35vh] flex flex-col items-center justify-end pb-8 text-white shrink-0">
             <div className="w-20 h-20 bg-white/20 backdrop-blur-xl rounded-3xl flex items-center justify-center mb-5 shadow-2xl shadow-rose-900/30 border border-white/30">
                  <span className="text-3xl font-bold tracking-tighter italic">SPay</span>
             </div>
@@ -564,8 +564,8 @@ const App: React.FC = () => {
   );
 
   const renderRegister = () => (
-    <div className="flex flex-col h-screen bg-white animate-in slide-in-from-right duration-300">
-        <div className="bg-rose-600 px-5 pt-10 pb-6 rounded-b-[30px] shadow-lg relative z-10">
+    <div className="flex flex-col min-h-full bg-white animate-in slide-in-from-right duration-300">
+        <div className="bg-rose-600 px-5 pt-10 pb-6 rounded-b-[30px] shadow-lg relative z-10 shrink-0">
             <button onClick={() => setCurrentScreen(AppScreen.LOGIN)} className="absolute top-10 left-4 p-2 bg-white/20 rounded-full text-white backdrop-blur-md">
                 <ArrowLeft size={18} />
             </button>
@@ -574,7 +574,6 @@ const App: React.FC = () => {
         </div>
 
         <div className="flex-1 overflow-y-auto p-5 pb-[calc(1.5rem+env(safe-area-inset-bottom))] space-y-4">
-            {/* ... Register fields same as before ... */}
              <div>
                 <label className="block text-xs font-bold text-gray-700 mb-1.5 ml-1">আপনার নাম</label>
                 <div className="relative">
@@ -652,9 +651,9 @@ const App: React.FC = () => {
   );
 
   const renderHome = () => (
-    <div className="pb-[calc(7rem+env(safe-area-inset-bottom))] animate-in fade-in duration-500 relative min-h-screen">
+    <div className="pb-[calc(7rem+env(safe-area-inset-bottom))] animate-in fade-in duration-500 relative min-h-full">
       {/* Background Ambient Blobs for Glass Effect */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
+      <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
           <div className="absolute top-[20%] left-[-10%] w-72 h-72 bg-purple-200/40 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob"></div>
           <div className="absolute top-[40%] right-[-10%] w-72 h-72 bg-yellow-200/40 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob animation-delay-2000"></div>
           <div className="absolute bottom-[20%] left-[20%] w-72 h-72 bg-pink-200/40 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob animation-delay-4000"></div>
@@ -727,7 +726,7 @@ const App: React.FC = () => {
   );
 
   const renderOffers = () => (
-    <div className="flex flex-col min-h-screen bg-gray-50 animate-in fade-in slide-in-from-right duration-300">
+    <div className="flex flex-col min-h-full bg-gray-50 animate-in fade-in slide-in-from-right duration-300">
        {/* Header */}
        <div className="bg-white px-4 pb-3 pt-[calc(env(safe-area-inset-top)+1rem)] flex items-center shadow-sm sticky top-0 z-20">
           <button onClick={() => setCurrentScreen(AppScreen.HOME)} className="p-2 hover:bg-gray-100 rounded-full mr-2 -ml-2 transition-colors">
@@ -744,7 +743,6 @@ const App: React.FC = () => {
              onClick={() => { setCurrentScreen(AppScreen.MOBILE_RECHARGE); setTransactionStep(1); }}
              className="relative overflow-hidden bg-gradient-to-r from-violet-600 to-fuchsia-600 rounded-2xl p-4 shadow-lg shadow-violet-200 group cursor-pointer transition-transform active:scale-[0.98]"
           >
-              {/* ... Offer Banner Content ... */}
                <div className="absolute top-0 right-0 w-32 h-32 bg-white opacity-10 rounded-full -mr-10 -mt-10 blur-2xl"></div>
               <div className="absolute bottom-0 left-0 w-24 h-24 bg-yellow-400 opacity-20 rounded-full -ml-10 -mb-10 blur-xl"></div>
               
@@ -765,7 +763,7 @@ const App: React.FC = () => {
   );
 
   const renderPayBillDashboard = () => (
-    <div className="flex flex-col min-h-screen bg-gray-50 animate-in slide-in-from-right duration-300">
+    <div className="flex flex-col min-h-full bg-gray-50 animate-in slide-in-from-right duration-300">
       {/* Header */}
       <div className="bg-rose-600 px-4 pt-[calc(env(safe-area-inset-top)+1rem)] pb-4 text-white sticky top-0 z-20 shadow-md flex justify-between items-center">
         <div className="flex items-center gap-3">
@@ -779,7 +777,7 @@ const App: React.FC = () => {
         </div>
       </div>
 
-      <div className="p-4 space-y-4 pb-[calc(2rem+env(safe-area-inset-bottom))]">
+      <div className="p-4 space-y-4 pb-[calc(7rem+env(safe-area-inset-bottom))]">
         {/* Search */}
         <div className="bg-white rounded-lg p-3 shadow-sm border border-gray-100">
             <p className="text-xs text-gray-500 mb-2 font-medium">Search Organization</p>
@@ -863,7 +861,7 @@ const App: React.FC = () => {
     // Flow logic remains same
     const config = getScreenConfig();
     return (
-    <div className="flex flex-col min-h-screen bg-gray-50 animate-in slide-in-from-right duration-300">
+    <div className="flex flex-col min-h-full bg-gray-50 animate-in slide-in-from-right duration-300">
       <div className="bg-white px-4 pb-3 pt-[calc(env(safe-area-inset-top)+1rem)] flex items-center justify-between shadow-sm sticky top-0 z-20">
         <div className="flex items-center">
             <button onClick={handleBack} className="p-2 hover:bg-gray-100 rounded-full mr-2 -ml-2 transition-colors">
@@ -1152,7 +1150,7 @@ const App: React.FC = () => {
   const renderSuccess = () => {
      const config = getScreenConfig();
      return (
-     <div className="flex flex-col items-center justify-center min-h-screen bg-white p-6 pb-[calc(2rem+env(safe-area-inset-bottom))] animate-in zoom-in duration-500">
+     <div className="flex flex-col items-center justify-center min-h-full bg-white p-6 pb-[calc(2rem+env(safe-area-inset-bottom))] animate-in zoom-in duration-500">
         <div className="relative mb-6">
             <div className="absolute inset-0 bg-emerald-200 rounded-full blur-xl opacity-50 animate-pulse"></div>
             <div className="w-24 h-24 bg-gradient-to-br from-emerald-400 to-emerald-600 rounded-full flex items-center justify-center shadow-2xl shadow-emerald-200 relative z-10">
@@ -1190,7 +1188,7 @@ const App: React.FC = () => {
   )};
 
   const renderTransactions = () => (
-    <div className="flex flex-col min-h-screen bg-[#f8f9fa] animate-in fade-in relative overflow-hidden">
+    <div className="flex flex-col min-h-full bg-[#f8f9fa] animate-in fade-in relative overflow-hidden">
       {/* Decorative Background Elements */}
       <div className="absolute top-[-10%] right-[-10%] w-[50%] h-[30%] bg-purple-200/30 rounded-full blur-[80px] pointer-events-none"></div>
       <div className="absolute bottom-[10%] left-[-10%] w-[50%] h-[30%] bg-rose-200/30 rounded-full blur-[80px] pointer-events-none"></div>
@@ -1244,7 +1242,7 @@ const App: React.FC = () => {
   );
 
   const renderScan = () => (
-    <div className="flex flex-col h-screen bg-black text-white relative animate-in fade-in">
+    <div className="flex flex-col h-full bg-black text-white relative animate-in fade-in">
       {/* Header */}
       <div className="absolute top-0 left-0 right-0 pt-[calc(env(safe-area-inset-top)+1rem)] px-4 pb-4 z-20 flex justify-between items-center bg-gradient-to-b from-black/80 to-transparent">
          <button onClick={() => setCurrentScreen(AppScreen.HOME)} className="p-2 bg-white/20 rounded-full backdrop-blur-md active:scale-95 transition-transform">
@@ -1293,7 +1291,7 @@ const App: React.FC = () => {
   );
 
   const renderSettings = () => (
-     <div className="flex flex-col min-h-screen bg-gray-50 animate-in slide-in-from-right duration-300">
+     <div className="flex flex-col min-h-full bg-gray-50 animate-in slide-in-from-right duration-300">
         <div className="bg-white px-4 pb-3 pt-[calc(env(safe-area-inset-top)+1rem)] flex items-center shadow-sm sticky top-0 z-20">
           <button onClick={() => setCurrentScreen(AppScreen.HOME)} className="p-2 hover:bg-gray-100 rounded-full mr-2 -ml-2 transition-colors">
             <ArrowLeft className="text-gray-700 w-5 h-5" />
@@ -1402,36 +1400,47 @@ const App: React.FC = () => {
      </div>
   );
 
-  return (
-    <div className="mx-auto max-w-md bg-white min-h-screen shadow-2xl overflow-hidden relative font-sans">
-      {currentScreen === AppScreen.LOGIN && renderLogin()}
-      {currentScreen === AppScreen.REGISTER && renderRegister()}
-      {currentScreen === AppScreen.HOME && renderHome()}
-      {currentScreen === AppScreen.TRANSACTIONS && renderTransactions()}
-      {currentScreen === AppScreen.OFFERS && renderOffers()}
-      {currentScreen === AppScreen.ADMIN_DASHBOARD && <AdminDashboard transactions={transactions} onLogout={handleLogout} />}
-      {currentScreen === AppScreen.SCAN && renderScan()}
-      {currentScreen === AppScreen.SETTINGS && renderSettings()}
-      
-      {/* Transaction Flows */}
-      {(currentScreen === AppScreen.SEND_MONEY || 
-        currentScreen === AppScreen.CASH_OUT || 
-        currentScreen === AppScreen.MOBILE_RECHARGE || 
-        currentScreen === AppScreen.PAYMENT || 
-        currentScreen === AppScreen.ADD_MONEY || 
-        currentScreen === AppScreen.PAY_BILL || 
-        currentScreen === AppScreen.TRANSFER_TO_BANK ||
-        currentScreen === AppScreen.MFS_TRANSFER ||
-        currentScreen === AppScreen.SUCCESS) && (
-          // Logic for step 0 vs step 1
-          currentScreen === AppScreen.PAY_BILL && transactionStep === 0 
-             ? renderPayBillDashboard() 
-             : currentScreen === AppScreen.SUCCESS 
-                ? renderSuccess() 
-                : renderTransactionFlow()
-      )}
+  const isFullScreen = currentScreen === AppScreen.ADMIN_DASHBOARD;
 
-      {/* Numeric Keypad Overlay */}
+  return (
+    <div className={`mx-auto bg-white h-full shadow-2xl overflow-hidden relative font-sans flex flex-col ${isFullScreen ? 'w-full max-w-none' : 'w-full sm:max-w-md'}`}>
+      {/* Scrollable Content Area */}
+      <div className={`flex-1 relative w-full ${isFullScreen ? 'overflow-hidden flex flex-col' : 'overflow-y-auto overflow-x-hidden scrollbar-hide'}`}>
+          {currentScreen === AppScreen.LOGIN && renderLogin()}
+          {currentScreen === AppScreen.REGISTER && renderRegister()}
+          {currentScreen === AppScreen.HOME && renderHome()}
+          {currentScreen === AppScreen.TRANSACTIONS && renderTransactions()}
+          {currentScreen === AppScreen.OFFERS && renderOffers()}
+          
+          {/* Admin Dashboard is rendered here, occupying full height/width of this container */}
+          {currentScreen === AppScreen.ADMIN_DASHBOARD && <AdminDashboard transactions={transactions} onLogout={handleLogout} />}
+          
+          {currentScreen === AppScreen.SCAN && renderScan()}
+          {currentScreen === AppScreen.SETTINGS && renderSettings()}
+          
+          {(currentScreen === AppScreen.SEND_MONEY || 
+            currentScreen === AppScreen.CASH_OUT || 
+            currentScreen === AppScreen.MOBILE_RECHARGE || 
+            currentScreen === AppScreen.PAYMENT || 
+            currentScreen === AppScreen.ADD_MONEY || 
+            currentScreen === AppScreen.PAY_BILL || 
+            currentScreen === AppScreen.TRANSFER_TO_BANK ||
+            currentScreen === AppScreen.MFS_TRANSFER ||
+            currentScreen === AppScreen.SUCCESS) && (
+              currentScreen === AppScreen.PAY_BILL && transactionStep === 0 
+                 ? renderPayBillDashboard() 
+                 : currentScreen === AppScreen.SUCCESS 
+                    ? renderSuccess() 
+                    : renderTransactionFlow()
+          )}
+
+          {/* Spacer for Bottom Nav to prevent content being hidden behind it */}
+          {[AppScreen.HOME, AppScreen.TRANSACTIONS, AppScreen.OFFERS, AppScreen.SCAN, AppScreen.AI_CHAT].includes(currentScreen) && (
+              <div className="h-24"></div>
+          )}
+      </div>
+
+      {/* Fixed Overlays (Keypad, Modals) */}
       {activeInput && (
         <NumericKeypad 
            onPress={handleKeypadPress} 
@@ -1440,7 +1449,6 @@ const App: React.FC = () => {
         />
       )}
       
-      {/* Transaction Details Modal */}
       {selectedTransaction && (
           <TransactionDetails 
               transaction={selectedTransaction} 
@@ -1449,12 +1457,11 @@ const App: React.FC = () => {
           />
       )}
 
-      {/* Bottom Nav only on specific screens */}
+      {/* Bottom Navigation - Fixed outside scroll view */}
       {[AppScreen.HOME, AppScreen.TRANSACTIONS, AppScreen.OFFERS, AppScreen.SCAN, AppScreen.AI_CHAT].includes(currentScreen) && (
         <BottomNav currentScreen={currentScreen} onNavigate={handleNavigation} language={language} />
       )}
       
-      {/* AI Assistant Modal */}
       {currentScreen === AppScreen.AI_CHAT && (
          <AIAssistant user={user} transactions={transactions} onClose={() => setCurrentScreen(AppScreen.HOME)} />
       )}

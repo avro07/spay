@@ -51,7 +51,10 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ transactions, onLogout 
     
     if (editingUser) {
         // Update existing
-        setUsers(users.map(u => u.id === editingUser.id ? { ...u, ...formData, type } as User : u));
+        setUsers(users.map(u => u.id === editingUser.id ? { ...u, type } as User : u));
+        // Note: For a real app, merging logic would be more complex
+        // Here we just update the specific user in the array with new data
+        setUsers(prev => prev.map(u => u.id === editingUser.id ? { ...u, ...formData, type } as User : u));
     } else {
         // Create new
         const newUser: User = {
@@ -111,7 +114,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ transactions, onLogout 
   );
 
   return (
-    <div className="flex h-screen bg-slate-50 text-slate-800 font-sans">
+    <div className="flex h-full bg-slate-50 text-slate-800 font-sans">
       {/* Sidebar */}
       <div className="w-64 bg-slate-900 text-white flex flex-col hidden md:flex">
         <div className="p-6 border-b border-slate-800">
