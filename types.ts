@@ -2,7 +2,7 @@
 
 export interface Transaction {
   id: string;
-  type: 'SEND_MONEY' | 'CASH_OUT' | 'MOBILE_RECHARGE' | 'PAYMENT' | 'ADD_MONEY' | 'RECEIVED_MONEY' | 'REQUEST_MONEY' | 'PAY_BILL' | 'TRANSFER_TO_BANK';
+  type: 'SEND_MONEY' | 'CASH_OUT' | 'MOBILE_RECHARGE' | 'PAYMENT' | 'ADD_MONEY' | 'RECEIVED_MONEY' | 'MFS_TRANSFER' | 'PAY_BILL' | 'TRANSFER_TO_BANK';
   amount: number;
   recipient?: string;
   recipientName?: string;
@@ -10,6 +10,7 @@ export interface Transaction {
   icon?: string;
   description?: string;
   fee?: number;
+  mfsProvider?: string;
 }
 
 export type UserRole = 'CUSTOMER' | 'AGENT' | 'MERCHANT' | 'DISTRIBUTOR' | 'ADMIN';
@@ -21,8 +22,8 @@ export interface User {
   balance: number;
   avatarUrl: string;
   status?: 'active' | 'blocked';
-  role?: UserRole; // Updated from 'type' to 'role' for better clarity, though keeping backward compat if needed
-  type?: 'user' | 'agent'; // Deprecated but kept for compatibility
+  role?: UserRole;
+  type?: 'user' | 'agent';
 }
 
 export interface Contact {
@@ -41,7 +42,7 @@ export enum AppScreen {
   MOBILE_RECHARGE = 'MOBILE_RECHARGE',
   PAYMENT = 'PAYMENT',
   ADD_MONEY = 'ADD_MONEY',
-  REQUEST_MONEY = 'REQUEST_MONEY',
+  MFS_TRANSFER = 'MFS_TRANSFER',
   PAY_BILL = 'PAY_BILL',
   TRANSFER_TO_BANK = 'TRANSFER_TO_BANK',
   TRANSACTIONS = 'TRANSACTIONS',
@@ -57,9 +58,10 @@ export type Language = 'bn' | 'en';
 
 export interface SendMoneyFormData {
   recipient: string;
-  amount: string; // String to handle input parsing
+  amount: string; 
   reference: string;
   pin: string;
+  mfsProvider?: string;
 }
 
 export interface NotificationPreferences {

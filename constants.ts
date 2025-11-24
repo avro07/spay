@@ -1,6 +1,7 @@
 
+
 import { Transaction, User, Contact } from './types';
-import { Send, Download, Smartphone, ShoppingBag, PlusCircle, ArrowDownLeft, FileText, Landmark } from 'lucide-react';
+import { Send, Download, Smartphone, ShoppingBag, PlusCircle, ArrowRightLeft, FileText, Landmark } from 'lucide-react';
 
 export const INITIAL_USER: User = {
   id: '1',
@@ -54,7 +55,7 @@ export const TRANSLATIONS = {
     act_addmoney: 'অ্যাড মানি',
     act_paybill: 'পে বিল',
     act_tobank: 'SPay টু ব্যাংক',
-    act_reqmoney: 'রিকোয়েস্ট মানি',
+    act_mfs: 'MFS',
     
     // Sections
     recent_transactions: 'সাম্প্রতিক লেনদেন',
@@ -95,7 +96,7 @@ export const TRANSLATIONS = {
     act_addmoney: 'Add Money',
     act_paybill: 'Pay Bill',
     act_tobank: 'To Bank',
-    act_reqmoney: 'Request Money',
+    act_mfs: 'MFS',
     
     // Sections
     recent_transactions: 'Recent Transactions',
@@ -161,5 +162,5 @@ export const QUICK_ACTIONS = [
   { id: 'addmoney', key: 'act_addmoney', label: 'অ্যাড মানি', icon: PlusCircle, color: 'text-rose-400' },
   { id: 'paybill', key: 'act_paybill', label: 'পে বিল', icon: FileText, color: 'text-teal-500' },
   { id: 'tobank', key: 'act_tobank', label: 'SPay টু ব্যাংক', icon: Landmark, color: 'text-indigo-500' },
-  { id: 'reqmoney', key: 'act_reqmoney', label: 'রিকোয়েস্ট মানি', icon: ArrowDownLeft, color: 'text-orange-500' },
+  { id: 'mfs', key: 'act_mfs', label: 'MFS', icon: ArrowRightLeft, color: 'text-pink-600' },
 ];

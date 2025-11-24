@@ -1,4 +1,5 @@
 
+
 import React from 'react';
 import { QUICK_ACTIONS, TRANSLATIONS } from '../constants';
 import { AppScreen, Language } from '../types';
@@ -28,7 +29,7 @@ const ActionGrid: React.FC<ActionGridProps> = ({ onNavigate, language }) => {
                   case 'addmoney': onNavigate(AppScreen.ADD_MONEY); break;
                   case 'paybill': onNavigate(AppScreen.PAY_BILL); break;
                   case 'tobank': onNavigate(AppScreen.TRANSFER_TO_BANK); break;
-                  case 'reqmoney': onNavigate(AppScreen.REQUEST_MONEY); break;
+                  case 'mfs': onNavigate(AppScreen.MFS_TRANSFER); break;
                 }
               }}
               className="flex flex-col items-center space-y-1.5 group"

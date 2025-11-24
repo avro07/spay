@@ -1,6 +1,7 @@
 
+
 import React, { useState, useEffect, useRef } from 'react';
-import { ArrowLeft, ChevronRight, ArrowUpRight, CreditCard, Wallet, X, Bell, Shield, Settings as SettingsIcon, FileText, Landmark, ShoppingBag, Utensils, LogOut, Lock, User as UserIcon, Phone, Eye, EyeOff, QrCode as QrCodeIcon, Signal, Globe, UserCog, Contact as ContactIcon } from 'lucide-react';
+import { ArrowLeft, ChevronRight, ArrowUpRight, CreditCard, Wallet, X, Bell, Shield, Settings as SettingsIcon, FileText, Landmark, ShoppingBag, Utensils, LogOut, Lock, User as UserIcon, Phone, Eye, EyeOff, QrCode as QrCodeIcon, Signal, Globe, UserCog, Contact as ContactIcon, ArrowRightLeft } from 'lucide-react';
 import BalanceHeader from './components/BalanceHeader';
 import ActionGrid from './components/ActionGrid';
 import BottomNav from './components/BottomNav';
@@ -55,7 +56,8 @@ const App: React.FC = () => {
     recipient: '',
     amount: '',
     reference: '',
-    pin: ''
+    pin: '',
+    mfsProvider: 'Bkash'
   });
   
   // Derived state for recipient name lookup
@@ -117,7 +119,7 @@ const App: React.FC = () => {
       case AppScreen.MOBILE_RECHARGE:
       case AppScreen.PAYMENT:
       case AppScreen.ADD_MONEY:
-      case AppScreen.REQUEST_MONEY:
+      case AppScreen.MFS_TRANSFER:
       case AppScreen.PAY_BILL:
       case AppScreen.TRANSFER_TO_BANK:
       case AppScreen.OFFERS:
@@ -254,7 +256,7 @@ const App: React.FC = () => {
   const handleLogout = () => {
     setCurrentScreen(AppScreen.LOGIN);
     setTransactionStep(1);
-    setFormData({ recipient: '', amount: '', reference: '', pin: '' });
+    setFormData({ recipient: '', amount: '', reference: '', pin: '', mfsProvider: 'Bkash' });
   };
 
   const handleNotificationClick = () => {
@@ -316,8 +318,8 @@ const App: React.FC = () => {
         return { title: 'পে বিল', label: 'বিল নম্বর/অ্যাকাউন্ট', type: 'PAY_BILL' as const, operatorPrefix: false };
       case AppScreen.TRANSFER_TO_BANK:
         return { title: 'SPay টু ব্যাংক', label: 'ব্যাংক অ্যাকাউন্ট নম্বর', type: 'TRANSFER_TO_BANK' as const, operatorPrefix: false };
-      case AppScreen.REQUEST_MONEY:
-        return { title: 'রিকোয়েস্ট মানি', label: 'প্রাপক নম্বর', type: 'REQUEST_MONEY' as const, operatorPrefix: true };
+      case AppScreen.MFS_TRANSFER:
+        return { title: 'MFS ট্রান্সফার', label: 'প্রাপক নম্বর', type: 'MFS_TRANSFER' as const, operatorPrefix: true };
       default:
         return { title: 'লেনদেন', label: 'প্রাপক', type: 'SEND_MONEY' as const, operatorPrefix: true };
     }
@@ -331,7 +333,7 @@ const App: React.FC = () => {
     } else {
       setCurrentScreen(AppScreen.HOME);
       setTransactionStep(1);
-      setFormData({ recipient: '', amount: '', reference: '', pin: '' });
+      setFormData({ recipient: '', amount: '', reference: '', pin: '', mfsProvider: 'Bkash' });
       setRecipientNameDisplay('');
     }
   };
@@ -360,15 +362,10 @@ const App: React.FC = () => {
     let fee = 0;
     
     // CASH OUT LOGIC: 1% Total Fee
-    // Agent: 0.30%
-    // Distributor: 0.05%
-    // Admin: Remainder (0.65%)
     if (config.type === 'CASH_OUT') {
         fee = amount * 0.01;
         finalAmountToDeduct = amount + fee;
 
-        // In a real backend, we would update the agent and distributor balances here.
-        // For simulation, we can console log the distribution.
         const agentCommission = amount * 0.0030;
         const distributorCommission = amount * 0.0005;
         const adminCommission = fee - (agentCommission + distributorCommission);
@@ -379,10 +376,16 @@ const App: React.FC = () => {
         console.log(`- Distributor Gets (0.05%): ${distributorCommission}`);
         console.log(`- Admin Gets (Remainder): ${adminCommission}`);
     }
+
+    // MFS TRANSFER LOGIC: 0.85% Fee
+    if (config.type === 'MFS_TRANSFER') {
+        fee = amount * 0.0085; // 0.85%
+        finalAmountToDeduct = amount + fee;
+    }
     
     // Balance check for debit transactions
-    if (config.type !== 'ADD_MONEY' && config.type !== 'REQUEST_MONEY' && finalAmountToDeduct > user.balance) {
-       alert(`অপর্যাপ্ত ব্যালেন্স। চার্জ সহ প্রয়োজন ৳${finalAmountToDeduct}`);
+    if (config.type !== 'ADD_MONEY' && finalAmountToDeduct > user.balance) {
+       alert(`অপর্যাপ্ত ব্যালেন্স। চার্জ সহ প্রয়োজন ৳${finalAmountToDeduct.toFixed(2)}`);
        return;
     }
 
@@ -392,8 +395,9 @@ const App: React.FC = () => {
       amount: amount,
       recipientName: recipientNameDisplay || formData.recipient,
       date: 'এইমাত্র',
-      description: formData.reference || config.title,
-      fee: fee > 0 ? fee : undefined
+      description: config.type === 'MFS_TRANSFER' ? `${formData.mfsProvider} ট্রান্সফার` : (formData.reference || config.title),
+      fee: fee > 0 ? fee : undefined,
+      mfsProvider: formData.mfsProvider
     };
 
     setTransactions([newTxn, ...transactions]);
@@ -401,7 +405,7 @@ const App: React.FC = () => {
     // Update balance
     if (config.type === 'ADD_MONEY') {
         setUser(prev => ({ ...prev, balance: prev.balance + amount }));
-    } else if (config.type !== 'REQUEST_MONEY') {
+    } else {
         // Deduct amount + fee
         setUser(prev => ({ ...prev, balance: prev.balance - finalAmountToDeduct }));
     }
@@ -693,7 +697,7 @@ const App: React.FC = () => {
                         {txn.type === 'PAYMENT' && <CreditCard size={20} />}
                         {txn.type === 'PAY_BILL' && <FileText size={20} />}
                         {txn.type === 'TRANSFER_TO_BANK' && <Landmark size={20} />}
-                        {txn.type === 'REQUEST_MONEY' && <ArrowUpRight size={20} className="rotate-180 text-orange-500" />}
+                        {txn.type === 'MFS_TRANSFER' && <ArrowRightLeft size={20} className="text-pink-600" />}
                     </div>
                     <div>
                         <p className="text-xs font-bold text-gray-800 line-clamp-1 group-hover:text-rose-600 transition-colors">{txn.recipientName}</p>
@@ -823,6 +827,30 @@ const App: React.FC = () => {
          <div className="bg-white p-5 rounded-3xl shadow-[0_10px_40px_-15px_rgba(0,0,0,0.05)] border border-gray-100">
            {transactionStep === 1 && (
              <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+               
+               {/* MFS Provider Selection */}
+               {config.type === 'MFS_TRANSFER' && (
+                 <div className="mb-6">
+                   <label className="block text-xs font-semibold text-gray-600 mb-2">সার্ভিস সিলেক্ট করুন</label>
+                   <div className="grid grid-cols-3 gap-3">
+                     {['Bkash', 'Nagad', 'Rocket'].map(provider => (
+                        <button 
+                          key={provider}
+                          onClick={() => setFormData({...formData, mfsProvider: provider})}
+                          className={`p-3 rounded-xl border flex flex-col items-center gap-2 transition-all ${formData.mfsProvider === provider ? 'border-rose-600 bg-rose-50 text-rose-600 ring-1 ring-rose-600' : 'border-gray-200 bg-white text-gray-500 hover:bg-gray-50'}`}
+                        >
+                           <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-[10px] text-white shadow-sm
+                             ${provider === 'Bkash' ? 'bg-[#e2136e]' : provider === 'Nagad' ? 'bg-[#f6921e]' : 'bg-[#8c3494]'}
+                           `}>
+                              {provider[0]}
+                           </div>
+                           <span className="text-xs font-bold">{provider}</span>
+                        </button>
+                     ))}
+                   </div>
+                 </div>
+               )}
+
                <label className="block text-xs font-semibold text-gray-600 mb-2">{config.label}</label>
                <div className="relative">
                  <input 
@@ -876,7 +904,7 @@ const App: React.FC = () => {
                )}
 
                 {/* Contacts Section */}
-                {['SEND_MONEY', 'CASH_OUT', 'PAYMENT', 'REQUEST_MONEY'].includes(config.type) && (
+                {['SEND_MONEY', 'CASH_OUT', 'PAYMENT', 'MFS_TRANSFER'].includes(config.type) && (
                    <div className="mt-6">
                        <h3 className="text-xs font-bold text-gray-400 mb-3 uppercase tracking-wider">Recent Contacts</h3>
                        <div className="flex gap-4 overflow-x-auto pb-4 no-scrollbar -mx-1 px-1">
@@ -1000,6 +1028,12 @@ const App: React.FC = () => {
              <div className="text-center animate-in fade-in slide-in-from-bottom-4 duration-500">
                <div className="mb-5 text-left bg-gray-50 p-4 rounded-xl space-y-2.5 border border-gray-100 relative overflow-hidden">
                  <div className="absolute top-0 right-0 w-16 h-16 bg-rose-100 rounded-full -mr-8 -mt-8 opacity-50"></div>
+                 {config.type === 'MFS_TRANSFER' && (
+                     <div className="flex justify-between text-xs text-gray-600 relative z-10">
+                         <span>সার্ভিস</span> 
+                         <span className="font-bold text-gray-800 text-right">{formData.mfsProvider}</span>
+                     </div>
+                 )}
                  <div className="flex justify-between text-xs text-gray-600 relative z-10">
                      <span>প্রাপক/হিসাব</span> 
                      <span className="font-bold text-gray-800 font-mono break-all pl-2 text-right">
@@ -1009,15 +1043,23 @@ const App: React.FC = () => {
                  <div className="flex justify-between text-xs text-gray-600 relative z-10"><span>পরিমাণ</span> <span className="font-bold text-gray-800 font-mono">৳ {formData.amount}</span></div>
                  <div className="flex justify-between text-xs text-gray-600 relative z-10">
                      <span>চার্জ</span> 
-                     <span className={`font-bold ${config.type === 'CASH_OUT' ? 'text-rose-600' : 'text-emerald-600'}`}>
-                         {config.type === 'CASH_OUT' ? `৳ ${(parseFloat(formData.amount) * 0.01).toFixed(2)}` : 'ফ্রি'}
+                     <span className={`font-bold ${config.type === 'CASH_OUT' || config.type === 'MFS_TRANSFER' ? 'text-rose-600' : 'text-emerald-600'}`}>
+                         {config.type === 'CASH_OUT' 
+                            ? `৳ ${(parseFloat(formData.amount) * 0.01).toFixed(2)}` 
+                            : config.type === 'MFS_TRANSFER' 
+                                ? `৳ ${(parseFloat(formData.amount) * 0.0085).toFixed(2)}`
+                                : 'ফ্রি'}
                      </span>
                  </div>
                  <div className="my-1.5 border-t border-gray-200 border-dashed"></div>
                  <div className="flex justify-between text-base pt-0.5 text-rose-600 font-black relative z-10">
                      <span>সর্বমোট</span> 
                      <span className="font-mono">
-                         ৳ {config.type === 'CASH_OUT' ? (parseFloat(formData.amount) * 1.01).toFixed(2) : formData.amount}
+                         ৳ {config.type === 'CASH_OUT' 
+                            ? (parseFloat(formData.amount) * 1.01).toFixed(2) 
+                            : config.type === 'MFS_TRANSFER'
+                                ? (parseFloat(formData.amount) * 1.0085).toFixed(2)
+                                : formData.amount}
                      </span>
                  </div>
                </div>
@@ -1076,7 +1118,7 @@ const App: React.FC = () => {
         <button 
           onClick={() => {
             setTransactionStep(1);
-            setFormData({ recipient: '', amount: '', reference: '', pin: '' });
+            setFormData({ recipient: '', amount: '', reference: '', pin: '', mfsProvider: 'Bkash' });
             setRecipientNameDisplay('');
             setCurrentScreen(AppScreen.HOME);
           }}
@@ -1132,7 +1174,7 @@ const App: React.FC = () => {
                     {['RECEIVED_MONEY', 'ADD_MONEY'].includes(txn.type) ? '+' : '-'}৳{txn.amount.toLocaleString(language === 'bn' ? 'bn-BD' : 'en-US')}
                  </p>
                  {txn.fee && txn.fee > 0 && (
-                     <p className="text-[9px] text-rose-500 mt-0.5">ফি: ৳{txn.fee}</p>
+                     <p className="text-[9px] text-rose-500 mt-0.5">ফি: ৳{txn.fee.toFixed(2)}</p>
                  )}
               </div>
            </div>
@@ -1351,7 +1393,7 @@ const App: React.FC = () => {
             AppScreen.MOBILE_RECHARGE, 
             AppScreen.PAYMENT, 
             AppScreen.ADD_MONEY, 
-            AppScreen.REQUEST_MONEY, 
+            AppScreen.MFS_TRANSFER, 
             AppScreen.PAY_BILL, 
             AppScreen.TRANSFER_TO_BANK
           ].includes(currentScreen) && renderTransactionFlow()}

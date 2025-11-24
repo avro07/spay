@@ -1,5 +1,7 @@
+
+
 import React from 'react';
-import { ArrowLeft, Share2, Download, Copy, CheckCircle, ArrowUpRight, Wallet, CreditCard, FileText, Landmark } from 'lucide-react';
+import { ArrowLeft, Share2, Download, Copy, CheckCircle, ArrowUpRight, Wallet, CreditCard, FileText, Landmark, ArrowRightLeft } from 'lucide-react';
 import { Transaction, Language } from '../types';
 
 interface TransactionDetailsProps {
@@ -36,6 +38,7 @@ const TransactionDetails: React.FC<TransactionDetailsProps> = ({ transaction, on
         case 'PAYMENT': return <CreditCard size={32} />;
         case 'PAY_BILL': return <FileText size={32} />;
         case 'TRANSFER_TO_BANK': return <Landmark size={32} />;
+        case 'MFS_TRANSFER': return <ArrowRightLeft size={32} />;
         default: return <ArrowUpRight size={32} className={isPositive ? 'rotate-180' : ''} />;
     }
   };
