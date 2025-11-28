@@ -1,6 +1,5 @@
-
 import React, { useState, useEffect, useRef } from 'react';
-import { ArrowLeft, ChevronRight, ArrowUpRight, CreditCard, Wallet, X, Bell, Shield, Settings as SettingsIcon, FileText, Landmark, ShoppingBag, Utensils, LogOut, Lock, User as UserIcon, Phone, Eye, EyeOff, QrCode as QrCodeIcon, Signal, Globe, UserCog, Contact as ContactIcon, ArrowRightLeft, Zap, Flame, Droplet, Tv, ShieldCheck, Car, MoreHorizontal, ScrollText, BarChart3, ScanLine, ArrowRight, Loader2, CheckCircle, Share2, Check, User, Send, Smartphone, Download, Wifi, GraduationCap, Plus, Search } from 'lucide-react';
+import { ArrowLeft, ChevronRight, ArrowUpRight, CreditCard, Wallet, X, Bell, Shield, Settings as SettingsIcon, FileText, Landmark, ShoppingBag, Utensils, LogOut, Lock, User as UserIcon, Phone, Eye, EyeOff, QrCode as QrCodeIcon, Signal, Globe, UserCog, Contact as ContactIcon, ArrowRightLeft, Zap, Flame, Droplet, Tv, ShieldCheck, Car, MoreHorizontal, ScrollText, BarChart3, ScanLine, ArrowRight, Loader2, CheckCircle, Share2, Check, User, Send, Smartphone, Download, Wifi, GraduationCap, Plus, Search, Clock, Gift } from 'lucide-react';
 import BalanceHeader from './components/BalanceHeader';
 import ActionGrid from './components/ActionGrid';
 import BottomNav from './components/BottomNav';
@@ -14,6 +13,9 @@ import { AppScreen, User as UserType, Transaction, SendMoneyFormData, Notificati
 import { INITIAL_USER, MOCK_TRANSACTIONS, TRANSLATIONS, MOCK_USERS_DB, MOCK_CONTACTS } from './constants';
 
 const App: React.FC = () => {
+  // Global Users State (Simulated Backend)
+  const [allUsers, setAllUsers] = useState<UserType[]>(MOCK_USERS_DB);
+
   // Start at LOGIN screen
   const [currentScreen, setCurrentScreen] = useState<AppScreen>(AppScreen.LOGIN);
   const [user, setUser] = useState<UserType>(INITIAL_USER);
@@ -74,10 +76,10 @@ const App: React.FC = () => {
     }
   }, []);
   
-  // Lookup recipient name when number changes
+  // Lookup recipient name from ALL USERS DB or CONTACTS
   useEffect(() => {
     if (formData.recipient.length === 11) {
-        const foundUser = MOCK_USERS_DB.find(u => u.phone === formData.recipient);
+        const foundUser = allUsers.find(u => u.phone === formData.recipient);
         if (foundUser) {
             setRecipientNameDisplay(foundUser.name);
         } else {
@@ -88,7 +90,17 @@ const App: React.FC = () => {
     } else {
         setRecipientNameDisplay('');
     }
-  }, [formData.recipient]);
+  }, [formData.recipient, allUsers]);
+
+  // Sync current user state with allUsers DB whenever it changes
+  useEffect(() => {
+     if (user.phone) {
+         const freshUserData = allUsers.find(u => u.phone === user.phone);
+         if (freshUserData) {
+             setUser(freshUserData);
+         }
+     }
+  }, [allUsers]);
 
   // Dynamic Status Bar Color
   useEffect(() => {
@@ -208,6 +220,8 @@ const App: React.FC = () => {
     if (loginPin.length >= 4) {
       // Simple mock validation
       if (loginPin === '6175') {
+        const loggedUser = allUsers.find(u => u.phone === loginPhone) || INITIAL_USER;
+        setUser(loggedUser);
         setCurrentScreen(AppScreen.HOME);
         setLoginPin(''); // Clear pin for security
         setActiveInput(null);
@@ -238,14 +252,21 @@ const App: React.FC = () => {
       // Generate Unique QR Code for the user
       const generatedQrCode = `SPay:${registerData.phone}`;
 
-      // Create new user context
-      setUser({
-        ...user,
+      const newUser: UserType = {
+        id: (allUsers.length + 1).toString(),
         name: registerData.name,
         phone: registerData.phone,
         balance: 50, // Signup bonus
-        qrCode: generatedQrCode
-      });
+        avatarUrl: `https://ui-avatars.com/api/?name=${registerData.name}&background=random`,
+        role: 'CUSTOMER',
+        type: 'user',
+        qrCode: generatedQrCode,
+        status: 'active'
+      };
+
+      setAllUsers([...allUsers, newUser]);
+      setUser(newUser);
+
       // Add welcome notification/transaction
       setTransactions([
         {
@@ -286,7 +307,7 @@ const App: React.FC = () => {
   // Simulate scanning a QR code
   const simulateScan = () => {
     // Find a random user/merchant from DB to simulate a real scan
-    const potentialTargets = MOCK_USERS_DB.filter(u => u.phone !== user.phone);
+    const potentialTargets = allUsers.filter(u => u.phone !== user.phone);
     
     // Default to a merchant if possible, or fallback to any user
     const merchant = potentialTargets.find(u => u.role === 'MERCHANT');
@@ -453,7 +474,7 @@ const App: React.FC = () => {
 
     // RULE: Cannot Send Money to Agent
     if (currentScreen === AppScreen.SEND_MONEY) {
-        const foundUser = MOCK_USERS_DB.find(u => u.phone === formData.recipient);
+        const foundUser = allUsers.find(u => u.phone === formData.recipient);
         if (foundUser && foundUser.role === 'AGENT') {
             alert('এজেন্ট নম্বরে সেন্ড মানি করা সম্ভব নয়। ক্যাশ আউট অপশন ব্যবহার করুন।');
             return;
@@ -470,24 +491,78 @@ const App: React.FC = () => {
     let finalAmountToDeduct = amount;
     let fee = 0;
     
-    // CASH OUT LOGIC: 1% Total Fee
+    // Create a copy of users to modify
+    let updatedUsers = [...allUsers];
+    const currentUserIndex = updatedUsers.findIndex(u => u.id === user.id);
+    if (currentUserIndex === -1) return;
+
+    const recipientUserIndex = updatedUsers.findIndex(u => u.phone === formData.recipient);
+
+    // CASH OUT LOGIC: 1% Total Fee -> 0.30% Agent, 0.05% Distributor, Rest Admin
     if (config.type === 'CASH_OUT') {
-        fee = amount * 0.01;
+        fee = amount * 0.01; // 1%
         finalAmountToDeduct = amount + fee;
+
+        if (recipientUserIndex !== -1) {
+            // Agent gets Amount + 0.30% Commission
+            const agentCommission = amount * 0.003; // 0.30%
+            updatedUsers[recipientUserIndex].balance += (amount + agentCommission);
+
+            // Distributor Commission
+            const distributorId = updatedUsers[recipientUserIndex].distributorId;
+            if (distributorId) {
+                const distIndex = updatedUsers.findIndex(u => u.id === distributorId);
+                if (distIndex !== -1) {
+                    const distCommission = amount * 0.0005; // 0.05%
+                    updatedUsers[distIndex].balance += distCommission;
+                }
+            }
+            
+            // Rest goes to Admin
+            // Admin gets: Total Fee - Agent Comm - Dist Comm = 1% - 0.30% - 0.05% = 0.65%
+            const adminIndex = updatedUsers.findIndex(u => u.role === 'ADMIN');
+            if (adminIndex !== -1) {
+                const adminRevenue = fee - agentCommission - (amount * 0.0005);
+                updatedUsers[adminIndex].balance += adminRevenue;
+            }
+        }
     }
 
     // MFS TRANSFER LOGIC: 0.85% Fee
-    if (config.type === 'MFS_TRANSFER') {
+    else if (config.type === 'MFS_TRANSFER') {
         fee = amount * 0.0085; // 0.85%
         finalAmountToDeduct = amount + fee;
+        // Admin gets fee
+        const adminIndex = updatedUsers.findIndex(u => u.role === 'ADMIN');
+        if (adminIndex !== -1) {
+            updatedUsers[adminIndex].balance += fee;
+        }
+    }
+
+    // NORMAL SEND MONEY / PAYMENT
+    else if (config.type === 'SEND_MONEY' || config.type === 'PAYMENT') {
+        if (recipientUserIndex !== -1) {
+            updatedUsers[recipientUserIndex].balance += amount;
+        }
     }
     
     // Balance check for debit transactions
-    if (config.type !== 'ADD_MONEY' && finalAmountToDeduct > user.balance) {
+    if (config.type !== 'ADD_MONEY' && finalAmountToDeduct > updatedUsers[currentUserIndex].balance) {
        alert(`অপর্যাপ্ত ব্যালেন্স। চার্জ সহ প্রয়োজন ৳${finalAmountToDeduct.toFixed(2)}`);
        return;
     }
 
+    // Deduct from Current User
+    if (config.type === 'ADD_MONEY') {
+        updatedUsers[currentUserIndex].balance += amount;
+    } else {
+        updatedUsers[currentUserIndex].balance -= finalAmountToDeduct;
+    }
+
+    // Commit changes to DB
+    setAllUsers(updatedUsers);
+
+    // Create Transaction Record
     const newTxn: Transaction = {
       id: `TXN${Date.now()}`,
       type: config.type,
@@ -500,17 +575,14 @@ const App: React.FC = () => {
     };
 
     setTransactions([newTxn, ...transactions]);
-    
-    // Update balance
-    if (config.type === 'ADD_MONEY') {
-        setUser(prev => ({ ...prev, balance: prev.balance + amount }));
-    } else {
-        // Deduct amount + fee
-        setUser(prev => ({ ...prev, balance: prev.balance - finalAmountToDeduct }));
-    }
-
     setCurrentScreen(AppScreen.SUCCESS);
   };
+  
+  // Recent Contacts Helper (Unique recipients from history)
+  const recentContacts = Array.from(new Set(transactions
+    .filter(t => !['ADD_MONEY', 'RECEIVED_MONEY'].includes(t.type))
+    .map(t => JSON.stringify({ name: t.recipientName, phone: '01XXXXXXXXX' })) // Mock phone extraction
+  )).slice(0, 5).map(s => JSON.parse(s));
 
   // --- RENDER HELPERS ---
   
@@ -973,8 +1045,12 @@ const App: React.FC = () => {
                     <div className="relative">
                         <input
                             type="tel"
+                            maxLength={11}
                             value={formData.recipient}
-                            onChange={(e) => setFormData({...formData, recipient: e.target.value})}
+                            onChange={(e) => {
+                                const val = e.target.value.replace(/\D/g, '');
+                                if (val.length <= 11) setFormData({...formData, recipient: val});
+                            }}
                             onFocus={() => setActiveInput(null)}
                             className="w-full text-lg font-bold p-4 bg-gray-50 border border-gray-200 rounded-xl focus:border-rose-500 focus:ring-1 focus:ring-rose-500 outline-none"
                             placeholder={config.operatorPrefix ? "01XXXXXXXXX" : "Account Number"}
@@ -989,7 +1065,28 @@ const App: React.FC = () => {
                     </div>
                 </div>
 
-                {/* Contacts List Mockup */}
+                {/* Recent Contacts */}
+                {recentContacts.length > 0 && (
+                    <div className="space-y-2">
+                        <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">Recent Contacts</p>
+                        <div className="flex gap-3 overflow-x-auto pb-2 no-scrollbar">
+                            {recentContacts.map((contact, idx) => (
+                                <div 
+                                    key={idx}
+                                    onClick={() => setFormData({...formData, recipient: contact.phone})}
+                                    className="flex flex-col items-center gap-1 min-w-[64px] cursor-pointer"
+                                >
+                                    <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 border border-gray-200">
+                                        <span className="text-xs font-bold">{contact.name?.[0]}</span>
+                                    </div>
+                                    <span className="text-[10px] text-gray-600 text-center w-full truncate">{contact.name}</span>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                )}
+
+                {/* All Contacts List with Permission */}
                 {!contactsPermission ? (
                     <div className="bg-rose-50 rounded-xl p-4 flex items-center justify-between border border-rose-100" onClick={() => setContactsPermission(true)}>
                         <div className="flex items-center gap-3">
@@ -997,15 +1094,15 @@ const App: React.FC = () => {
                                 <ContactIcon size={20} />
                             </div>
                             <div>
-                                <h3 className="font-bold text-rose-700 text-sm">কন্টাক্টস থেকে নিন</h3>
-                                <p className="text-rose-400 text-[10px]">সহজেই নম্বর সিলেক্ট করতে ট্যাপ করুন</p>
+                                <h3 className="font-bold text-rose-700 text-sm">All Contacts</h3>
+                                <p className="text-rose-400 text-[10px]">Tap to allow access</p>
                             </div>
                         </div>
                         <ChevronRight className="text-rose-400" size={18} />
                     </div>
                 ) : (
                     <div className="space-y-2">
-                        <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">Saved Contacts</p>
+                        <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">All Contacts</p>
                         {MOCK_CONTACTS.map(contact => (
                             <div 
                                 key={contact.id} 
@@ -1149,175 +1246,155 @@ const App: React.FC = () => {
           <div className="w-full bg-gray-50 rounded-2xl p-6 border border-gray-100 mb-8 max-w-sm">
                <div className="flex justify-between mb-2">
                    <span className="text-gray-500 text-xs">নতুন ব্যালেন্স</span>
-                   <span className="font-bold text-gray-800">৳{user.balance.toFixed(2)}</span>
+                   <span className="font-bold text-gray-800">৳{user.balance.toLocaleString()}</span>
                </div>
                <div className="flex justify-between">
                    <span className="text-gray-500 text-xs">ট্রানজেকশন আইডি</span>
-                   <span className="font-mono text-xs text-gray-800">{transactions[0]?.id}</span>
+                   <span className="font-mono font-bold text-gray-800 text-xs">{transactions[0]?.id}</span>
                </div>
           </div>
 
-          <button 
-             onClick={() => {
-                 setCurrentScreen(AppScreen.HOME);
-                 setTransactionStep(1);
-             }}
-             className="bg-rose-600 text-white px-8 py-3 rounded-full font-bold shadow-lg shadow-rose-200 hover:bg-rose-700 transition-all"
+          <button
+              onClick={() => {
+                  setCurrentScreen(AppScreen.HOME);
+                  setTransactionStep(1);
+              }}
+              className="w-full bg-rose-600 text-white font-bold py-3.5 rounded-xl shadow-lg shadow-rose-200 hover:bg-rose-700 transition-all"
           >
-              হোম-এ ফিরে যান
+              হোম এ ফিরে যান
           </button>
       </div>
   );
 
-  const renderScan = () => (
-      <div className="h-full bg-black flex flex-col relative overflow-hidden" onClick={simulateScan}>
-          <video 
-             ref={videoRef} 
-             autoPlay 
-             playsInline 
-             muted 
-             className="absolute inset-0 w-full h-full object-cover opacity-60 transition-opacity duration-300"
-          />
-          
-          <div className="relative z-10 flex-1 flex flex-col pointer-events-none">
-              <div className="p-4 flex justify-between items-center pointer-events-auto">
-                  <button onClick={(e) => { e.stopPropagation(); setCurrentScreen(AppScreen.HOME); }} className="p-2 bg-white/20 backdrop-blur rounded-full text-white">
-                      <X size={20} />
-                  </button>
-                  <h1 className="text-white font-bold">QR স্ক্যান করুন</h1>
-                  <button className="p-2 bg-white/20 backdrop-blur rounded-full text-white">
-                      <Zap size={20} />
-                  </button>
-              </div>
-
-              <div className="flex-1 flex items-center justify-center">
-                  <div className="w-64 h-64 border-2 border-white/50 rounded-3xl relative">
-                      <div className="absolute top-0 left-0 w-10 h-10 border-t-4 border-l-4 border-rose-500 rounded-tl-3xl -mt-1 -ml-1"></div>
-                      <div className="absolute top-0 right-0 w-10 h-10 border-t-4 border-r-4 border-rose-500 rounded-tr-3xl -mt-1 -mr-1"></div>
-                      <div className="absolute bottom-0 left-0 w-10 h-10 border-b-4 border-l-4 border-rose-500 rounded-bl-3xl -mb-1 -ml-1"></div>
-                      <div className="absolute bottom-0 right-0 w-10 h-10 border-b-4 border-r-4 border-rose-500 rounded-br-3xl -mb-1 -mr-1"></div>
-                      
-                      <div className="absolute inset-0 flex items-center justify-center">
-                          <div className="w-full h-0.5 bg-rose-500 shadow-[0_0_15px_rgba(225,29,72,0.8)] animate-scan"></div>
-                      </div>
-                  </div>
-              </div>
-              
-              <div className="p-8 text-center pb-20">
-                  <p className="text-white/80 text-sm bg-black/40 backdrop-blur-md py-2 px-4 rounded-full inline-block animate-pulse">
-                      স্ক্যান করতে স্ক্রিনে ট্যাপ করুন
-                  </p>
-              </div>
-          </div>
-      </div>
-  );
-
   return (
-    <div className="fixed inset-0 w-full md:max-w-md mx-auto bg-gray-50 shadow-2xl overflow-hidden flex flex-col font-sans">
-       {/* Screens */}
-       {currentScreen === AppScreen.LOGIN && renderLogin()}
-       {currentScreen === AppScreen.REGISTER && renderRegister()}
-       {currentScreen === AppScreen.HOME && renderHome()}
-       
-       {[AppScreen.SEND_MONEY, AppScreen.CASH_OUT, AppScreen.MOBILE_RECHARGE, AppScreen.PAYMENT, AppScreen.ADD_MONEY, AppScreen.PAY_BILL, AppScreen.TRANSFER_TO_BANK, AppScreen.MFS_TRANSFER].includes(currentScreen) && renderTransactionFlow()}
-       
-       {currentScreen === AppScreen.SUCCESS && renderSuccess()}
-       {currentScreen === AppScreen.SCAN && renderScan()}
-       
-       {currentScreen === AppScreen.OFFERS && (
-          <div className="h-full bg-white animate-in slide-in-from-right flex flex-col">
-              <div className="bg-white px-4 pt-[calc(env(safe-area-inset-top)+1rem)] pb-4 flex items-center gap-4 sticky top-0 z-20 border-b border-gray-100">
-                <button onClick={() => setCurrentScreen(AppScreen.HOME)} className="p-2 hover:bg-gray-100 rounded-full -ml-2">
-                    <ArrowLeft className="text-gray-600 w-5 h-5" />
-                </button>
-                <h1 className="font-bold text-gray-800 text-lg">অফারসমূহ</h1>
-              </div>
-              <div className="p-4 space-y-4 overflow-y-auto flex-1">
-                 <OfferCarousel onNavigate={handleNavigation} />
-                 {/* Dummy offers list */}
-                 <div className="space-y-3">
-                    {[1,2,3].map(i => (
-                        <div key={i} className="flex gap-3 p-3 border border-gray-100 rounded-xl bg-white shadow-sm">
-                            <div className="w-16 h-16 bg-gray-100 rounded-lg shrink-0">
-                                <img src={`https://picsum.photos/seed/${i}/100/100`} className="w-full h-full object-cover rounded-lg" alt="" />
-                            </div>
-                            <div>
-                                <h4 className="font-bold text-sm text-gray-800">ঈদ স্পেশাল অফার</h4>
-                                <p className="text-xs text-gray-500 mt-1">নির্দিষ্ট আউটলেটে পেমেন্ট করলেই ২০% ইনস্ট্যান্ট ক্যাশব্যাক।</p>
-                                <button className="text-[10px] font-bold text-rose-600 mt-2 bg-rose-50 px-2 py-1 rounded">বিস্তারিত</button>
-                            </div>
-                        </div>
-                    ))}
-                 </div>
-              </div>
-          </div>
-       )}
-       
-       {currentScreen === AppScreen.TRANSACTIONS && (
-          <div className="h-full bg-white animate-in slide-in-from-right flex flex-col">
-              <div className="bg-white px-4 pt-[calc(env(safe-area-inset-top)+1rem)] pb-4 flex items-center gap-4 sticky top-0 z-20 border-b border-gray-100">
-                <button onClick={() => setCurrentScreen(AppScreen.HOME)} className="p-2 hover:bg-gray-100 rounded-full -ml-2">
-                    <ArrowLeft className="text-gray-600 w-5 h-5" />
-                </button>
-                <h1 className="font-bold text-gray-800 text-lg">লেনদেন ইতিহাস</h1>
-              </div>
-              <div className="flex-1 overflow-y-auto">
-                 {transactions.map((txn) => (
-                     <div 
-                        key={txn.id} 
-                        onClick={() => setSelectedTransaction(txn)}
-                        className="p-4 flex items-center justify-between active:bg-gray-50 border-b border-gray-50 cursor-pointer"
-                     >
-                         <div className="flex items-center gap-3">
-                             <div className={`w-10 h-10 rounded-full flex items-center justify-center ${['RECEIVED_MONEY', 'ADD_MONEY'].includes(txn.type) ? 'bg-emerald-100 text-emerald-600' : 'bg-rose-100 text-rose-600'}`}>
-                                 {['RECEIVED_MONEY', 'ADD_MONEY'].includes(txn.type) ? <ArrowUpRight className="rotate-180" size={18} /> : <ArrowUpRight size={18} />}
-                             </div>
-                             <div>
-                                 <h4 className="font-bold text-gray-800 text-sm">{txn.recipientName || txn.type}</h4>
-                                 <p className="text-xs text-gray-500 mt-0.5">{txn.type.replace('_', ' ')} • {txn.date}</p>
-                             </div>
-                         </div>
-                         <span className={`font-bold text-sm ${['RECEIVED_MONEY', 'ADD_MONEY'].includes(txn.type) ? 'text-emerald-600' : 'text-gray-800'}`}>
-                             {['RECEIVED_MONEY', 'ADD_MONEY'].includes(txn.type) ? '+' : '-'}৳{txn.amount}
-                         </span>
+    <div className="flex justify-center min-h-screen bg-gray-100 font-sans text-gray-900 selection:bg-rose-100">
+      <div className="w-full sm:max-w-md bg-white shadow-2xl sm:rounded-[3rem] overflow-hidden relative min-h-screen sm:min-h-[850px] sm:h-[850px] flex flex-col">
+        
+        {/* Status Bar (Visual only) */}
+        <div className="h-safe-top w-full bg-transparent absolute top-0 z-50 pointer-events-none"></div>
+
+        {/* Main Content Area */}
+        <div className="flex-1 overflow-y-auto no-scrollbar scroll-smooth relative bg-white">
+           {currentScreen === AppScreen.LOGIN && renderLogin()}
+           {currentScreen === AppScreen.REGISTER && renderRegister()}
+           {currentScreen === AppScreen.HOME && renderHome()}
+           
+           {(currentScreen === AppScreen.SEND_MONEY || 
+             currentScreen === AppScreen.CASH_OUT || 
+             currentScreen === AppScreen.MOBILE_RECHARGE || 
+             currentScreen === AppScreen.PAYMENT || 
+             currentScreen === AppScreen.ADD_MONEY ||
+             currentScreen === AppScreen.PAY_BILL ||
+             currentScreen === AppScreen.TRANSFER_TO_BANK ||
+             currentScreen === AppScreen.MFS_TRANSFER) && renderTransactionFlow()}
+             
+           {currentScreen === AppScreen.SUCCESS && renderSuccess()}
+           {currentScreen === AppScreen.SCAN && (
+             <div className="h-full bg-black relative flex flex-col">
+                <video ref={videoRef} autoPlay playsInline className="absolute inset-0 w-full h-full object-cover opacity-60"></video>
+                <div className="relative z-10 flex flex-col h-full">
+                     <div className="p-4 flex justify-between items-center text-white">
+                         <button onClick={() => setCurrentScreen(AppScreen.HOME)} className="p-2 bg-white/10 rounded-full backdrop-blur-md"><ArrowLeft /></button>
+                         <h1 className="font-bold">স্ক্যান QR</h1>
+                         <div className="w-10"></div>
                      </div>
-                 ))}
-              </div>
-          </div>
-       )}
+                     <div className="flex-1 flex items-center justify-center p-8" onClick={simulateScan}>
+                         <div className="w-64 h-64 border-2 border-white/30 rounded-3xl relative overflow-hidden flex items-center justify-center">
+                              <div className="absolute inset-0 border-[3px] border-rose-500 rounded-3xl animate-pulse"></div>
+                              <div className="w-full h-0.5 bg-rose-500 shadow-[0_0_15px_rgba(225,29,72,0.8)] absolute top-0 animate-scan"></div>
+                              <p className="text-white/70 text-xs font-bold bg-black/50 px-3 py-1 rounded-full backdrop-blur-md pointer-events-none">স্ক্যান করতে ট্যাপ করুন</p>
+                         </div>
+                     </div>
+                     <div className="p-8 text-center">
+                         <p className="text-white/80 text-sm">QR কোডটি ফ্রেমের মধ্যে রাখুন</p>
+                     </div>
+                </div>
+             </div>
+           )}
 
-       {currentScreen === AppScreen.AI_CHAT && (
-           <AIAssistant user={user} transactions={transactions} onClose={() => setCurrentScreen(AppScreen.HOME)} />
-       )}
+           {currentScreen === AppScreen.OFFERS && (
+               <div className="bg-white min-h-full">
+                   <div className="bg-white px-4 pt-[calc(env(safe-area-inset-top)+1rem)] pb-4 flex items-center gap-4 sticky top-0 z-20 border-b border-gray-100">
+                      <button onClick={() => setCurrentScreen(AppScreen.HOME)} className="p-2 hover:bg-gray-100 rounded-full -ml-2 text-gray-600"><ArrowLeft size={20} /></button>
+                      <h1 className="font-bold text-lg text-gray-800">অফার সমূহ</h1>
+                   </div>
+                   <div className="p-4 space-y-4">
+                       {[1, 2, 3].map(i => (
+                           <div key={i} className="bg-gray-50 rounded-2xl p-4 border border-gray-100 flex gap-4">
+                               <div className="w-16 h-16 bg-rose-100 rounded-xl flex items-center justify-center text-rose-600 shrink-0">
+                                   <Gift size={32} />
+                               </div>
+                               <div>
+                                   <h3 className="font-bold text-gray-800">ঈদ স্পেশাল অফার {i}</h3>
+                                   <p className="text-xs text-gray-500 mt-1">নির্দিষ্ট আউটলেটে পেমেন্ট করলে ২০% পর্যন্ত ক্যাশব্যাক।</p>
+                                   <button className="mt-2 text-[10px] font-bold text-rose-600 bg-white border border-rose-200 px-3 py-1 rounded-full">বিস্তারিত</button>
+                               </div>
+                           </div>
+                       ))}
+                   </div>
+               </div>
+           )}
 
-       {currentScreen === AppScreen.ADMIN_DASHBOARD && (
-           <AdminDashboard transactions={transactions} onLogout={handleLogout} />
-       )}
-       
-       {/* Overlays */}
-       {selectedTransaction && (
-           <TransactionDetails 
-              transaction={selectedTransaction} 
-              onClose={() => setSelectedTransaction(null)} 
-              language={language}
-           />
-       )}
-       
-       {showQrModal && renderMyQr()}
+           {currentScreen === AppScreen.TRANSACTIONS && (
+               <div className="bg-white min-h-full">
+                   <div className="bg-white px-4 pt-[calc(env(safe-area-inset-top)+1rem)] pb-4 flex items-center gap-4 sticky top-0 z-20 border-b border-gray-100">
+                      <button onClick={() => setCurrentScreen(AppScreen.HOME)} className="p-2 hover:bg-gray-100 rounded-full -ml-2 text-gray-600"><ArrowLeft size={20} /></button>
+                      <h1 className="font-bold text-lg text-gray-800">লেনদেন ইতিহাস</h1>
+                   </div>
+                   <div className="divide-y divide-gray-50">
+                       {transactions.map(txn => (
+                           <div key={txn.id} onClick={() => setSelectedTransaction(txn)} className="p-4 flex justify-between items-center active:bg-gray-50 transition-colors">
+                               <div className="flex gap-3 items-center">
+                                   <div className={`w-10 h-10 rounded-full flex items-center justify-center ${['RECEIVED_MONEY', 'ADD_MONEY'].includes(txn.type) ? 'bg-emerald-100 text-emerald-600' : 'bg-rose-100 text-rose-600'}`}>
+                                       {['RECEIVED_MONEY', 'ADD_MONEY'].includes(txn.type) ? <ArrowUpRight className="rotate-180" size={18} /> : <ArrowUpRight size={18} />}
+                                   </div>
+                                   <div>
+                                       <h4 className="font-bold text-gray-800 text-sm">{txn.recipientName || txn.type}</h4>
+                                       <p className="text-xs text-gray-400">{txn.date}</p>
+                                   </div>
+                               </div>
+                               <div className="text-right">
+                                    <p className={`font-bold text-sm ${['RECEIVED_MONEY', 'ADD_MONEY'].includes(txn.type) ? 'text-emerald-600' : 'text-gray-800'}`}>
+                                        {['RECEIVED_MONEY', 'ADD_MONEY'].includes(txn.type) ? '+' : '-'}৳{txn.amount}
+                                    </p>
+                                    <p className="text-[10px] text-gray-400">{txn.type}</p>
+                               </div>
+                           </div>
+                       ))}
+                   </div>
+               </div>
+           )}
+           
+           {currentScreen === AppScreen.ADMIN_DASHBOARD && (
+                <AdminDashboard transactions={transactions} onLogout={() => setCurrentScreen(AppScreen.LOGIN)} />
+           )}
+        </div>
 
-       {/* Bottom Navigation */}
-       {[AppScreen.HOME, AppScreen.OFFERS, AppScreen.TRANSACTIONS, AppScreen.SCAN].includes(currentScreen) && (
-           <BottomNav currentScreen={currentScreen} onNavigate={handleNavigation} language={language} />
-       )}
+        {/* Bottom Navigation */}
+        {[AppScreen.HOME, AppScreen.TRANSACTIONS, AppScreen.OFFERS, AppScreen.AI_CHAT].includes(currentScreen) && (
+            <BottomNav currentScreen={currentScreen} onNavigate={handleNavigation} language={language} />
+        )}
+        
+        {/* Modals & Overlays */}
+        {showQrModal && renderMyQr()}
+        
+        {activeInput && (
+             <NumericKeypad 
+                onPress={handleKeypadPress}
+                onDelete={handleKeypadDelete}
+                onDone={handleKeypadDone}
+             />
+        )}
 
-       {/* Numeric Keypad Overlay */}
-       {activeInput && (
-           <NumericKeypad 
-               onPress={handleKeypadPress}
-               onDelete={handleKeypadDelete}
-               onDone={handleKeypadDone}
-           />
-       )}
+        {currentScreen === AppScreen.AI_CHAT && (
+            <AIAssistant user={user} transactions={transactions} onClose={() => setCurrentScreen(AppScreen.HOME)} />
+        )}
+        
+        {selectedTransaction && (
+            <TransactionDetails transaction={selectedTransaction} onClose={() => setSelectedTransaction(null)} language={language} />
+        )}
+
+      </div>
     </div>
   );
 };

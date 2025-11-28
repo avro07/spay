@@ -19,11 +19,15 @@ export const MOCK_USERS_DB: User[] = [
   INITIAL_USER,
   { id: '2', name: 'করিম চৌধুরী', phone: '01812345678', balance: 500.00, avatarUrl: 'https://picsum.photos/101/101', status: 'blocked', role: 'CUSTOMER', type: 'user', qrCode: "SPAY:01812345678" },
   { id: '3', name: 'স্বপ্ন সুপার শপ', phone: '01912345678', balance: 150000.00, avatarUrl: 'https://picsum.photos/102/102', status: 'active', role: 'MERCHANT', type: 'agent', qrCode: "SPAY:01912345678" },
-  { id: '4', name: 'রহিম স্টোর (এজেন্ট)', phone: '01612345678', balance: 4500.00, avatarUrl: 'https://picsum.photos/103/103', status: 'active', role: 'AGENT', type: 'agent', qrCode: "SPAY:01612345678" },
+  // Agent linked to Distributor (ID 6)
+  { id: '4', name: 'রহিম স্টোর (এজেন্ট)', phone: '01612345678', balance: 4500.00, avatarUrl: 'https://picsum.photos/103/103', status: 'active', role: 'AGENT', type: 'agent', qrCode: "SPAY:01612345678", distributorId: '6' },
   { id: '5', name: 'সালমা খাতুন', phone: '01512345678', balance: 1200.00, avatarUrl: 'https://picsum.photos/104/104', status: 'active', role: 'CUSTOMER', type: 'user', qrCode: "SPAY:01512345678" },
+  // Distributor Account
   { id: '6', name: 'ঢাকা ডিস্ট্রিবিউশন হাউজ', phone: '01700000001', balance: 500000.00, avatarUrl: 'https://picsum.photos/105/105', status: 'active', role: 'DISTRIBUTOR', type: 'agent', qrCode: "SPAY:01700000001" },
   { id: '7', name: 'আম্মু', phone: '01711111111', balance: 5000.00, avatarUrl: 'https://picsum.photos/106/106', status: 'active', role: 'CUSTOMER', type: 'user', qrCode: "SPAY:01711111111" },
   { id: '8', name: 'রফিক ইসলাম', phone: '01722222222', balance: 100.00, avatarUrl: 'https://picsum.photos/107/107', status: 'active', role: 'CUSTOMER', type: 'user', qrCode: "SPAY:01722222222" },
+  // Admin Account for Fee Collection
+  { id: '0', name: 'SPay Admin', phone: '0000', balance: 0.00, avatarUrl: '', status: 'active', role: 'ADMIN', type: 'user' },
 ];
 
 export const MOCK_CONTACTS: Contact[] = [
@@ -33,6 +37,8 @@ export const MOCK_CONTACTS: Contact[] = [
   { id: 'c4', name: 'অফিস বস', phone: '01811111114', avatar: 'https://picsum.photos/204/204' },
   { id: 'c5', name: 'বাড়ির মালিক', phone: '01611111115', avatar: 'https://picsum.photos/205/205' },
   { id: 'c6', name: 'ইন্টারনেট বিল', phone: '01511111116', avatar: 'https://picsum.photos/206/206' },
+  { id: 'c7', name: 'ড্রাইভার', phone: '01755555555', avatar: 'https://picsum.photos/207/207' },
+  { id: 'c8', name: 'রহিম স্টোর (এজেন্ট)', phone: '01612345678', avatar: 'https://picsum.photos/103/103' },
 ];
 
 export const TRANSLATIONS = {

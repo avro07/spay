@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Users, CreditCard, Activity, Search, Shield, LogOut, Lock, Unlock, TrendingUp, Signal, Plus, Edit, Banknote, Save, X, Check } from 'lucide-react';
 import { User, Transaction, UserRole } from '../types';
@@ -421,10 +420,35 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ transactions, onLogout 
         {activeTab === 'api' && (
              <div className="space-y-6 animate-in fade-in duration-500">
                  <h2 className="text-2xl font-bold text-slate-800">API কনফিগারেশন</h2>
-                 <p className="text-slate-500 text-sm">সিস্টেম ইন্টিগ্রেশন সেটিংস</p>
-                 {/* ... Keep API content same ... */}
-                 <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
-                    <p className="text-center text-gray-400">ডেভেলপমেন্ট মোডে আছে...</p>
+                 <p className="text-slate-500 text-sm">মোবাইল অপারেটর এপিআই সেটিংস</p>
+                 
+                 <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-6">
+                    {['Grameenphone', 'Banglalink', 'Robi', 'Airtel', 'Teletalk'].map(operator => (
+                        <div key={operator} className="border-b border-slate-100 pb-6 last:border-0 last:pb-0">
+                            <div className="flex justify-between items-center mb-4">
+                                <h3 className="font-bold text-slate-700">{operator}</h3>
+                                <label className="relative inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" className="sr-only peer" defaultChecked />
+                                    <div className="w-9 h-5 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-rose-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-emerald-500"></div>
+                                </label>
+                            </div>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label className="block text-xs font-bold text-slate-500 mb-1">API Key</label>
+                                    <input type="password" value="****************" readOnly className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 text-sm text-slate-600" />
+                                </div>
+                                <div>
+                                    <label className="block text-xs font-bold text-slate-500 mb-1">Secret Key</label>
+                                    <input type="password" value="****************" readOnly className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 text-sm text-slate-600" />
+                                </div>
+                            </div>
+                        </div>
+                    ))}
+                    <div className="flex justify-end pt-4">
+                        <button className="bg-slate-900 text-white px-6 py-2 rounded-xl font-bold text-sm shadow hover:bg-slate-800">
+                            সেভ চেঞ্জেস
+                        </button>
+                    </div>
                  </div>
              </div>
         )}

@@ -25,6 +25,7 @@ export interface User {
   role?: UserRole;
   type?: 'user' | 'agent';
   qrCode?: string;
+  distributorId?: string; // Link agent to a distributor
 }
 
 export interface Contact {
