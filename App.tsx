@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import { ArrowLeft, ChevronRight, ArrowUpRight, CreditCard, Wallet, X, Bell, Shield, Settings as SettingsIcon, FileText, Landmark, ShoppingBag, Utensils, LogOut, Lock, User as UserIcon, Phone, Eye, EyeOff, QrCode as QrCodeIcon, Signal, Globe, UserCog, Contact as ContactIcon, ArrowRightLeft, Zap, Flame, Droplet, Tv, ShieldCheck, Car, MoreHorizontal, ScrollText, BarChart3, ScanLine, ArrowRight, Loader2, CheckCircle, Share2, Check, User, Send, Smartphone, Download, Wifi, GraduationCap, Plus, Search, Clock, Gift } from 'lucide-react';
 import BalanceHeader from './components/BalanceHeader';
@@ -70,14 +71,35 @@ const App: React.FC = () => {
   // Helper to determine if we need full screen layout (Admin)
   const isAdminDashboard = currentScreen === AppScreen.ADMIN_DASHBOARD;
 
-  // Check for admin URL parameter on mount
+  // SESSION MANAGEMENT & URL CHECK
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const path = window.location.pathname;
+    
+    // 1. Check if Admin Mode is requested via URL
     if (params.get('mode') === 'admin' || path === '/spay-admin') {
       setIsAdminMode(true);
     }
-  }, []);
+
+    // 2. Check Local Storage for Persistent Login (Admin or User)
+    const storedAdminSession = localStorage.getItem('spay_admin_session');
+    const storedUserPhone = localStorage.getItem('spay_user_phone');
+
+    if (storedAdminSession === 'true') {
+        // Restore Admin Session
+        setIsAdminMode(true);
+        setCurrentScreen(AppScreen.ADMIN_DASHBOARD);
+    } else if (storedUserPhone) {
+        // Restore User Session
+        const foundUser = allUsers.find(u => u.phone === storedUserPhone);
+        if (foundUser) {
+            setUser(foundUser);
+            setCurrentScreen(AppScreen.HOME);
+            // Update login phone field for visual consistency if they logout later
+            setLoginPhone(foundUser.phone);
+        }
+    }
+  }, []); // Run once on mount
   
   // Lookup recipient name from ALL USERS DB or CONTACTS
   useEffect(() => {
@@ -224,6 +246,10 @@ const App: React.FC = () => {
       // Simple mock validation
       if (loginPin === '6175') {
         const loggedUser = allUsers.find(u => u.phone === loginPhone) || INITIAL_USER;
+        
+        // Save Session
+        localStorage.setItem('spay_user_phone', loggedUser.phone);
+        
         setUser(loggedUser);
         setCurrentScreen(AppScreen.HOME);
         setLoginPin(''); // Clear pin for security
@@ -237,6 +263,7 @@ const App: React.FC = () => {
   const handleAdminLogin = () => {
     // Mock admin credentials
     if (adminUsername === 'admin' && adminPassword === '1234') {
+      localStorage.setItem('spay_admin_session', 'true'); // Save Admin Session
       setCurrentScreen(AppScreen.ADMIN_DASHBOARD);
       setAdminUsername('');
       setAdminPassword('');
@@ -269,6 +296,9 @@ const App: React.FC = () => {
 
       setAllUsers([...allUsers, newUser]);
       setUser(newUser);
+      
+      // Save Session on Register
+      localStorage.setItem('spay_user_phone', newUser.phone);
 
       // Add welcome notification/transaction
       setTransactions([
@@ -287,9 +317,14 @@ const App: React.FC = () => {
   };
 
   const handleLogout = () => {
+    // Clear Sessions
+    localStorage.removeItem('spay_admin_session');
+    localStorage.removeItem('spay_user_phone');
+    
     setCurrentScreen(AppScreen.LOGIN);
     setTransactionStep(1);
     setFormData({ recipient: '', amount: '', reference: '', pin: '', mfsProvider: 'Bkash' });
+    setIsAdminMode(false); // Reset admin mode flag
   };
 
   // Navigation Handler
@@ -585,7 +620,7 @@ const App: React.FC = () => {
   const recentContacts = Array.from(new Set(transactions
     .filter(t => !['ADD_MONEY', 'RECEIVED_MONEY'].includes(t.type))
     .map(t => JSON.stringify({ name: t.recipientName, phone: '01XXXXXXXXX' })) // Mock phone extraction
-  )).slice(0, 5).map(s => JSON.parse(s));
+  )).slice(0, 5).map((s: string) => JSON.parse(s));
 
   // --- RENDER HELPERS ---
   
@@ -1381,7 +1416,7 @@ const App: React.FC = () => {
                     transactions={transactions} 
                     users={allUsers}
                     onUpdateUsers={setAllUsers}
-                    onLogout={() => setCurrentScreen(AppScreen.LOGIN)} 
+                    onLogout={handleLogout} 
                 />
            )}
         </div>
