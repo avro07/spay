@@ -9,7 +9,7 @@ interface NumericKeypadProps {
 
 const NumericKeypad: React.FC<NumericKeypadProps> = ({ onPress, onDelete, onDone }) => {
   return (
-    <div className="fixed bottom-0 left-0 right-0 bg-white z-[60] rounded-t-[20px] shadow-[0_-10px_40px_rgba(0,0,0,0.1)] animate-in slide-in-from-bottom duration-300 pb-[env(safe-area-inset-bottom)]">
+    <div className="fixed bottom-0 left-0 right-0 bg-white z-[60] rounded-t-[20px] shadow-[0_-10px_40px_rgba(0,0,0,0.1)] animate-in slide-in-from-bottom duration-300 pb-2">
       {/* Drag Handle / Header */}
       <div className="flex justify-center pt-2.5 pb-1.5" onClick={onDone}>
         <div className="w-10 h-1 bg-gray-300 rounded-full"></div>

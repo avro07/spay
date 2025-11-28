@@ -305,6 +305,11 @@ const App: React.FC = () => {
       phone = scannedData.split(':')[1];
     }
 
+    // Visual feedback before redirecting
+    if (videoRef.current) {
+        videoRef.current.style.opacity = '0.3';
+    }
+
     // Update Form with artificial delay to feel like scanning
     setTimeout(() => {
         setFormData(prev => ({
@@ -324,7 +329,7 @@ const App: React.FC = () => {
     
         setCurrentScreen(nextScreen);
         setTransactionStep(2); // Skip to Amount input
-    }, 300);
+    }, 500);
   };
 
   // Share QR Function
@@ -358,7 +363,6 @@ const App: React.FC = () => {
     const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=500x500&data=${encodeURIComponent(user.qrCode || user.phone)}&color=e11d48&bgcolor=fff&format=png`;
     
     try {
-        // Try fetch approach first
         const response = await fetch(qrUrl);
         const blob = await response.blob();
         const blobUrl = window.URL.createObjectURL(blob);
@@ -704,8 +708,10 @@ const App: React.FC = () => {
             <button onClick={() => setCurrentScreen(AppScreen.LOGIN)} className="absolute top-10 left-4 p-2 bg-white/20 rounded-full text-white backdrop-blur-md">
                 <ArrowLeft size={18} />
             </button>
-            <h1 className="text-xl font-bold text-white mt-8">নতুন অ্যাকাউন্ট</h1>
-            <p className="text-rose-100 text-xs">SPay-তে রেজিস্ট্রেশন করুন</p>
+            <div className="text-center">
+                <h1 className="text-xl font-bold text-white mt-8">নতুন অ্যাকাউন্ট</h1>
+                <p className="text-rose-100 text-xs">SPay-তে রেজিস্ট্রেশন করুন</p>
+            </div>
         </div>
 
         <div className="flex-1 overflow-y-auto p-5 pb-6 space-y-4">
@@ -1170,12 +1176,12 @@ const App: React.FC = () => {
              autoPlay 
              playsInline 
              muted 
-             className="absolute inset-0 w-full h-full object-cover opacity-60"
+             className="absolute inset-0 w-full h-full object-cover opacity-60 transition-opacity duration-300"
           />
           
           <div className="relative z-10 flex-1 flex flex-col pointer-events-none">
               <div className="p-4 flex justify-between items-center pointer-events-auto">
-                  <button onClick={() => setCurrentScreen(AppScreen.HOME)} className="p-2 bg-white/20 backdrop-blur rounded-full text-white">
+                  <button onClick={(e) => { e.stopPropagation(); setCurrentScreen(AppScreen.HOME); }} className="p-2 bg-white/20 backdrop-blur rounded-full text-white">
                       <X size={20} />
                   </button>
                   <h1 className="text-white font-bold">QR স্ক্যান করুন</h1>
@@ -1197,9 +1203,9 @@ const App: React.FC = () => {
                   </div>
               </div>
               
-              <div className="p-8 text-center">
-                  <p className="text-white/80 text-sm bg-black/40 backdrop-blur-md py-2 px-4 rounded-full inline-block">
-                      QR কোড স্ক্যান করতে ক্যামেরা ধরুন
+              <div className="p-8 text-center pb-20">
+                  <p className="text-white/80 text-sm bg-black/40 backdrop-blur-md py-2 px-4 rounded-full inline-block animate-pulse">
+                      স্ক্যান করতে স্ক্রিনে ট্যাপ করুন
                   </p>
               </div>
           </div>
@@ -1207,7 +1213,7 @@ const App: React.FC = () => {
   );
 
   return (
-    <div className="h-full w-full max-w-md mx-auto bg-gray-50 shadow-2xl relative overflow-hidden flex flex-col font-sans">
+    <div className="fixed inset-0 w-full md:max-w-md mx-auto bg-gray-50 shadow-2xl overflow-hidden flex flex-col font-sans">
        {/* Screens */}
        {currentScreen === AppScreen.LOGIN && renderLogin()}
        {currentScreen === AppScreen.REGISTER && renderRegister()}
