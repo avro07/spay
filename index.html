@@ -7,13 +7,19 @@
     <!-- PWA Settings -->
     <title>SPay</title>
     <link rel="manifest" href="/manifest.json">
+    
+    <!-- Android/Chrome Icon -->
     <link rel="icon" type="image/png" href="https://wsrv.nl/?url=c.beoo.net/Files/3.jpg&w=192&h=192&fit=contain&bg=white&output=png">
+    
     <meta name="theme-color" content="#e11d48">
     
-    <!-- iOS Specific Settings for Fullscreen -->
+    <!-- iOS Specific Settings for Professional Add to Home Screen -->
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="SPay">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="format-detection" content="telephone=no">
+    
+    <!-- iOS Icon: Square with white padding (fit=contain) to prevent corner cropping by iOS mask -->
     <link rel="apple-touch-icon" href="https://wsrv.nl/?url=c.beoo.net/Files/3.jpg&w=180&h=180&fit=contain&bg=white&output=png">
 
     <script src="https://cdn.tailwindcss.com"></script>
@@ -24,12 +30,12 @@
         margin: 0;
         padding: 0;
         overscroll-behavior-y: none; /* Prevent bounce effect showing background */
-        background-color: #ffffff; /* Changed to white to match app theme */
+        background-color: #ffffff; /* White background matches app theme */
       }
       body {
         font-family: 'Noto Sans Bengali', 'Inter', sans-serif;
         -webkit-tap-highlight-color: transparent;
-        padding-bottom: 0 !important; /* Force no padding for edge-to-edge */
+        padding-bottom: 0 !important;
       }
       #root {
         height: 100%;
