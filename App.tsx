@@ -12,6 +12,7 @@ import AdminDashboard from './components/AdminDashboard';
 import TransactionDetails from './components/TransactionDetails';
 import { AppScreen, User as UserType, Transaction, SendMoneyFormData, NotificationPreferences, Language, Contact } from './types';
 import { INITIAL_USER, MOCK_TRANSACTIONS, TRANSLATIONS, MOCK_USERS_DB, MOCK_CONTACTS } from './constants';
+// import { apiClient } from './services/apiClient'; // Uncomment when backend is ready
 
 const App: React.FC = () => {
   // Global Users State (Simulated Backend)
@@ -89,6 +90,8 @@ const App: React.FC = () => {
         // Restore Admin Session
         setIsAdminMode(true);
         setCurrentScreen(AppScreen.ADMIN_DASHBOARD);
+        // TODO: When backend is ready, fetch fresh data here
+        // apiClient.getAllUsers().then(users => setAllUsers(users));
     } else if (storedUserPhone) {
         // Restore User Session
         const foundUser = allUsers.find(u => u.phone === storedUserPhone);
@@ -241,8 +244,11 @@ const App: React.FC = () => {
   };
 
   // Auth Handlers
-  const handleLogin = () => {
+  const handleLogin = async () => {
     if (loginPin.length >= 4) {
+      // TODO: Replace with Real API Call
+      // const response = await apiClient.login(loginPhone, loginPin);
+      
       // Simple mock validation
       if (loginPin === '6175') {
         const loggedUser = allUsers.find(u => u.phone === loginPhone) || INITIAL_USER;
@@ -272,7 +278,7 @@ const App: React.FC = () => {
     }
   };
 
-  const handleRegister = () => {
+  const handleRegister = async () => {
     if (registerData.name && registerData.phone && registerData.pin.length === 4) {
       if (registerData.pin !== registerData.confirmPin) {
         alert("পিন নম্বর মিলছে না");
@@ -293,6 +299,9 @@ const App: React.FC = () => {
         qrCode: generatedQrCode,
         status: 'active'
       };
+
+      // TODO: Replace with Real API Call
+      // await apiClient.register(newUser);
 
       setAllUsers([...allUsers, newUser]);
       setUser(newUser);
@@ -523,7 +532,7 @@ const App: React.FC = () => {
   };
 
   // Logic to execute transaction
-  const executeTransaction = () => {
+  const executeTransaction = async () => {
     const config = getScreenConfig();
     const amount = parseFloat(formData.amount);
     let finalAmountToDeduct = amount;
@@ -596,6 +605,9 @@ const App: React.FC = () => {
     } else {
         updatedUsers[currentUserIndex].balance -= finalAmountToDeduct;
     }
+
+    // TODO: Replace with Real API Call
+    // await apiClient.createTransaction(newTxn);
 
     // Commit changes to DB
     setAllUsers(updatedUsers);
