@@ -1,16 +1,16 @@
 import React, { useState } from 'react';
 import { Users, CreditCard, Activity, Search, Shield, LogOut, Lock, Unlock, TrendingUp, Signal, Plus, Edit, Banknote, Save, X, Check } from 'lucide-react';
 import { User, Transaction, UserRole } from '../types';
-import { MOCK_USERS_DB } from '../constants';
 
 interface AdminDashboardProps {
   transactions: Transaction[];
+  users: User[];
+  onUpdateUsers: (users: User[]) => void;
   onLogout: () => void;
 }
 
-const AdminDashboard: React.FC<AdminDashboardProps> = ({ transactions, onLogout }) => {
+const AdminDashboard: React.FC<AdminDashboardProps> = ({ transactions, users, onUpdateUsers, onLogout }) => {
   const [activeTab, setActiveTab] = useState<'overview' | 'users' | 'transactions' | 'api'>('overview');
-  const [users, setUsers] = useState<User[]>(MOCK_USERS_DB);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterRole, setFilterRole] = useState<UserRole | 'ALL'>('ALL');
 
@@ -31,7 +31,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ transactions, onLogout 
   const [amountToAdd, setAmountToAdd] = useState('');
 
   const toggleUserStatus = (id: string) => {
-    setUsers(users.map(u => {
+    onUpdateUsers(users.map(u => {
       if (u.id === id) {
         return { ...u, status: u.status === 'active' ? 'blocked' : 'active' };
       }
@@ -50,10 +50,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ transactions, onLogout 
     
     if (editingUser) {
         // Update existing
-        setUsers(users.map(u => u.id === editingUser.id ? { ...u, type } as User : u));
-        // Note: For a real app, merging logic would be more complex
-        // Here we just update the specific user in the array with new data
-        setUsers(prev => prev.map(u => u.id === editingUser.id ? { ...u, ...formData, type } as User : u));
+        onUpdateUsers(users.map(u => u.id === editingUser.id ? { ...u, ...formData, type } as User : u));
     } else {
         // Create new
         const newUser: User = {
@@ -64,9 +61,10 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ transactions, onLogout 
             name: formData.name,
             phone: formData.phone,
             role: formData.role as UserRole,
-            type: type
+            type: type,
+            qrCode: `SPAY:${formData.phone}` // Auto generate QR for admin created user
         };
-        setUsers([...users, newUser]);
+        onUpdateUsers([...users, newUser]);
     }
     closeUserModal();
   };
@@ -98,7 +96,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ transactions, onLogout 
       const amount = parseFloat(amountToAdd);
       if (!selectedUserForMoney || isNaN(amount) || amount <= 0) return;
 
-      setUsers(users.map(u => u.id === selectedUserForMoney.id ? { ...u, balance: u.balance + amount } : u));
+      onUpdateUsers(users.map(u => u.id === selectedUserForMoney.id ? { ...u, balance: u.balance + amount } : u));
       setShowMoneyModal(false);
       setSelectedUserForMoney(null);
       alert(`${selectedUserForMoney.name}-এর একাউন্টে ৳${amount} যুক্ত করা হয়েছে।`);

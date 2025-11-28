@@ -67,6 +67,9 @@ const App: React.FC = () => {
   // Derived state for recipient name lookup
   const [recipientNameDisplay, setRecipientNameDisplay] = useState<string>('');
 
+  // Helper to determine if we need full screen layout (Admin)
+  const isAdminDashboard = currentScreen === AppScreen.ADMIN_DASHBOARD;
+
   // Check for admin URL parameter on mount
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -171,7 +174,7 @@ const App: React.FC = () => {
           if (videoRef.current) {
             videoRef.current.srcObject = stream;
           }
-        } catch (err) {
+        } catch (err: any) {
           console.error("Camera access error:", err);
         }
       };
@@ -365,7 +368,7 @@ const App: React.FC = () => {
     if (navigator.share) {
         try {
             await navigator.share(shareData);
-        } catch (err) {
+        } catch (err: any) {
             console.log('Share canceled');
         }
     } else {
@@ -373,7 +376,7 @@ const App: React.FC = () => {
         try {
             await navigator.clipboard.writeText(`SPay: ${user.phone}`);
             alert('নম্বর ক্লিপবোর্ডে কপি করা হয়েছে!');
-        } catch (e) {
+        } catch (e: any) {
             alert('শেয়ার করা সম্ভব হচ্ছে না');
         }
     }
@@ -395,7 +398,7 @@ const App: React.FC = () => {
         link.click();
         document.body.removeChild(link);
         window.URL.revokeObjectURL(blobUrl);
-    } catch (error) {
+    } catch (error: any) {
         // Fallback: Open in new tab if CORS blocks fetch
         window.open(qrUrl, '_blank');
     }
@@ -1267,14 +1270,22 @@ const App: React.FC = () => {
   );
 
   return (
-    <div className="flex justify-center min-h-screen bg-gray-100 font-sans text-gray-900 selection:bg-rose-100">
-      <div className="w-full sm:max-w-md bg-white shadow-2xl sm:rounded-[3rem] overflow-hidden relative min-h-screen sm:min-h-[850px] sm:h-[850px] flex flex-col">
+    <div className={`flex justify-center min-h-screen bg-gray-100 font-sans text-gray-900 selection:bg-rose-100 ${isAdminDashboard ? 'items-stretch' : ''}`}>
+      <div className={`
+        bg-white shadow-2xl overflow-hidden relative flex flex-col transition-all duration-300
+        ${isAdminDashboard 
+            ? 'w-full h-screen rounded-none max-w-none' 
+            : 'w-full sm:max-w-md min-h-screen sm:min-h-[850px] sm:h-[850px] sm:rounded-[3rem]'
+        }
+      `}>
         
-        {/* Status Bar (Visual only) */}
-        <div className="h-safe-top w-full bg-transparent absolute top-0 z-50 pointer-events-none"></div>
+        {/* Status Bar (Visual only, hidden on admin) */}
+        {!isAdminDashboard && (
+            <div className="h-safe-top w-full bg-transparent absolute top-0 z-50 pointer-events-none"></div>
+        )}
 
         {/* Main Content Area */}
-        <div className="flex-1 overflow-y-auto no-scrollbar scroll-smooth relative bg-white">
+        <div className={`flex-1 relative bg-white ${isAdminDashboard ? 'overflow-hidden' : 'overflow-y-auto no-scrollbar scroll-smooth'}`}>
            {currentScreen === AppScreen.LOGIN && renderLogin()}
            {currentScreen === AppScreen.REGISTER && renderRegister()}
            {currentScreen === AppScreen.HOME && renderHome()}
@@ -1366,7 +1377,12 @@ const App: React.FC = () => {
            )}
            
            {currentScreen === AppScreen.ADMIN_DASHBOARD && (
-                <AdminDashboard transactions={transactions} onLogout={() => setCurrentScreen(AppScreen.LOGIN)} />
+                <AdminDashboard 
+                    transactions={transactions} 
+                    users={allUsers}
+                    onUpdateUsers={setAllUsers}
+                    onLogout={() => setCurrentScreen(AppScreen.LOGIN)} 
+                />
            )}
         </div>
 
